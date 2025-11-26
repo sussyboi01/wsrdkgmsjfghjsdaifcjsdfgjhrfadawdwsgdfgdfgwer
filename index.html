@@ -39,8 +39,12 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 
 <div class="sidebar" id="sidebar">
   <h1>Game Library</h1>
-  <h1 class="panic-note">Press CTRL+Q (both keys) for panic key</h1>
+  <h1 class="panic-note">Use the cache button to play games offline</h1>
   <input type="text" id="search" placeholder="Search games...">
+  <button id="cacheBtn" style="
+  background:#262650; border:none; border-radius:6px; padding:8px 0; margin-bottom:6px; width:100%; cursor:pointer; font-size:14px;
+">💾 Start Caching</button>
+<div id="cacheStatus" style="font-size:12px; color:#aaa; margin-bottom:10px;">(no cached files)</div>
   <div class="az-filter" id="azFilter"></div>
   <button id="favBtn">★ Favorites</button>
   <div id="gamesContainer">Loading games...</div>
@@ -271,6 +275,8 @@ function attach(files){
     };
   });
 
+  
+
   // Favorite toggle
   document.querySelectorAll(".star").forEach(s=>{
     s.onclick = e => {
@@ -297,6 +303,53 @@ function attach(files){
     };
   });
 }
+const cacheBtn = document.getElementById('cacheBtn');
+const cacheStatus = document.getElementById('cacheStatus');
+
+async function updateCacheStatus() {
+  if (!('caches' in window)) return;
+
+  const cacheNames = await caches.keys();
+  if (!cacheNames.includes('games-cache-v1')) {
+    cacheStatus.textContent = '(no cached files)';
+    return;
+  }
+
+  const cache = await caches.open('games-cache-v1');
+  const requests = await cache.keys();
+  cacheStatus.textContent = `Cached ${requests.length} files`;
+}
+
+// Initial status
+updateCacheStatus();
+
+// Button click
+cacheBtn.addEventListener('click', async () => {
+  if (!navigator.serviceWorker.controller) {
+    cacheStatus.textContent = 'Service Worker not ready yet. Reopen this.';
+    return;
+  }
+
+  // Tell SW to start caching
+  navigator.serviceWorker.controller.postMessage('start-cache');
+  cacheStatus.textContent = 'Caching started...';
+
+  // Update status in real-time
+  const interval = setInterval(async () => {
+    const cache = await caches.open('games-cache-v1');
+    const requests = await cache.keys();
+    cacheStatus.textContent = requests.length > 0 ? `Cached ${requests.length} files` : '(no cached files)';
+  }, 500);
+
+  // Stop interval when caching finishes (SW can send a "done" message)
+  navigator.serviceWorker.addEventListener('message', evt => {
+    if (evt.data && evt.data.done) {
+      clearInterval(interval);
+      cacheStatus.textContent += ' ✅ Caching complete';
+    }
+  });
+});
+
 
 // ----------------- A-Z and search -----------------
 function setupAZ(files){
