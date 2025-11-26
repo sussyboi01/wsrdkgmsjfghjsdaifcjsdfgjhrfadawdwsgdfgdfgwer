@@ -122,7 +122,7 @@ function formatName(name){
 // ----------------- Fetch games -----------------
 async function fetchGames(){
   try{
-    const res = await fetch("https://api.github.com/repos/Hexorod/adasdgtergscvbfr5etyrawdasdfegertawdA/git/trees/main?recursive=1");
+    const res = await fetch("https://api.github.com/repos/sussyboi01/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-/git/trees/main?recursive=1");
     const data = await res.json();
     const files = (data && data.tree) ? data.tree.filter(f=>f.path.endsWith(".html")) : [];
     renderGames(files);
@@ -185,7 +185,7 @@ function attach(files){
       if (newTab) {
         // Some browsers (Firefox) can be finicky about immediate document.write after open.
         // We'll prepare a full HTML and write it shortly after ensuring the tab exists.
-        const pageHTML = `
+       const pageHTML = `
 <!doctype html>
 <html lang="en">
 <head>
@@ -199,9 +199,25 @@ function attach(files){
   </style>
 </head>
 <body>
-  <iframe src="${url}" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+  <iframe
+    src="${url}"
+    allowfullscreen
+    allow="camera; microphone; autoplay; encrypted-media; picture-in-picture; clipboard-write; clipboard-read; display-capture; web-share; gamepad; geolocation; payment; midi; pointer-lock"
+    sandbox="
+      allow-same-origin
+      allow-scripts
+      allow-forms
+      allow-popups
+      allow-modals
+      allow-orientation-lock
+      allow-pointer-lock
+      allow-presentation
+      allow-downloads
+    "
+  ></iframe>
 </body>
 </html>`;
+
 
         try {
           // Make sure newTab is at about:blank (helps Firefox). Then write the HTML.
