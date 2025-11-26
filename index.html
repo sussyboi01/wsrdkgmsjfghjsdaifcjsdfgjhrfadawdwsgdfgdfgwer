@@ -48,7 +48,29 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 
 <div class="toggle-sidebar" id="toggleBtn">❮</div>
 <div class="content" id="content"><p style="color:#aaa;">Select a game from the sidebar.</p></div>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js')
+    .then(reg => {
+      console.log('Service Worker registered.');
 
+      // Tell the SW to start caching once ready
+      navigator.serviceWorker.ready.then(swReg => {
+        swReg.active?.postMessage('start-cache');
+      });
+
+      // Listen for progress messages from SW
+      navigator.serviceWorker.addEventListener('message', evt => {
+        const data = evt.data;
+        if (data.cached !== undefined) {
+          console.log(`Caching progress: ${data.cached}/${data.total}`);
+          // Optional: update UI progress bar
+        }
+      });
+    })
+    .catch(err => console.error('SW registration failed:', err));
+}
+</script>
 <script>
 /*
   Updated script:
