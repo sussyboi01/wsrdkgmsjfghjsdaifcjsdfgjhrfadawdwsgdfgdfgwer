@@ -39,12 +39,8 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 
 <div class="sidebar" id="sidebar">
   <h1>Game Library</h1>
-  <h1 class="panic-note">Use the cache button to play games offline</h1>
+  <h1 class="panic-note">Press CTRL+Q (both keys) for panic key</h1>
   <input type="text" id="search" placeholder="Search games...">
-  <button id="cacheBtn" style="
-  background:#262650; border:none; border-radius:6px; padding:8px 0; margin-bottom:6px; width:100%; cursor:pointer; font-size:14px;
-">💾 Start Caching</button>
-<div id="cacheStatus" style="font-size:12px; color:#aaa; margin-bottom:10px;">(no cached files)</div>
   <div class="az-filter" id="azFilter"></div>
   <button id="favBtn">★ Favorites</button>
   <div id="gamesContainer">Loading games...</div>
@@ -52,29 +48,7 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 
 <div class="toggle-sidebar" id="toggleBtn">❮</div>
 <div class="content" id="content"><p style="color:#aaa;">Select a game from the sidebar.</p></div>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js')
-    .then(reg => {
-      console.log('Service Worker registered.');
 
-      // Tell the SW to start caching once ready
-      navigator.serviceWorker.ready.then(swReg => {
-        swReg.active?.postMessage('start-cache');
-      });
-
-      // Listen for progress messages from SW
-      navigator.serviceWorker.addEventListener('message', evt => {
-        const data = evt.data;
-        if (data.cached !== undefined) {
-          console.log(`Caching progress: ${data.cached}/${data.total}`);
-          // Optional: update UI progress bar
-        }
-      });
-    })
-    .catch(err => console.error('SW registration failed:', err));
-}
-</script>
 <script>
 /*
   Updated script:
@@ -196,10 +170,10 @@ function attach(files){
   document.querySelectorAll(".full-btn").forEach(b=>{
     b.onclick = e => {
       const p = e.target.closest(".game-card").dataset.path;
-      const url = "https://hexorod.github.io/adasdgtergscvbfr5etyrawdasdfegertawdA/" + p;
+      const url = "https://sussyboi01.github.io/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-" + p;
 
       // Block attempts to open directly to killList from here as well
-      const killPrefixes = ["hexorod.github.io"];
+      const killPrefixes = ["sussyboi01.github.io"];
       if (killPrefixes.some(k => url.includes(k))) {
         // We still allow opening a sandboxed about:blank that contains only an iframe to that url,
         // but if you want to entirely block opening games from this host, uncomment the next lines:
@@ -211,7 +185,7 @@ function attach(files){
       if (newTab) {
         // Some browsers (Firefox) can be finicky about immediate document.write after open.
         // We'll prepare a full HTML and write it shortly after ensuring the tab exists.
-       const pageHTML = `
+        const pageHTML = `
 <!doctype html>
 <html lang="en">
 <head>
@@ -225,25 +199,9 @@ function attach(files){
   </style>
 </head>
 <body>
-  <iframe
-    src="${url}"
-    allowfullscreen
-    allow="camera; microphone; autoplay; encrypted-media; picture-in-picture; clipboard-write; clipboard-read; display-capture; web-share; gamepad; geolocation; payment; midi; pointer-lock"
-    sandbox="
-      allow-same-origin
-      allow-scripts
-      allow-forms
-      allow-popups
-      allow-modals
-      allow-orientation-lock
-      allow-pointer-lock
-      allow-presentation
-      allow-downloads
-    "
-  ></iframe>
+  <iframe src="${url}" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"></iframe>
 </body>
 </html>`;
-
 
         try {
           // Make sure newTab is at about:blank (helps Firefox). Then write the HTML.
@@ -275,8 +233,6 @@ function attach(files){
     };
   });
 
-  
-
   // Favorite toggle
   document.querySelectorAll(".star").forEach(s=>{
     s.onclick = e => {
@@ -303,53 +259,6 @@ function attach(files){
     };
   });
 }
-const cacheBtn = document.getElementById('cacheBtn');
-const cacheStatus = document.getElementById('cacheStatus');
-
-async function updateCacheStatus() {
-  if (!('caches' in window)) return;
-
-  const cacheNames = await caches.keys();
-  if (!cacheNames.includes('games-cache-v1')) {
-    cacheStatus.textContent = '(no cached files)';
-    return;
-  }
-
-  const cache = await caches.open('games-cache-v1');
-  const requests = await cache.keys();
-  cacheStatus.textContent = `Cached ${requests.length} files`;
-}
-
-// Initial status
-updateCacheStatus();
-
-// Button click
-cacheBtn.addEventListener('click', async () => {
-  if (!navigator.serviceWorker.controller) {
-    cacheStatus.textContent = 'Service Worker not ready yet. Reopen this.';
-    return;
-  }
-
-  // Tell SW to start caching
-  navigator.serviceWorker.controller.postMessage('start-cache');
-  cacheStatus.textContent = 'Caching started...';
-
-  // Update status in real-time
-  const interval = setInterval(async () => {
-    const cache = await caches.open('games-cache-v1');
-    const requests = await cache.keys();
-    cacheStatus.textContent = requests.length > 0 ? `Cached ${requests.length} files` : '(no cached files)';
-  }, 500);
-
-  // Stop interval when caching finishes (SW can send a "done" message)
-  navigator.serviceWorker.addEventListener('message', evt => {
-    if (evt.data && evt.data.done) {
-      clearInterval(interval);
-      cacheStatus.textContent += ' ✅ Caching complete';
-    }
-  });
-});
-
 
 // ----------------- A-Z and search -----------------
 function setupAZ(files){
