@@ -123,6 +123,7 @@ function formatName(name){
 async function fetchGames(){
   try{
     const res = await fetch("https://api.github.com/repos/sussyboi01/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-/git/trees/main?recursive=1");
+    console.log(res.status, res.statusText);
     const data = await res.json();
     const files = (data && data.tree) ? data.tree.filter(f=>f.path.endsWith(".html")) : [];
     renderGames(files);
