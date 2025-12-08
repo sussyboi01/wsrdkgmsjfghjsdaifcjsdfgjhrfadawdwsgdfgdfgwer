@@ -161,6 +161,24 @@ function card(f,img,isFav){
     </div>
   </div>`;
 }
+function attach(files){
+  // Fullscreen button removed — this function is now effectively empty
+  // You can still handle favorite-star toggles here if you like
+  document.querySelectorAll(".star").forEach(s => {
+    s.onclick = e => {
+      const p = e.target.closest(".game-card").dataset.path;
+      if(favorites.includes(p)){
+        favorites = favorites.filter(x => x !== p);
+        e.target.classList.add("off");
+      } else {
+        favorites.push(p);
+        e.target.classList.remove("off");
+      }
+      localStorage.setItem("favorites", JSON.stringify(favorites));
+      renderGames(files, null, document.getElementById("search").value.toLowerCase());
+    };
+  });
+}
 
 // ----------------- Attach events -----------------
   // Favorite toggle
