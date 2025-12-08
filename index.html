@@ -38,9 +38,8 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 <body>
 
 <div class="sidebar" id="sidebar">
-  <h1>Game Library</h1>
-  <h1 class="panic-note">Press CTRL+Q (both keys) for panic key</h1>
-  <input type="text" id="search" placeholder="Search games...">
+  <h1>mango games</h1>
+  <input type="text" id="search" placeholder="Search de games boi">
   <div class="az-filter" id="azFilter"></div>
   <button id="favBtn">★ Favorites</button>
   <div id="gamesContainer">Loading games...</div>
@@ -155,7 +154,6 @@ function card(f,img,isFav){
       <div class="game-title">${formatName(f.path)}<span class="star ${isFav?"":"off"}" title="Toggle favorite">★</span></div>
       <div class="button-row">
         <button class="play-btn">Play</button>
-        <button class="full-btn">Fullscreen</button>
       </div>
     </div>
   </div>`;
@@ -250,15 +248,36 @@ function attach(files){
   });
 
   // Play button (load in the content area iframe)
-  document.querySelectorAll(".play-btn").forEach(b=>{
-    b.onclick = e => {
-      const p = e.target.closest(".game-card").dataset.path;
-      const url = "https://sussyboi01.github.io/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-/" + p;
-      // load into content area iframe (iframe loading is explicitly allowed)
-      contentEl.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
-    };
-  });
-}
+document.querySelectorAll(".play-btn").forEach(b => {
+  b.onclick = e => {
+    const p = e.target.closest(".game-card").dataset.path;
+    const url = "https://sussyboi01.github.io/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-/" + p;
+
+    // Remove previous iframe if exists
+    const oldIframe = contentEl.querySelector("iframe");
+    if(oldIframe) oldIframe.remove();
+
+    // Create new iframe
+    const iframe = document.createElement("iframe");
+    iframe.src = url;
+    iframe.allow = "fullscreen; autoplay; camera; microphone; display-capture; gamepad; clipboard-write";
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "0";
+
+    contentEl.appendChild(iframe);
+
+    // Explicitly focus the iframe
+    iframe.tabIndex = 0;  // Make it focusable
+    iframe.focus();
+
+    // Refocus on click inside the iframe
+    iframe.addEventListener("load", () => {
+      try { iframe.contentWindow.focus(); } catch(e){}
+    });
+  };
+});
+
 
 // ----------------- A-Z and search -----------------
 function setupAZ(files){
