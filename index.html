@@ -68,11 +68,25 @@ let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
 let showOnlyFav = false;
 
 // ----------------- Sidebar toggle -----------------
+// ----------------- Sidebar toggle -----------------
 toggleBtn.onclick = () => {
   sidebar.classList.toggle("hidden");
   contentEl.classList.toggle("full");
   toggleBtn.style.left = sidebar.classList.contains("hidden") ? "0" : "362px";
   toggleBtn.textContent = sidebar.classList.contains("hidden") ? "❯" : "❮";
+
+  // --- NEW CODE: REFOCUS IFRAME ---
+  const iframe = contentEl.querySelector("iframe");
+  if (iframe) {
+    // We set a tiny timeout to let the CSS transition start/settle
+    // before snatching focus back
+    setTimeout(() => {
+        iframe.focus();
+        if (iframe.contentWindow) {
+            iframe.contentWindow.focus();
+        }
+    }, 50);
+  }
 };
 
 // ----------------- Utilities -----------------
