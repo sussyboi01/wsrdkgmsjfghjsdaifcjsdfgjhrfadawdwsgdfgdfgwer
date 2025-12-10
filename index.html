@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Google Docs</title>
-<link href="https://ssl.gstatic.com/docs/doclist/images/mediatype/icon_1_document_x16.png" rel="icon" type="image/x-icon">
+<link id="dynamicFavicon" href="https://ssl.gstatic.com/docs/doclist/images/mediatype/icon_1_document_x16.png" rel="icon" type="image/x-icon">
 <style>
 /* --- Core Layout --- */
 body { margin:0; font-family:"Segoe UI",sans-serif; background:#0d0d1a; color:white; height:100vh; overflow:hidden; }
 .full-btn {display: none;} 
 
 /* --- Sidebar --- */
-.sidebar { width:320px; background:#14142b; padding:20px; display:flex; flex-direction:column; overflow-y:auto; border-right:2px solid #252550; position:absolute; top:0; left:0; bottom:0; transition: transform 0.3s ease; z-index:11; }
+.sidebar { width:320px; background:#14142b; padding:20px; display:flex; flex-direction:column; overflow-y:auto; border-right:2px solid #252550; position:absolute; top:0; left:0; bottom:0; transition: transform 0.3s ease; z-index:2; }
 .sidebar.hidden { transform:translateX(-100%); }
 .sidebar h1 { font-size:22px; margin-bottom:10px; text-shadow:0 0 10px #5a5aff; }
 .sidebar h1.panic-note { font-size:12px; }
@@ -21,8 +21,13 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 .az-filter { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px; position:sticky; top:110px; background:#14142b; padding-top:5px; z-index:4; }
 .az-filter button { background:#262650; border:none; padding:4px 7px; border-radius:4px; cursor:pointer; font-size:12px; color:white; }
 .az-filter button:hover { background:#4f4f9e; }
+
 #favBtn { background:#262650; border:none; border-radius:6px; padding:6px 0; margin:6px 0 10px 0; width:100%; cursor:pointer; font-size:14px; }
 #favBtn:hover { background:#4f4f9e; }
+
+/* --- NEW: Settings Button --- */
+#settingsBtn { background:#3b3b5c; border:none; border-radius:6px; padding:8px 0; margin:0 0 10px 0; width:100%; cursor:pointer; font-size:14px; color: #ddd; display: flex; justify-content: center; align-items: center; gap: 6px; }
+#settingsBtn:hover { background:#5a5aff; color: white; }
 
 /* --- Games Grid --- */
 #gamesContainer { flex:1; overflow-y:auto; scrollbar-width:none; margin-top:5px; }
@@ -41,8 +46,7 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 .toggle-sidebar { position:absolute; top:50%; transform:translateY(-50%); background:#5a5aff; padding:8px; border-radius:0 8px 8px 0; cursor:pointer; font-size:18px; z-index:3; left:362px; transition:left 0.3s; }
 .toggle-sidebar:hover { background:#7474ff; }
 
-/* --- Content Area (FIXED) --- */
-/* Removed 'position: relative' which was causing the collapse */
+/* --- Content Area --- */
 .content { position:absolute; top:0; bottom:0; left:320px; right:0; transition:left 0.3s; }
 .content.full { left:0; }
 .content iframe { width:100%; height:100%; border:none; display: block; }
@@ -56,7 +60,7 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    z-index: 10;
+    z-index: 1; /* Behind sidebar */
     cursor: pointer;
     opacity: 0;
     pointer-events: none; 
@@ -70,6 +74,33 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 #focusOverlay h2 { margin: 0 0 10px 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; }
 #focusOverlay p { margin: 0; color: #aaa; }
 
+/* --- NEW: Settings Modal Styles --- */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  display: flex; justify-content: center; align-items: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  backdrop-filter: blur(3px);
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal-box {
+  background: #1b1b38; width: 300px; padding: 20px; border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+  border: 1px solid #252550;
+  position: relative;
+}
+.modal-box h2 { margin-top: 0; font-size: 18px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+.close-modal { position: absolute; top: 15px; right: 15px; cursor: pointer; color: #aaa; font-size: 20px; }
+.close-modal:hover { color: white; }
+.setting-item { margin-top: 15px; }
+.setting-item label { display: block; margin-bottom: 5px; font-size: 14px; color: #ccc; }
+.setting-item select {
+  width: 100%; padding: 8px; border-radius: 6px; border: none;
+  background: #262650; color: white; cursor: pointer;
+}
+.setting-item select:focus { outline: 2px solid #5a5aff; }
+
 </style>
 </head>
 <body>
@@ -79,6 +110,9 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
   <h1 class="panic-note">Press CTRL+Q (both keys) for panic key</h1>
   <input type="text" id="search" placeholder="Search games...">
   <div class="az-filter" id="azFilter"></div>
+  
+  <button id="settingsBtn">⚙ Settings</button>
+
   <button id="favBtn">★ Favorites</button>
   <div id="gamesContainer">Loading games...</div>
 </div>
@@ -94,6 +128,22 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
     </div>
 </div>
 
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-box">
+    <span class="close-modal" id="closeSettings">×</span>
+    <h2>Settings</h2>
+    
+    <div class="setting-item">
+      <label for="cloakSelect">Tab Cloak</label>
+      <select id="cloakSelect">
+        <option value="docs">Google Docs</option>
+        <option value="classroom">Google Classroom</option>
+        <option value="slides">Google Slides</option>
+      </select>
+    </div>
+  </div>
+</div>
+
 <script>
 const sidebar = document.getElementById("sidebar");
 const toggleBtn = document.getElementById("toggleBtn");
@@ -103,8 +153,65 @@ const favBtnEl = document.getElementById("favBtn");
 const focusOverlay = document.getElementById("focusOverlay");
 const placeholderText = document.getElementById("placeholderText");
 
+// Settings Elements
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsModal = document.getElementById("settingsModal");
+const closeSettings = document.getElementById("closeSettings");
+const cloakSelect = document.getElementById("cloakSelect");
+const dynamicFavicon = document.getElementById("dynamicFavicon");
+
 let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
 let showOnlyFav = false;
+
+// ----------------- Tab Cloak Logic -----------------
+const cloakData = {
+  "docs": {
+    title: "Google Docs",
+    icon: "https://ssl.gstatic.com/docs/doclist/images/mediatype/icon_1_document_x16.png"
+  },
+  "classroom": {
+    title: "Home",
+    icon: "https://ssl.gstatic.com/classroom/favicon.png"
+  },
+  "slides": {
+    title: "Google Slides",
+    icon: "https://ssl.gstatic.com/docs/presentations/images/favicon_2023q4.ico"
+  }
+};
+
+// Load saved cloak or default to Docs
+const savedCloak = localStorage.getItem("tabCloak") || "docs";
+cloakSelect.value = savedCloak;
+applyCloak(savedCloak);
+
+cloakSelect.onchange = (e) => {
+  const val = e.target.value;
+  applyCloak(val);
+  localStorage.setItem("tabCloak", val);
+};
+
+function applyCloak(type) {
+  const data = cloakData[type];
+  if (data) {
+    document.title = data.title;
+    dynamicFavicon.href = data.icon;
+  }
+}
+
+// ----------------- Settings Modal -----------------
+settingsBtn.onclick = () => {
+  settingsModal.classList.add("open");
+};
+closeSettings.onclick = () => {
+  settingsModal.classList.remove("open");
+};
+// Close if clicked outside the box
+settingsModal.onclick = (e) => {
+  if (e.target === settingsModal) {
+    settingsModal.classList.remove("open");
+  }
+};
+
 
 // ----------------- Overlay Logic -----------------
 function showFocusOverlay() {
