@@ -6,18 +6,25 @@
 <title>Google Docs</title>
 <link href="https://ssl.gstatic.com/docs/doclist/images/mediatype/icon_1_document_x16.png" rel="icon" type="image/x-icon">
 <style>
+/* --- Core Layout --- */
 body { margin:0; font-family:"Segoe UI",sans-serif; background:#0d0d1a; color:white; height:100vh; overflow:hidden; }
-.full-btn {display: none;}
+.full-btn {display: none;} /* Hidden per original code */
+
+/* --- Sidebar --- */
 .sidebar { width:320px; background:#14142b; padding:20px; display:flex; flex-direction:column; overflow-y:auto; border-right:2px solid #252550; position:absolute; top:0; left:0; bottom:0; transition: transform 0.3s ease; z-index:2; }
 .sidebar.hidden { transform:translateX(-100%); }
 .sidebar h1 { font-size:22px; margin-bottom:10px; text-shadow:0 0 10px #5a5aff; }
 .sidebar h1.panic-note { font-size:12px; }
-input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:10px; background:#1f1f3d; color:white; position:sticky; top:50px; z-index:5; }
+
+/* --- Inputs & Controls --- */
+input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:10px; background:#1f1f3d; color:white; position:sticky; top:50px; z-index:5; box-sizing: border-box; }
 .az-filter { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px; position:sticky; top:110px; background:#14142b; padding-top:5px; z-index:4; }
 .az-filter button { background:#262650; border:none; padding:4px 7px; border-radius:4px; cursor:pointer; font-size:12px; color:white; }
 .az-filter button:hover { background:#4f4f9e; }
 #favBtn { background:#262650; border:none; border-radius:6px; padding:6px 0; margin:6px 0 10px 0; width:100%; cursor:pointer; font-size:14px; }
 #favBtn:hover { background:#4f4f9e; }
+
+/* --- Games Grid --- */
 #gamesContainer { flex:1; overflow-y:auto; scrollbar-width:none; margin-top:5px; }
 #gamesContainer::-webkit-scrollbar { display:none; }
 .game-card { background:#1b1b38; border-radius:12px; margin-bottom:15px; overflow:hidden; box-shadow:0 3px 10px rgba(0,0,0,.3); }
@@ -29,11 +36,40 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 .button-row { display:flex; gap:8px; justify-content:center; }
 .button-row button { background:#5a5aff; border:none; padding:7px 11px; border-radius:6px; color:white; cursor:pointer; font-size:14px; }
 .button-row button:hover { background:#7878ff; }
+
+/* --- Toggle Button --- */
 .toggle-sidebar { position:absolute; top:50%; transform:translateY(-50%); background:#5a5aff; padding:8px; border-radius:0 8px 8px 0; cursor:pointer; font-size:18px; z-index:3; left:362px; transition:left 0.3s; }
 .toggle-sidebar:hover { background:#7474ff; }
-.content { position:absolute; top:0; bottom:0; left:320px; right:0; transition:left 0.3s; }
+
+/* --- Content Area --- */
+.content { position:absolute; top:0; bottom:0; left:320px; right:0; transition:left 0.3s; position:relative; }
 .content.full { left:0; }
-.content iframe { width:100%; height:100%; border:none; }
+.content iframe { width:100%; height:100%; border:none; display: block; }
+
+/* --- NEW: Focus Overlay Styles --- */
+#focusOverlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 10;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none; /* Initially hidden interaction */
+    transition: opacity 0.2s;
+    backdrop-filter: blur(2px);
+}
+/* Class to make it visible */
+#focusOverlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+#focusOverlay h2 { margin: 0 0 10px 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; }
+#focusOverlay p { margin: 0; color: #aaa; }
+
 </style>
 </head>
 <body>
@@ -48,46 +84,61 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 </div>
 
 <div class="toggle-sidebar" id="toggleBtn">❮</div>
-<div class="content" id="content"><p style="color:#aaa;">Select a game from the sidebar.</p></div>
+
+<div class="content" id="content">
+    <p id="placeholderText" style="color:#aaa; padding:20px;">Select a game from the sidebar.</p>
+    
+    <div id="focusOverlay">
+        <h2>Paused</h2>
+        <p>Click here to resume game</p>
+    </div>
+</div>
 
 <script>
-/*
-  Updated script:
-  - Blocks / auto-closes popups or redirects that begin with sussyboi01.github.io (unless inside an iframe)
-  - Keeps iframe behavior unchanged
-  - Uses a Firefox/Edge-friendly approach to create a fullscreen about:blank tab with an iframe
-*/
-
 const sidebar = document.getElementById("sidebar");
 const toggleBtn = document.getElementById("toggleBtn");
 const gamesContainerEl = document.getElementById("gamesContainer");
 const contentEl = document.getElementById("content");
 const favBtnEl = document.getElementById("favBtn");
+const focusOverlay = document.getElementById("focusOverlay");
+const placeholderText = document.getElementById("placeholderText");
 
 let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
 let showOnlyFav = false;
 
-// ----------------- Sidebar toggle -----------------
+// ----------------- Overlay Logic -----------------
+function showFocusOverlay() {
+    // Only show if there is actually a game (iframe) loaded
+    if(contentEl.querySelector("iframe")) {
+        focusOverlay.classList.add("active");
+    }
+}
+
+function hideFocusOverlay() {
+    focusOverlay.classList.remove("active");
+    const iframe = contentEl.querySelector("iframe");
+    if(iframe) {
+        iframe.focus();
+        if(iframe.contentWindow) iframe.contentWindow.focus();
+    }
+}
+
+// Clicking the overlay resumes the game
+focusOverlay.onclick = hideFocusOverlay;
+
 // ----------------- Sidebar toggle -----------------
 toggleBtn.onclick = () => {
   sidebar.classList.toggle("hidden");
   contentEl.classList.toggle("full");
   toggleBtn.style.left = sidebar.classList.contains("hidden") ? "0" : "362px";
   toggleBtn.textContent = sidebar.classList.contains("hidden") ? "❯" : "❮";
-
-  // --- NEW CODE: REFOCUS IFRAME ---
-  const iframe = contentEl.querySelector("iframe");
-  if (iframe) {
-    // We set a tiny timeout to let the CSS transition start/settle
-    // before snatching focus back
-    setTimeout(() => {
-        iframe.focus();
-        if (iframe.contentWindow) {
-            iframe.contentWindow.focus();
-        }
-    }, 50);
-  }
+  
+  // Triggers the overlay so user knows to click back
+  showFocusOverlay();
 };
+
+// Also trigger overlay if user searches (typing steals focus)
+document.getElementById("search").addEventListener("focus", showFocusOverlay);
 
 // ----------------- Utilities -----------------
 function formatName(name){
@@ -101,11 +152,7 @@ function formatName(name){
 
 // ----------------- Redirect / Popup guard -----------------
 (function(){
-  // Strings to watch for. If a popup/tab navigates to a URL that includes any of these,
-  // it will be closed automatically (unless it's an iframe in a parent document).
   const killList = ["sussyboi01.github.io", "https://sussyboi01.github.io", "http://sussyboi01.github.io"];
-
-  // Wrap window.open in this page so attempts to open directly to sussyboi01 are blocked.
   const origOpen = window.open.bind(window);
   window.open = function(url, target, features){
     try {
@@ -113,24 +160,18 @@ function formatName(name){
         console.warn("Blocked popup opening to:", url);
         return null;
       }
-    } catch (e) { /* ignore */ }
+    } catch (e) { }
     return origOpen(url, target, features);
   };
-
-  // Periodically check if the current top-level window has been redirected to a killList URL.
-  // If so, close the window/tab. We only attempt to close when window.top === window.self
-  // (i.e. not inside an iframe).
   setInterval(() => {
     try {
       if (window.top === window.self) {
         const href = location.href || "";
         if (killList.some(k => href.includes(k))) {
-          // Attempt to close the window/tab (works for popups or same-origin navigations).
-          console.warn("Detected unwanted redirect to:", href, " — closing.");
-          try { window.close(); } catch (e) { /* ignore */ }
+          try { window.close(); } catch (e) { }
         }
       }
-    } catch (e) { /* cross-origin issues — ignore */ }
+    } catch (e) { }
   }, 400);
 })();
 
@@ -138,7 +179,6 @@ function formatName(name){
 async function fetchGames(){
   try{
     const res = await fetch("https://api.github.com/repos/sussyboi01/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-/git/trees/main?recursive=1");
-    console.log(res.status, res.statusText);
     const data = await res.json();
     const files = (data && data.tree) ? data.tree.filter(f=>f.path.endsWith(".html")) : [];
     renderGames(files);
@@ -176,14 +216,19 @@ function card(f,img,isFav){
     </div>
   </div>`;
 }
+
 function attach(files){
-  // Play button
   document.querySelectorAll(".play-btn").forEach(b => {
     b.onclick = e => {
       const p = e.target.closest(".game-card").dataset.path;
       const url = "https://sussyboi01.github.io/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-/" + p;
 
-      contentEl.innerHTML = ""; // clear old iframe
+      // Remove placeholder text if it exists
+      if(placeholderText) placeholderText.style.display = "none";
+      
+      // Clean up existing iframe if any
+      const existingIframe = contentEl.querySelector("iframe");
+      if(existingIframe) existingIframe.remove();
 
       const iframe = document.createElement("iframe");
       iframe.src = url;
@@ -193,26 +238,15 @@ function attach(files){
       iframe.style.border = "0";
       iframe.tabIndex = 0;
 
-      contentEl.appendChild(iframe);
+      // Insert iframe BEFORE the overlay, so the overlay sits on top
+      contentEl.insertBefore(iframe, focusOverlay);
 
-      setTimeout(() => {
-        try {
-          iframe.focus();
-          iframe.contentWindow.focus();
-        } catch(e){}
-      }, 50);
-
-      iframe.addEventListener("load", () => {
-        try { iframe.contentWindow.focus(); } catch(e){}
-      });
+      // Auto-hide overlay and focus when game loads initially
+      hideFocusOverlay(); 
     };
   });
-}
-
-
-
-// ----------------- Attach events -----------------
-  // Favorite toggle
+  
+  // Favorite toggle logic
   document.querySelectorAll(".star").forEach(s=>{
     s.onclick = e => {
       const p = e.target.closest(".game-card").dataset.path;
@@ -224,12 +258,12 @@ function attach(files){
         e.target.classList.remove("off");
       }
       localStorage.setItem("favorites", JSON.stringify(favorites));
-      renderGames(files, null, document.getElementById("search").value.toLowerCase());
+      // Re-render but try to keep scroll position or state if possible (simple re-render here)
+      const currentSearch = document.getElementById("search").value.toLowerCase();
+      renderGames(files, null, currentSearch);
     };
   });
-
-  // Play button (load in the content area iframe)
-
+}
 
 // ----------------- A-Z and search -----------------
 function setupAZ(files){
