@@ -143,7 +143,6 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
     </div>
   </div>
 </div>
-
 <script>
 const sidebar = document.getElementById("sidebar");
 const toggleBtn = document.getElementById("toggleBtn");
@@ -153,7 +152,6 @@ const favBtnEl = document.getElementById("favBtn");
 const focusOverlay = document.getElementById("focusOverlay");
 const placeholderText = document.getElementById("placeholderText");
 
-// Settings Elements
 const settingsBtn = document.getElementById("settingsBtn");
 const settingsModal = document.getElementById("settingsModal");
 const closeSettings = document.getElementById("closeSettings");
@@ -163,7 +161,9 @@ const dynamicFavicon = document.getElementById("dynamicFavicon");
 let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
 let showOnlyFav = false;
 
-// ----------------- Tab Cloak Logic -----------------
+const CDN_BASE = "https://cdn.jsdelivr.net/gh/sussyboi01/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-@refs/heads/main/";
+
+// ----------------- Tab Cloak -----------------
 const cloakData = {
   "docs": {
     title: "Google Docs",
@@ -179,202 +179,188 @@ const cloakData = {
   }
 };
 
-// Load saved cloak or default to Docs
 const savedCloak = localStorage.getItem("tabCloak") || "docs";
 cloakSelect.value = savedCloak;
 applyCloak(savedCloak);
 
-cloakSelect.onchange = (e) => {
-  const val = e.target.value;
-  applyCloak(val);
-  localStorage.setItem("tabCloak", val);
+cloakSelect.onchange = e => {
+  const type = e.target.value;
+  applyCloak(type);
+  localStorage.setItem("tabCloak", type);
 };
 
 function applyCloak(type) {
-  const data = cloakData[type];
-  if (data) {
-    document.title = data.title;
-    dynamicFavicon.href = data.icon;
-  }
+  document.title = cloakData[type].title;
+  dynamicFavicon.href = cloakData[type].icon;
 }
 
 // ----------------- Settings Modal -----------------
-settingsBtn.onclick = () => {
-  settingsModal.classList.add("open");
-};
-closeSettings.onclick = () => {
-  settingsModal.classList.remove("open");
-};
-// Close if clicked outside the box
-settingsModal.onclick = (e) => {
-  if (e.target === settingsModal) {
-    settingsModal.classList.remove("open");
-  }
-};
+settingsBtn.onclick = () => settingsModal.classList.add("open");
+closeSettings.onclick = () => settingsModal.classList.remove("open");
+settingsModal.onclick = e => { if (e.target === settingsModal) settingsModal.classList.remove("open"); };
 
-
-// ----------------- Overlay Logic -----------------
+// ----------------- Focus Overlay -----------------
 function showFocusOverlay() {
-    if(contentEl.querySelector("iframe")) {
-        focusOverlay.classList.add("active");
-    }
+  if (contentEl.querySelector("iframe")) {
+    focusOverlay.classList.add("active");
+  }
 }
 
 function hideFocusOverlay() {
-    focusOverlay.classList.remove("active");
-    const iframe = contentEl.querySelector("iframe");
-    if(iframe) {
-        iframe.focus();
-        if(iframe.contentWindow) iframe.contentWindow.focus();
-    }
+  focusOverlay.classList.remove("active");
+  const iframe = contentEl.querySelector("iframe");
+  if (iframe) {
+    iframe.focus();
+    if (iframe.contentWindow) iframe.contentWindow.focus();
+  }
 }
 
 focusOverlay.onclick = hideFocusOverlay;
 
-// ----------------- Sidebar toggle -----------------
+// ----------------- Sidebar Toggle -----------------
 toggleBtn.onclick = () => {
   sidebar.classList.toggle("hidden");
   contentEl.classList.toggle("full");
   toggleBtn.style.left = sidebar.classList.contains("hidden") ? "0" : "362px";
   toggleBtn.textContent = sidebar.classList.contains("hidden") ? "❯" : "❮";
-  
   showFocusOverlay();
 };
 
-document.getElementById("search").addEventListener("focus", showFocusOverlay);
-
 // ----------------- Utilities -----------------
-function formatName(name){
-  return name.replace(".html","")
-             .replace(/^cl/,"")
-             .replace(/[-_]/g," ")
-             .replace(/([a-z])([A-Z])/g,"$1 $2")
-             .trim()
-             .replace(/^./, c => c.toUpperCase());
+function formatName(name) {
+  return name
+    .replace(".html", "")
+    .replace(/^cl/, "")
+    .replace(/[-_]/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .trim()
+    .replace(/^./, c => c.toUpperCase());
 }
 
-// ----------------- Redirect / Popup guard -----------------
-(function(){
-  const killList = ["sussyboi01.github.io", "https://sussyboi01.github.io", "http://sussyboi01.github.io"];
-  const origOpen = window.open.bind(window);
-  window.open = function(url, target, features){
-    try {
-      if (typeof url === "string" && killList.some(k => url.includes(k))) {
-        console.warn("Blocked popup opening to:", url);
-        return null;
-      }
-    } catch (e) { }
-    return origOpen(url, target, features);
-  };
-  setInterval(() => {
-    try {
-      if (window.top === window.self) {
-        const href = location.href || "";
-        if (killList.some(k => href.includes(k))) {
-          try { window.close(); } catch (e) { }
-        }
-      }
-    } catch (e) { }
-  }, 400);
-})();
-
-// ----------------- Fetch games -----------------
-async function fetchGames(){
-  try{
+// ----------------- Fetch game list -----------------
+async function fetchGames() {
+  try {
     const res = await fetch("https://api.github.com/repos/sussyboi01/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-/git/trees/main?recursive=1");
     const data = await res.json();
-    const files = (data && data.tree) ? data.tree.filter(f=>f.path.endsWith(".html")) : [];
+    const files = data.tree.filter(f => f.path.endsWith(".html"));
     renderGames(files);
     setupAZ(files);
-  }catch(err){
-    gamesContainerEl.innerHTML="<p style='color:red;'>Failed to load games.</p>";
+  } catch (err) {
+    gamesContainerEl.innerHTML = "<p style='color:red;'>Failed to load games.</p>";
     console.error(err);
   }
 }
 
-// ----------------- Render / Card -----------------
-function renderGames(files, letter=null, search=""){
-  const img="https://pbs.twimg.com/media/Ggj70WPXcAAV1L9.jpg:small";
-  let list = files.filter(f=>{
-    const t=formatName(f.path);
-    if(letter && !t.toLowerCase().startsWith(letter)) return false;
-    if(showOnlyFav && !favorites.includes(f.path)) return false;
-    if(search && !t.toLowerCase().includes(search)) return false;
+// ----------------- Rewrite URLs for CDN -----------------
+function rewriteHTML(html, prefix) {
+  return html
+    .replace(/src="\.\/?/g, `src="${prefix}`)
+    .replace(/href="\.\/?/g, `href="${prefix}`)
+    .replace(/url\(['"]?\.\//g, `url('${prefix}`);
+}
+
+// ----------------- Load game using srcdoc -----------------
+async function loadGame(path) {
+  const cdnURL = CDN_BASE + path;
+
+  try {
+    const raw = await fetch(cdnURL).then(r => r.text());
+    const folder = path.split("/").slice(0, -1).join("/") + "/";
+    const prefix = CDN_BASE + folder;
+    const html = rewriteHTML(raw, prefix);
+
+    placeholderText.style.display = "none";
+
+    const existing = contentEl.querySelector("iframe");
+    if (existing) existing.remove();
+
+    const iframe = document.createElement("iframe");
+    iframe.srcdoc = html;
+    iframe.allow = "fullscreen; autoplay; camera; microphone; display-capture; gamepad; clipboard-write";
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "0";
+    iframe.tabIndex = 0;
+
+    contentEl.insertBefore(iframe, focusOverlay);
+    hideFocusOverlay();
+  } catch (e) {
+    console.error("Failed to load game:", e);
+    alert("Failed to load game.");
+  }
+}
+
+// ----------------- Render Games -----------------
+function renderGames(files, letter = null, search = "") {
+  const img = "https://pbs.twimg.com/media/Ggj70WPXcAAV1L9.jpg:small";
+
+  let list = files.filter(f => {
+    const t = formatName(f.path);
+    if (letter && !t.toLowerCase().startsWith(letter)) return false;
+    if (showOnlyFav && !favorites.includes(f.path)) return false;
+    if (search && !t.toLowerCase().includes(search)) return false;
     return true;
   });
-  let html = list.map(f=>card(f,img,favorites.includes(f.path))).join("") || "<p style='padding:12px;color:#999;'>No games found.</p>";
-  gamesContainerEl.innerHTML=html;
+
+  let html = list.map(f => card(f, img, favorites.includes(f.path))).join("") ||
+    "<p style='padding:12px;color:#999;'>No games found.</p>";
+
+  gamesContainerEl.innerHTML = html;
   attach(files);
 }
 
-function card(f,img,isFav){
+function card(f, img, isFav) {
   return `<div class="game-card" data-path="${f.path}">
     <img src="${img}">
     <div class="game-info">
-      <div class="game-title">${formatName(f.path)}<span class="star ${isFav?"":"off"}" title="Toggle favorite">★</span></div>
-      <div class="button-row">
-        <button class="play-btn">Play</button>
-        <button class="full-btn"></button>
-      </div>
+      <div class="game-title">${formatName(f.path)}<span class="star ${isFav ? "" : "off"}">★</span></div>
+      <div class="button-row"><button class="play-btn">Play</button></div>
     </div>
   </div>`;
 }
 
-function attach(files){
+// ----------------- Attach Event Listeners -----------------
+function attach(files) {
   document.querySelectorAll(".play-btn").forEach(b => {
     b.onclick = e => {
       const p = e.target.closest(".game-card").dataset.path;
-      const url = "https://sussyboi01.github.io/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-/" + p;
-
-      if(placeholderText) placeholderText.style.display = "none";
-      
-      const existingIframe = contentEl.querySelector("iframe");
-      if(existingIframe) existingIframe.remove();
-
-      const iframe = document.createElement("iframe");
-      iframe.src = url;
-      iframe.allow = "fullscreen; autoplay; camera; microphone; display-capture; gamepad; clipboard-write";
-      iframe.style.width = "100%";
-      iframe.style.height = "100%";
-      iframe.style.border = "0";
-      iframe.tabIndex = 0;
-
-      contentEl.insertBefore(iframe, focusOverlay);
-
-      hideFocusOverlay(); 
+      loadGame(p);
     };
   });
-  
-  document.querySelectorAll(".star").forEach(s=>{
+
+  document.querySelectorAll(".star").forEach(s => {
     s.onclick = e => {
       const p = e.target.closest(".game-card").dataset.path;
-      if(favorites.includes(p)){
-        favorites = favorites.filter(x=>x!==p);
+      if (favorites.includes(p)) {
+        favorites = favorites.filter(x => x !== p);
         e.target.classList.add("off");
       } else {
         favorites.push(p);
         e.target.classList.remove("off");
       }
       localStorage.setItem("favorites", JSON.stringify(favorites));
-      const currentSearch = document.getElementById("search").value.toLowerCase();
-      renderGames(files, null, currentSearch);
+      renderGames(files, null, document.getElementById("search").value.toLowerCase());
     };
   });
 }
 
-// ----------------- A-Z and search -----------------
-function setupAZ(files){
-  const letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-  document.getElementById("azFilter").innerHTML=`<button>All</button>`+letters.map(l=>`<button>${l}</button>`).join("");
-  document.querySelectorAll(".az-filter button").forEach(b=>{
+// ----------------- A-Z & Search -----------------
+function setupAZ(files) {
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  document.getElementById("azFilter").innerHTML =
+    `<button>All</button>` + letters.map(l => `<button>${l}</button>`).join("");
+
+  document.querySelectorAll(".az-filter button").forEach(b => {
     b.onclick = () => {
       const l = b.textContent.toLowerCase();
-      renderGames(files, l==="all"?null:l, document.getElementById("search").value.toLowerCase());
+      renderGames(files, l === "all" ? null : l, document.getElementById("search").value.toLowerCase());
     };
   });
+
   document.getElementById("search").oninput = e => {
     renderGames(files, null, e.target.value.toLowerCase());
   };
+
   favBtnEl.onclick = () => {
     showOnlyFav = !showOnlyFav;
     favBtnEl.style.background = showOnlyFav ? "#5a5aff" : "#262650";
@@ -382,11 +368,10 @@ function setupAZ(files){
   };
 }
 
-// ----------------- Panic key (CTRL+Q) -----------------
-document.addEventListener("keydown", e=>{
-  if(e.ctrlKey && e.key.toLowerCase()==="q"){
-    const url="https://classroom.google.com";
-    window.open(url,"_blank");
+// ----------------- Panic Key -----------------
+document.addEventListener("keydown", e => {
+  if (e.ctrlKey && e.key.toLowerCase() === "q") {
+    window.open("https://classroom.google.com", "_blank");
   }
 });
 
