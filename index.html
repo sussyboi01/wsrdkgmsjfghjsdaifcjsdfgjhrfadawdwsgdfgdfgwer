@@ -72,6 +72,81 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 #focusOverlay.active { opacity: 1; pointer-events: auto; }
 #focusOverlay h2 { margin:0 0 10px 0; font-size:24px; text-transform: uppercase; letter-spacing:2px; }
 #focusOverlay p { margin:0; color:#aaa; }
+/* CUSTOM URL THEMED DIALOG */
+#customDialog {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+#customDialog.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.custom-dialog-box {
+  background: #1b1b38;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #5a5aff;
+  width: 320px;
+  text-align: center;
+}
+
+#customDialogMessage {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #ddd;
+}
+
+#customDialogInput {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  background: #262650;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.custom-dialog-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.custom-dialog-buttons button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#customDialogCancel {
+  background: #555;
+  color: white;
+}
+
+#customDialogCancel:hover {
+  background: #777;
+}
+
+#customDialogOk {
+  background: #5a5aff;
+  color: white;
+}
+
+#customDialogOk:hover {
+  background: #7878ff;
+}
 
 /* --- Settings Modal --- */
 .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); z-index:100; display:flex; justify-content:center; align-items:center; opacity:0; pointer-events:none; transition:opacity 0.2s; backdrop-filter: blur(3px);}
@@ -139,6 +214,17 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
       </select>
     </div>
 
+  </div>
+</div>
+<!-- CUSTOM URL INPUT DIALOG (THEMED) -->
+<div id="customDialog" class="custom-dialog-hidden">
+  <div class="custom-dialog-box">
+    <div id="customDialogMessage">Enter your custom image URL</div>
+    <input id="customDialogInput" type="text" placeholder="https://example.com/image.png">
+    <div class="custom-dialog-buttons">
+      <button id="customDialogCancel">Cancel</button>
+      <button id="customDialogOk">Save</button>
+    </div>
   </div>
 </div>
 
@@ -221,43 +307,79 @@ applyPlaceholderIcon(bgSelect.value);
 // Save current files globally so renderGames can access them
 let currentFiles = []; // will be populated after fetchGames
 
+const customDialog = document.getElementById("customDialog");
+const customDialogInput = document.getElementById("customDialogInput");
+const customDialogOk = document.getElementById("customDialogOk");
+const customDialogCancel = document.getElementById("customDialogCancel");
+
 bgSelect.onchange = (e) => {
     const choice = e.target.value;
 
     if (choice === "custom") {
-        const url = prompt("Enter a valid image URL:");
-        if (url) {
-            const imgTest = new Image();
-            imgTest.onload = () => {
-                localStorage.setItem("customPlaceholder", url); // save custom URL
-                localStorage.setItem("placeholderIcon", "custom");
-                applyPlaceholderIcon("custom");
-
-                // Refresh game cards dynamically
-                renderGames(currentFiles, null, document.getElementById("search").value.toLowerCase());
-            };
-            imgTest.onerror = () => {
-                showAlert("Invalid image URL. Please enter a direct link to an image.");
-                bgSelect.value = localStorage.getItem("placeholderIcon") || "kai"; // revert
-            };
-            imgTest.src = url;
-        } else {
-            bgSelect.value = localStorage.getItem("placeholderIcon") || "kai"; // revert if canceled
-        }
+        // Show custom dialog
+        customDialogInput.value = localStorage.getItem("customPlaceholder") || "";
+        customDialog.classList.add("show");
     } else {
         localStorage.setItem("placeholderIcon", choice);
         applyPlaceholderIcon(choice);
-
-        // Refresh game cards dynamically
         renderGames(currentFiles, null, document.getElementById("search").value.toLowerCase());
     }
 };
 
+customDialogCancel.onclick = () => {
+    customDialog.classList.remove("show");
+    bgSelect.value = localStorage.getItem("placeholderIcon") || "kai";
+};
+
+customDialogOk.onclick = () => {
+    const url = customDialogInput.value.trim();
+    if(!url){
+        showAlert("boi do real image");
+        return;
+    }
+
+    const imgTest = new Image();
+    imgTest.onload = () => {
+        // Save custom URL
+        localStorage.setItem("customPlaceholder", url);
+
+        // Apply immediately
+        applyPlaceholderIcon("custom");
+
+        // Re-render games so cards update
+        renderGames(currentFiles, null, document.getElementById("search").value.toLowerCase());
+
+        customDialog.classList.remove("show");
+    };
+    imgTest.onerror = () => showAlert("you sussy ts aint valid");
+    imgTest.src = url;
+};
+
+
 
 function applyPlaceholderIcon(choice) {
-    const url = choice === "custom" ? placeholderImages.custom : placeholderImages[choice];
-    if (url) placeholderImg.src = url;
+    let url;
+    if (choice === "custom") {
+        url = localStorage.getItem("customPlaceholder");
+    } else {
+        url = placeholderImages[choice];
+    }
+
+    if (!url) return;
+
+    // Update main placeholder image
+    placeholderImg.src = url;
+
+    // Update all game card images dynamically
+    document.querySelectorAll(".game-card img").forEach(img => {
+        img.src = url;
+    });
+
+    // Save current selection
+    localStorage.setItem("placeholderIcon", choice);
+    bgSelect.value = choice;
 }
+
 
 // --- Utilities ---
 function formatName(name){ return name.replace(".html.gz","").replace(/^cl/,"").replace(/[-_]/g," ").replace(/([a-z])([A-Z])/g,"$1 $2").trim().replace(/^./,c=>c.toUpperCase()); }
