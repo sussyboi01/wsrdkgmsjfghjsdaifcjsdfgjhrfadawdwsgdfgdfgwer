@@ -25,9 +25,18 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 #favBtn { background:#262650; border:none; border-radius:6px; padding:6px 0; margin:6px 0 10px 0; width:100%; cursor:pointer; font-size:14px; }
 #favBtn:hover { background:#4f4f9e; }
 
-/* --- NEW: Settings Button --- */
+/* --- Settings Button --- */
 #settingsBtn { background:#3b3b5c; border:none; border-radius:6px; padding:8px 0; margin:0 0 10px 0; width:100%; cursor:pointer; font-size:14px; color: #ddd; display: flex; justify-content: center; align-items: center; gap: 6px; }
 #settingsBtn:hover { background:#5a5aff; color: white; }
+
+/* --- Game Placeholder --- */
+#gamePlaceholder {
+    position:absolute; top:0; left:0; width:100%; height:100%; 
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    background:#0d0d1a; z-index:0; text-align:center;
+}
+#gamePlaceholder img { width:200px; height:200px; object-fit:contain; margin-bottom:20px; }
+#gamePlaceholder p { color:#aaa; font-size:20px; }
 
 /* --- Games Grid --- */
 #gamesContainer { flex:1; overflow-y:auto; scrollbar-width:none; margin-top:5px; }
@@ -49,79 +58,58 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 /* --- Content Area --- */
 .content { position:absolute; top:0; bottom:0; left:320px; right:0; transition:left 0.3s; }
 .content.full { left:0; }
-.content iframe { width:100%; height:100%; border:none; display: block; }
+.content iframe { width:100%; height:100%; border:none; display:block; }
 
-/* --- Focus Overlay Styles --- */
+/* --- Focus Overlay --- */
 #focusOverlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    z-index: 1; /* Behind sidebar */
-    cursor: pointer;
-    opacity: 0;
-    pointer-events: none; 
-    transition: opacity 0.2s;
-    backdrop-filter: blur(2px);
+    background: rgba(0,0,0,0.7);
+    display: flex; justify-content: center; align-items: center; flex-direction: column;
+    z-index: 1; cursor: pointer; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s; backdrop-filter: blur(2px);
 }
-#focusOverlay.active {
-    opacity: 1;
-    pointer-events: auto;
-}
-#focusOverlay h2 { margin: 0 0 10px 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; }
-#focusOverlay p { margin: 0; color: #aaa; }
+#focusOverlay.active { opacity: 1; pointer-events: auto; }
+#focusOverlay h2 { margin:0 0 10px 0; font-size:24px; text-transform: uppercase; letter-spacing:2px; }
+#focusOverlay p { margin:0; color:#aaa; }
 
-/* --- NEW: Settings Modal Styles --- */
-.modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 100;
-  display: flex; justify-content: center; align-items: center;
-  opacity: 0; pointer-events: none; transition: opacity 0.2s;
-  backdrop-filter: blur(3px);
-}
-.modal-overlay.open { opacity: 1; pointer-events: auto; }
-.modal-box {
-  background: #1b1b38; width: 300px; padding: 20px; border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-  border: 1px solid #252550;
-  position: relative;
-}
-.modal-box h2 { margin-top: 0; font-size: 18px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-.close-modal { position: absolute; top: 15px; right: 15px; cursor: pointer; color: #aaa; font-size: 20px; }
-.close-modal:hover { color: white; }
-.setting-item { margin-top: 15px; }
-.setting-item label { display: block; margin-bottom: 5px; font-size: 14px; color: #ccc; }
-.setting-item select {
-  width: 100%; padding: 8px; border-radius: 6px; border: none;
-  background: #262650; color: white; cursor: pointer;
-}
-.setting-item select:focus { outline: 2px solid #5a5aff; }
+/* --- Settings Modal --- */
+.modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); z-index:100; display:flex; justify-content:center; align-items:center; opacity:0; pointer-events:none; transition:opacity 0.2s; backdrop-filter: blur(3px);}
+.modal-overlay.open { opacity:1; pointer-events:auto; }
+.modal-box { background:#1b1b38; width:300px; padding:20px; border-radius:12px; box-shadow:0 5px 20px rgba(0,0,0,0.5); border:1px solid #252550; position:relative; }
+.modal-box h2 { margin-top:0; font-size:18px; border-bottom:1px solid #333; padding-bottom:10px; }
+.close-modal { position:absolute; top:15px; right:15px; cursor:pointer; color:#aaa; font-size:20px; }
+.close-modal:hover { color:white; }
+.setting-item { margin-top:15px; }
+.setting-item label { display:block; margin-bottom:5px; font-size:14px; color:#ccc; }
+.setting-item select { width:100%; padding:8px; border-radius:6px; border:none; background:#262650; color:white; cursor:pointer; }
+.setting-item select:focus { outline:2px solid #5a5aff; }
 
+/* --- Custom Alert --- */
+#customAlert { position: fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#1b1b38; border:2px solid #5a5aff; border-radius:12px; padding:20px; z-index:9999; color:white; display:none; min-width:250px; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
+#customAlert button { margin-top:15px; padding:6px 12px; border:none; border-radius:6px; background:#5a5aff; color:white; cursor:pointer; }
+#customAlert button:hover { background:#7878ff; }
 </style>
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
-  <h1>Game Library</h1>
-  <h1 class="panic-note">Press CTRL+Q (both keys) for panic key</h1>
-  <input type="text" id="search" placeholder="Search games...">
-  <div class="az-filter" id="azFilter"></div>
-  
-  <button id="settingsBtn">⚙ Settings</button>
-
-  <button id="favBtn">★ Favorites</button>
-  <div id="gamesContainer">Loading games...</div>
+    <h1>Game Library</h1>
+    <h1 class="panic-note">Press CTRL+Q (both keys) for panic key</h1>
+    <input type="text" id="search" placeholder="Search games...">
+    <div class="az-filter" id="azFilter"></div>
+    <button id="settingsBtn">⚙ Settings</button>
+    <button id="favBtn">★ Favorites</button>
+    <div id="gamesContainer">Loading games...</div>
 </div>
 
 <div class="toggle-sidebar" id="toggleBtn">❮</div>
 
 <div class="content" id="content">
-    <p id="placeholderText" style="color:#aaa; padding:20px;">Select a game from the sidebar.</p>
-    
+    <div id="gamePlaceholder">
+        <img id="placeholderImg" src="https://pbs.twimg.com/media/Ggj70WPXcAAV1L9.jpg:small" alt="Select a game">
+        <p id="placeholderTextMsg">boii select a gameeee</p>
+    </div>
     <div id="focusOverlay">
         <h2>Paused</h2>
         <p>Click here to resume game</p>
@@ -132,7 +120,6 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
   <div class="modal-box">
     <span class="close-modal" id="closeSettings">×</span>
     <h2>Settings</h2>
-    
     <div class="setting-item">
       <label for="cloakSelect">Tab Cloak</label>
       <select id="cloakSelect">
@@ -141,8 +128,26 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
         <option value="slides">Google Slides</option>
       </select>
     </div>
+        <!-- Add to Settings Modal below the Tab Cloak -->
+    <div class="setting-item">
+      <label for="bgSelect">Background Image</label>
+      <select id="bgSelect">
+        <option value="kai">Kai with Dog</option>
+        <option value="mango">Mango</option>
+        <option value="boi">Boi</option>
+        <option value="custom">Custom URL</option>
+      </select>
+    </div>
+
   </div>
 </div>
+
+<div id="customAlert">
+  <p id="alertMessage"></p>
+  <button onclick="closeAlert()">OK</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 <script>
 const sidebar = document.getElementById("sidebar");
 const toggleBtn = document.getElementById("toggleBtn");
@@ -150,7 +155,9 @@ const gamesContainerEl = document.getElementById("gamesContainer");
 const contentEl = document.getElementById("content");
 const favBtnEl = document.getElementById("favBtn");
 const focusOverlay = document.getElementById("focusOverlay");
-const placeholderText = document.getElementById("placeholderText");
+const gamePlaceholder = document.getElementById("gamePlaceholder");
+const placeholderImg = document.getElementById("placeholderImg");
+const placeholderTextMsg = document.getElementById("placeholderTextMsg");
 
 const settingsBtn = document.getElementById("settingsBtn");
 const settingsModal = document.getElementById("settingsModal");
@@ -158,223 +165,276 @@ const closeSettings = document.getElementById("closeSettings");
 const cloakSelect = document.getElementById("cloakSelect");
 const dynamicFavicon = document.getElementById("dynamicFavicon");
 
+const customAlertEl = document.getElementById("customAlert");
+const alertMessageEl = document.getElementById("alertMessage");
+
 let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
 let showOnlyFav = false;
+const CDN_BASE = "https://cdn.jsdelivr.net/gh/sussyboi01/iofjasiojfiowdjfoasiofjasiojsfajgtgjksjaklj9furjslfgoejaisjsilvergiggle@refs/heads/main/";
 
-const CDN_BASE = "https://cdn.jsdelivr.net/gh/sussyboi01/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-@refs/heads/main/";
+// --- Custom Alert ---
+function showAlert(message){ alertMessageEl.textContent = message; customAlertEl.style.display = "block"; }
+function closeAlert(){ customAlertEl.style.display = "none"; }
 
-// ----------------- Tab Cloak -----------------
+// --- Tab Cloak ---
 const cloakData = {
-  "docs": {
-    title: "Google Docs",
-    icon: "https://ssl.gstatic.com/docs/doclist/images/mediatype/icon_1_document_x16.png"
-  },
-  "classroom": {
-    title: "Home",
-    icon: "https://ssl.gstatic.com/classroom/favicon.png"
-  },
-  "slides": {
-    title: "Google Slides",
-    icon: "https://ssl.gstatic.com/docs/presentations/images/favicon_2023q4.ico"
-  }
+    docs:{title:"Google Docs",icon:"https://ssl.gstatic.com/docs/doclist/images/mediatype/icon_1_document_x16.png"},
+    classroom:{title:"Home",icon:"https://ssl.gstatic.com/classroom/favicon.png"},
+    slides:{title:"Google Slides",icon:"https://ssl.gstatic.com/docs/presentations/images/favicon_2023q4.ico"}
 };
-
 const savedCloak = localStorage.getItem("tabCloak") || "docs";
-cloakSelect.value = savedCloak;
-applyCloak(savedCloak);
+cloakSelect.value = savedCloak; applyCloak(savedCloak);
+cloakSelect.onchange = e => { const type=e.target.value; applyCloak(type); localStorage.setItem("tabCloak",type); };
+function applyCloak(type){ document.title = cloakData[type].title; dynamicFavicon.href = cloakData[type].icon; }
 
-cloakSelect.onchange = e => {
-  const type = e.target.value;
-  applyCloak(type);
-  localStorage.setItem("tabCloak", type);
-};
-
-function applyCloak(type) {
-  document.title = cloakData[type].title;
-  dynamicFavicon.href = cloakData[type].icon;
-}
-
-// ----------------- Settings Modal -----------------
+// --- Settings Modal ---
 settingsBtn.onclick = () => settingsModal.classList.add("open");
 closeSettings.onclick = () => settingsModal.classList.remove("open");
-settingsModal.onclick = e => { if (e.target === settingsModal) settingsModal.classList.remove("open"); };
+settingsModal.onclick = e => { if(e.target===settingsModal) settingsModal.classList.remove("open"); };
 
-// ----------------- Focus Overlay -----------------
-function showFocusOverlay() {
-  if (contentEl.querySelector("iframe")) {
-    focusOverlay.classList.add("active");
-  }
-}
-
-function hideFocusOverlay() {
-  focusOverlay.classList.remove("active");
-  const iframe = contentEl.querySelector("iframe");
-  if (iframe) {
-    iframe.focus();
-    if (iframe.contentWindow) iframe.contentWindow.focus();
-  }
-}
-
+// --- Focus Overlay ---
+function showFocusOverlay(){ if(contentEl.querySelector("iframe")) focusOverlay.classList.add("active"); }
+function hideFocusOverlay(){ focusOverlay.classList.remove("active"); const iframe=contentEl.querySelector("iframe"); if(iframe && iframe.contentWindow) iframe.contentWindow.focus(); }
 focusOverlay.onclick = hideFocusOverlay;
 
-// ----------------- Sidebar Toggle -----------------
+// --- Sidebar Toggle ---
 toggleBtn.onclick = () => {
-  sidebar.classList.toggle("hidden");
-  contentEl.classList.toggle("full");
-  toggleBtn.style.left = sidebar.classList.contains("hidden") ? "0" : "362px";
-  toggleBtn.textContent = sidebar.classList.contains("hidden") ? "❯" : "❮";
-  showFocusOverlay();
+    sidebar.classList.toggle("hidden"); 
+    contentEl.classList.toggle("full"); 
+    toggleBtn.style.left = sidebar.classList.contains("hidden") ? "0" : "362px"; 
+    toggleBtn.textContent = sidebar.classList.contains("hidden") ? "❯" : "❮"; 
+    showFocusOverlay();
+};
+// --- Game Placeholder Icon Setting ---
+const bgSelect = document.getElementById("bgSelect");
+const placeholderImages = {
+	kai: "https://pbs.twimg.com/media/Ggj70WPXcAAV1L9.jpg:small",
+    mango: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpRNEYxLc84WINOIz3wOMxkc0sg85Qy3qWew&s",
+    boi: "https://preview.redd.it/imp-mimicking-the-spongebob-boi-meme-made-by-me-v0-395mkl35dom81.jpg?width=640&crop=smart&auto=webp&s=03469888e80a5f3e61b85a866b7e31c9da3638e3",
 };
 
-// ----------------- Utilities -----------------
-function formatName(name) {
-  return name
-    .replace(".html", "")
-    .replace(/^cl/, "")
-    .replace(/[-_]/g, " ")
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
-    .trim()
-    .replace(/^./, c => c.toUpperCase());
+// Load saved icon from localStorage
+let savedIcon = localStorage.getItem("placeholderIcon") || "kai";
+bgSelect.value = localStorage.getItem("placeholderIcon") || "kai";
+applyPlaceholderIcon(bgSelect.value);
+
+// Save current files globally so renderGames can access them
+let currentFiles = []; // will be populated after fetchGames
+
+bgSelect.onchange = (e) => {
+    const choice = e.target.value;
+
+    if (choice === "custom") {
+        const url = prompt("Enter a valid image URL:");
+        if (url) {
+            const imgTest = new Image();
+            imgTest.onload = () => {
+                localStorage.setItem("customPlaceholder", url); // save custom URL
+                localStorage.setItem("placeholderIcon", "custom");
+                applyPlaceholderIcon("custom");
+
+                // Refresh game cards dynamically
+                renderGames(currentFiles, null, document.getElementById("search").value.toLowerCase());
+            };
+            imgTest.onerror = () => {
+                showAlert("Invalid image URL. Please enter a direct link to an image.");
+                bgSelect.value = localStorage.getItem("placeholderIcon") || "kai"; // revert
+            };
+            imgTest.src = url;
+        } else {
+            bgSelect.value = localStorage.getItem("placeholderIcon") || "kai"; // revert if canceled
+        }
+    } else {
+        localStorage.setItem("placeholderIcon", choice);
+        applyPlaceholderIcon(choice);
+
+        // Refresh game cards dynamically
+        renderGames(currentFiles, null, document.getElementById("search").value.toLowerCase());
+    }
+};
+
+
+function applyPlaceholderIcon(choice) {
+    const url = choice === "custom" ? placeholderImages.custom : placeholderImages[choice];
+    if (url) placeholderImg.src = url;
 }
 
-// ----------------- Fetch game list -----------------
-async function fetchGames() {
-  try {
-    const res = await fetch("https://api.github.com/repos/sussyboi01/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-/git/trees/main?recursive=1");
-    const data = await res.json();
-    const files = data.tree.filter(f => f.path.endsWith(".html"));
-    renderGames(files);
-    setupAZ(files);
-  } catch (err) {
-    gamesContainerEl.innerHTML = "<p style='color:red;'>Failed to load games.</p>";
-    console.error(err);
-  }
+// --- Utilities ---
+function formatName(name){ return name.replace(".html.gz","").replace(/^cl/,"").replace(/[-_]/g," ").replace(/([a-z])([A-Z])/g,"$1 $2").trim().replace(/^./,c=>c.toUpperCase()); }
+
+// --- Placeholders ---
+function showInitialPlaceholder() {
+    const savedIcon = localStorage.getItem("placeholderIcon") || "kai";
+    const url = savedIcon === "custom" ? localStorage.getItem("customPlaceholder") : placeholderImages[savedIcon];
+    placeholderImg.src = url || placeholderImages.kai;
+    placeholderTextMsg.textContent = "boii select a gameeee";
+    gamePlaceholder.style.display = "flex";
 }
 
-// ----------------- Rewrite URLs for CDN -----------------
-function rewriteHTML(html, prefix) {
-  return html
-    .replace(/src="\.\/?/g, `src="${prefix}`)
-    .replace(/href="\.\/?/g, `href="${prefix}`)
-    .replace(/url\(['"]?\.\//g, `url('${prefix}`);
+function showLoadingPlaceholder() {
+    const savedIcon = localStorage.getItem("placeholderIcon") || "kai";
+    const url = savedIcon === "custom" ? localStorage.getItem("customPlaceholder") : placeholderImages[savedIcon];
+    placeholderImg.src = url || placeholderImages.kai;
+    placeholderTextMsg.textContent = "boii game hasn't load yet be patient blud";
+    gamePlaceholder.style.display = "flex";
 }
 
-// ----------------- Load game using srcdoc -----------------
+function hidePlaceholder() {
+    gamePlaceholder.style.display = "none";
+}
+
+
+// --- Rewrite relative URLs in HTML ---
+function rewriteHTML(html,prefix){
+    return html.replace(/src="\.\/?/g,`src="${prefix}`)
+               .replace(/href="\.\/?/g,`href="${prefix}`)
+               .replace(/url\(['"]?\.\//g,`url('${prefix}`);
+}
+
+let currentIframe = null; // reuse iframe
+
 async function loadGame(path) {
-  const cdnURL = CDN_BASE + path;
+    showLoadingPlaceholder(); // show correct icon immediately
 
-  try {
-    const raw = await fetch(cdnURL).then(r => r.text());
-    const folder = path.split("/").slice(0, -1).join("/") + "/";
-    const prefix = CDN_BASE + folder;
-    const html = rewriteHTML(raw, prefix);
+    // --- Remove previous iframe completely ---
+    if (currentIframe) {
+        currentIframe.src = "about:blank";
+        currentIframe.remove();
+        currentIframe = null;
+    }
 
-    placeholderText.style.display = "none";
-
-    const existing = contentEl.querySelector("iframe");
-    if (existing) existing.remove();
-
+    // --- Create new iframe ---
     const iframe = document.createElement("iframe");
-    iframe.srcdoc = html;
-    iframe.allow = "fullscreen; autoplay; camera; microphone; display-capture; gamepad; clipboard-write";
     iframe.style.width = "100%";
     iframe.style.height = "100%";
-    iframe.style.border = "0";
-    iframe.tabIndex = 0;
+    iframe.style.border = "none";
+    iframe.src = "about:blank";
+    contentEl.innerHTML = "";
+    contentEl.appendChild(iframe);
+    currentIframe = iframe;
 
-    contentEl.insertBefore(iframe, focusOverlay);
-    hideFocusOverlay();
-  } catch (e) {
-    console.error("Failed to load game:", e);
-    alert("Failed to load game.");
-  }
+    try {
+        // --- Fetch and decompress ---
+        const res = await fetch(CDN_BASE + path);
+        const compressed = new Uint8Array(await res.arrayBuffer());
+        const htmlString = pako.ungzip(compressed, { to: 'string' });
+        const fixedHTML = rewriteHTML(htmlString, CDN_BASE);
+
+        // --- Write content into iframe ---
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        doc.open();
+        doc.write(fixedHTML);
+        doc.close();
+
+        // --- Memory cleanup ---
+        for (let i = 0; i < compressed.length; i++) compressed[i] = 0; // zero out compressed array
+        // dereference decompressed strings
+        requestAnimationFrame(() => {
+            htmlString = null;
+        });
+
+        // --- Load handler ---
+        iframe.onload = () => {
+            hidePlaceholder();
+            iframe.contentWindow.focus();
+            console.log(`Game "${path}" fully loaded!`);
+        };
+
+        // Trigger manually if onload doesn't fire
+        iframe.onload();
+
+    } catch(err) {
+        console.error(err);
+        showAlert("Failed to load game.");
+        hidePlaceholder();
+    }
 }
 
-// ----------------- Render Games -----------------
+
+
+// --- Render Games ---
 function renderGames(files, letter = null, search = "") {
-  const img = "https://pbs.twimg.com/media/Ggj70WPXcAAV1L9.jpg:small";
+    // Use the current placeholder image dynamically
+    const img = placeholderImg.src; // always matches main placeholder
 
-  let list = files.filter(f => {
-    const t = formatName(f.path);
-    if (letter && !t.toLowerCase().startsWith(letter)) return false;
-    if (showOnlyFav && !favorites.includes(f.path)) return false;
-    if (search && !t.toLowerCase().includes(search)) return false;
-    return true;
-  });
+    // Filter games
+    const list = files.filter(f => {
+        const t = formatName(f.path);
+        if (letter && !t.toLowerCase().startsWith(letter)) return false;
+        if (showOnlyFav && !favorites.includes(f.path)) return false;
+        if (search && !t.toLowerCase().includes(search)) return false;
+        return true;
+    });
+    currentFiles = files;
+    // Render cards
+    const html = list.map(f => `
+        <div class="game-card" data-path="${f.path}">
+            <img src="${img}" style="width:100%; height:160px; object-fit:contain;">
+            <div class="game-info">
+                <div class="game-title">
+                    ${formatName(f.path)}<span class="star ${favorites.includes(f.path) ? "" : "off"}">★</span>
+                </div>
+                <div class="button-row"><button class="play-btn">Play</button></div>
+            </div>
+        </div>
+    `).join("") || "<p style='padding:12px;color:#999;'>No games found.</p>";
 
-  let html = list.map(f => card(f, img, favorites.includes(f.path))).join("") ||
-    "<p style='padding:12px;color:#999;'>No games found.</p>";
-
-  gamesContainerEl.innerHTML = html;
-  attach(files);
+    gamesContainerEl.innerHTML = html;
+    attach(files); // Reattach button events
 }
 
-function card(f, img, isFav) {
-  return `<div class="game-card" data-path="${f.path}">
-    <img src="${img}">
-    <div class="game-info">
-      <div class="game-title">${formatName(f.path)}<span class="star ${isFav ? "" : "off"}">★</span></div>
-      <div class="button-row"><button class="play-btn">Play</button></div>
-    </div>
-  </div>`;
+
+
+
+function card(f,img,isFav){
+    return `<div class="game-card" data-path="${f.path}">
+        <img src="${img}">
+        <div class="game-info">
+            <div class="game-title">${formatName(f.path)}<span class="star ${isFav?"":"off"}">★</span></div>
+            <div class="button-row"><button class="play-btn">Play</button></div>
+        </div>
+    </div>`;
+}
+function attach(files){
+    document.querySelectorAll(".play-btn").forEach(b=>b.onclick=e=>{
+        const p=e.target.closest(".game-card").dataset.path;
+        loadGame(p);
+    });
+    document.querySelectorAll(".star").forEach(s=>s.onclick=e=>{
+        const p=e.target.closest(".game-card").dataset.path;
+        if(favorites.includes(p)){ favorites=favorites.filter(x=>x!==p); s.classList.add("off"); }
+        else { favorites.push(p); s.classList.remove("off"); }
+        localStorage.setItem("favorites",JSON.stringify(favorites));
+        renderGames(files,null,document.getElementById("search").value.toLowerCase());
+    });
 }
 
-// ----------------- Attach Event Listeners -----------------
-function attach(files) {
-  document.querySelectorAll(".play-btn").forEach(b => {
-    b.onclick = e => {
-      const p = e.target.closest(".game-card").dataset.path;
-      loadGame(p);
-    };
-  });
-
-  document.querySelectorAll(".star").forEach(s => {
-    s.onclick = e => {
-      const p = e.target.closest(".game-card").dataset.path;
-      if (favorites.includes(p)) {
-        favorites = favorites.filter(x => x !== p);
-        e.target.classList.add("off");
-      } else {
-        favorites.push(p);
-        e.target.classList.remove("off");
-      }
-      localStorage.setItem("favorites", JSON.stringify(favorites));
-      renderGames(files, null, document.getElementById("search").value.toLowerCase());
-    };
-  });
+// --- A-Z & Search ---
+function setupAZ(files){
+    const letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    document.getElementById("azFilter").innerHTML=`<button>All</button>` + letters.map(l=>`<button>${l}</button>`).join("");
+    document.querySelectorAll(".az-filter button").forEach(b=>b.onclick=()=>{ 
+        const l=b.textContent.toLowerCase(); 
+        renderGames(files,l==="all"?null:l,document.getElementById("search").value.toLowerCase()); 
+    });
+    document.getElementById("search").oninput=e=>renderGames(files,null,e.target.value.toLowerCase());
+    favBtnEl.onclick=()=>{ showOnlyFav=!showOnlyFav; favBtnEl.style.background=showOnlyFav?"#5a5aff":"#262650"; renderGames(files,null,document.getElementById("search").value.toLowerCase()); };
 }
 
-// ----------------- A-Z & Search -----------------
-function setupAZ(files) {
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-  document.getElementById("azFilter").innerHTML =
-    `<button>All</button>` + letters.map(l => `<button>${l}</button>`).join("");
-
-  document.querySelectorAll(".az-filter button").forEach(b => {
-    b.onclick = () => {
-      const l = b.textContent.toLowerCase();
-      renderGames(files, l === "all" ? null : l, document.getElementById("search").value.toLowerCase());
-    };
-  });
-
-  document.getElementById("search").oninput = e => {
-    renderGames(files, null, e.target.value.toLowerCase());
-  };
-
-  favBtnEl.onclick = () => {
-    showOnlyFav = !showOnlyFav;
-    favBtnEl.style.background = showOnlyFav ? "#5a5aff" : "#262650";
-    renderGames(files, null, document.getElementById("search").value.toLowerCase());
-  };
+// --- Fetch Games ---
+async function fetchGames(){
+    try{
+        const res = await fetch("https://api.github.com/repos/sussyboi01/iofjasiojfiowdjfoasiofjasiojsfajgtgjksjaklj9furjslfgoejaisjsilvergiggle/git/trees/main?recursive=1");
+        const data = await res.json();
+        const files = data.tree.filter(f=>f.path.endsWith(".html.gz"));
+        if(files.length===0){ gamesContainerEl.innerHTML="<p style='color:#999;padding:12px;'>No games found.</p>"; return; }
+        renderGames(files);
+        setupAZ(files);
+    }catch(err){ gamesContainerEl.innerHTML="<p style='color:red;'>Failed to load games.</p>"; console.error(err); showAlert("Failed to fetch game list."); }
 }
 
-// ----------------- Panic Key -----------------
-document.addEventListener("keydown", e => {
-  if (e.ctrlKey && e.key.toLowerCase() === "q") {
-    window.open("https://classroom.google.com", "_blank");
-  }
-});
-
+// --- Init ---
+showInitialPlaceholder();
 fetchGames();
 </script>
 </body>
