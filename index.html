@@ -15,6 +15,42 @@ body { margin:0; font-family:"Segoe UI",sans-serif; background:#0d0d1a; color:wh
 .sidebar.hidden { transform:translateX(-100%); }
 .sidebar h1 { font-size:22px; margin-bottom:10px; text-shadow:0 0 10px #5a5aff; }
 .sidebar h1.panic-note { font-size:12px; }
+/* --- Add this to your CSS --- */
+/* --- Content Area --- */
+.content { position:absolute; top:0; bottom:0; left:320px; right:0; transition:left 0.3s; }
+.content.full { left:0; }
+.content iframe { width:100%; height:100%; border:none; display:block; }
+
+/* --- Simple Focus Overlay --- */
+/* This is a transparent layer that sits on top when the game is not focused.
+   Clicking it gives focus back to the game. */
+#focusOverlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Slight dark tint so you know it's paused */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    cursor: pointer;
+    display: none; /* Hidden by default */
+}
+
+/* Only show when active */
+#focusOverlay.active {
+    display: flex;
+}
+
+#focusOverlay h2 {
+    color: white; 
+    font-size: 20px; 
+    pointer-events: none; /* Let clicks pass through text */
+    user-select: none;
+    text-shadow: 0 2px 5px black;
+}
+
+#focusOverlay p { display: none; } /* Hide the subtitle */
 
 /* --- Inputs & Controls --- */
 input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:10px; background:#1f1f3d; color:white; position:sticky; top:50px; z-index:5; box-sizing: border-box; }
@@ -55,23 +91,6 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 .toggle-sidebar { position:absolute; top:50%; transform:translateY(-50%); background:#5a5aff; padding:8px; border-radius:0 8px 8px 0; cursor:pointer; font-size:18px; z-index:3; left:362px; transition:left 0.3s; }
 .toggle-sidebar:hover { background:#7474ff; }
 
-/* --- Content Area --- */
-.content { position:absolute; top:0; bottom:0; left:320px; right:0; transition:left 0.3s; }
-.content.full { left:0; }
-.content iframe { width:100%; height:100%; border:none; display:block; }
-
-/* --- Focus Overlay --- */
-#focusOverlay {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7);
-    display: flex; justify-content: center; align-items: center; flex-direction: column;
-    z-index: 1; cursor: pointer; opacity: 0; pointer-events: none;
-    transition: opacity 0.2s; backdrop-filter: blur(2px);
-}
-#focusOverlay.active { opacity: 1; pointer-events: auto; }
-#focusOverlay h2 { margin:0 0 10px 0; font-size:24px; text-transform: uppercase; letter-spacing:2px; }
-#focusOverlay p { margin:0; color:#aaa; }
 /* CUSTOM URL THEMED DIALOG */
 #customDialog {
   position: fixed;
@@ -186,10 +205,10 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
         <p id="placeholderTextMsg">boii select a gameeee</p>
     </div>
     <div id="focusOverlay">
-        <h2>Paused</h2>
-        <p>Click here to resume game</p>
+        <h2>Click to Resume</h2>
+        <p>Subtitle Hidden</p>
     </div>
-</div>
+    </div>
 
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-box">
@@ -203,8 +222,7 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
         <option value="slides">Google Slides</option>
       </select>
     </div>
-        <!-- Add to Settings Modal below the Tab Cloak -->
-    <div class="setting-item">
+        <div class="setting-item">
       <label for="bgSelect">Background Image</label>
       <select id="bgSelect">
         <option value="kai">Kai with Dog</option>
@@ -216,7 +234,6 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
 
   </div>
 </div>
-<!-- CUSTOM URL INPUT DIALOG (THEMED) -->
 <div id="customDialog" class="custom-dialog-hidden">
   <div class="custom-dialog-box">
     <div id="customDialogMessage">Enter your custom image URL</div>
@@ -240,7 +257,7 @@ const toggleBtn = document.getElementById("toggleBtn");
 const gamesContainerEl = document.getElementById("gamesContainer");
 const contentEl = document.getElementById("content");
 const favBtnEl = document.getElementById("favBtn");
-const focusOverlay = document.getElementById("focusOverlay");
+const focusOverlay = document.getElementById("focusOverlay"); // This now correctly selects the element
 const gamePlaceholder = document.getElementById("gamePlaceholder");
 const placeholderImg = document.getElementById("placeholderImg");
 const placeholderTextMsg = document.getElementById("placeholderTextMsg");
@@ -278,10 +295,6 @@ settingsBtn.onclick = () => settingsModal.classList.add("open");
 closeSettings.onclick = () => settingsModal.classList.remove("open");
 settingsModal.onclick = e => { if(e.target===settingsModal) settingsModal.classList.remove("open"); };
 
-// --- Focus Overlay ---
-function showFocusOverlay(){ if(contentEl.querySelector("iframe")) focusOverlay.classList.add("active"); }
-function hideFocusOverlay(){ focusOverlay.classList.remove("active"); const iframe=contentEl.querySelector("iframe"); if(iframe && iframe.contentWindow) iframe.contentWindow.focus(); }
-focusOverlay.onclick = hideFocusOverlay;
 
 // --- Sidebar Toggle ---
 toggleBtn.onclick = () => {
@@ -289,12 +302,12 @@ toggleBtn.onclick = () => {
     contentEl.classList.toggle("full"); 
     toggleBtn.style.left = sidebar.classList.contains("hidden") ? "0" : "362px"; 
     toggleBtn.textContent = sidebar.classList.contains("hidden") ? "❯" : "❮"; 
-    showFocusOverlay();
+    // The simple focus system will automatically pause/show overlay if the iframe loses focus
 };
 // --- Game Placeholder Icon Setting ---
 const bgSelect = document.getElementById("bgSelect");
 const placeholderImages = {
-	kai: "https://pbs.twimg.com/media/Ggj70WPXcAAV1L9.jpg:small",
+    kai: "https://pbs.twimg.com/media/Ggj70WPXcAAV1L9.jpg:small",
     mango: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpRNEYxLc84WINOIz3wOMxkc0sg85Qy3qWew&s",
     boi: "https://preview.redd.it/imp-mimicking-the-spongebob-boi-meme-made-by-me-v0-395mkl35dom81.jpg?width=640&crop=smart&auto=webp&s=03469888e80a5f3e61b85a866b7e31c9da3638e3",
 };
@@ -416,64 +429,123 @@ function rewriteHTML(html,prefix){
 let currentIframe = null; // reuse iframe
 
 async function loadGame(path) {
-    showLoadingPlaceholder(); // show correct icon immediately
+    showLoadingPlaceholder();
 
-    // --- Remove previous iframe completely ---
+    // 1. Cleanup old iframe
     if (currentIframe) {
-        currentIframe.src = "about:blank";
         currentIframe.remove();
         currentIframe = null;
     }
 
-    // --- Create new iframe ---
+    // 2. Create new iframe
     const iframe = document.createElement("iframe");
     iframe.style.width = "100%";
     iframe.style.height = "100%";
     iframe.style.border = "none";
     iframe.src = "about:blank";
-    iframe.allow = "fullscreen; autoplay; camera; microphone; display-capture; gamepad; clipboard-write";
+    iframe.sandbox = "allow-scripts allow-same-origin allow-pointer-lock";
+    iframe.id = "gameFrame";
+    
+    // Allow Fullscreen and Pointer Lock API
+    // Add 'gamepad' permission to allow the Gamepad API to work inside the iframe.
+    iframe.allow = "fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture; xr-spatial-tracking; pointer-lock";
     iframe.tabIndex = 0;
-    contentEl.innerHTML = "";
+
+    contentEl.innerHTML = ""; // Clear content (including placeholder)
     contentEl.appendChild(iframe);
+    contentEl.appendChild(gamePlaceholder); // Re-add placeholder (hidden for now)
+    contentEl.appendChild(focusOverlay); // Re-add the overlay element
     currentIframe = iframe;
 
     try {
-        // --- Fetch and decompress ---
         const res = await fetch(CDN_BASE + path);
-        const compressed = new Uint8Array(await res.arrayBuffer());
-        const htmlString = pako.ungzip(compressed, { to: 'string' });
-        const fixedHTML = rewriteHTML(htmlString, CDN_BASE);
+        
+        // --- ERROR CHECK: Don't unzip if file is missing (404) ---
+        if (!res.ok) {
+            throw new Error(`Game file not found (${res.status})`);
+        }
 
-        // --- Write content into iframe ---
+        const compressed = new Uint8Array(await res.arrayBuffer());
+        let htmlString = pako.ungzip(compressed, { to: "string" });
+        htmlString = rewriteHTML(htmlString, CDN_BASE);
+
         const doc = iframe.contentDocument || iframe.contentWindow.document;
         doc.open();
-        doc.write(fixedHTML);
+        doc.write(htmlString);
         doc.close();
 
-        // --- Memory cleanup ---
-        for (let i = 0; i < compressed.length; i++) compressed[i] = 0; // zero out compressed array
-        // dereference decompressed strings
-        requestAnimationFrame(() => {
-            htmlString = null;
-        });
+        compressed.fill(0); // Clear memory
+        htmlString = null;
 
-        // --- Load handler ---
-        iframe.onload = () => {
-            hidePlaceholder();
-            iframe.contentWindow.focus();
-            console.log(`Game "${path}" fully loaded!`);
-        };
+        // --- SIMPLE FOCUS LOGIC ---
+        // 1. Focus immediately so keyboard works right away
+        iframe.contentWindow.focus();
+        
+        // 2. Setup the "Click to Refocus" handler
+        setupSimpleFocus(iframe);
 
-        // Trigger manually if onload doesn't fire
-        iframe.onload();
-
-    } catch(err) {
-        console.error(err);
-        showAlert("Failed to load game.");
         hidePlaceholder();
+    } catch (err) {
+        console.error("Load Error:", err);
+        // Alert the user so they know why it's stuck
+        showAlert("Failed to load game: " + err.message);
+        showInitialPlaceholder(); // Show initial placeholder on failure
     }
 }
 
+function setupSimpleFocus(iframe) {
+    const overlay = document.getElementById("focusOverlay");
+    const overlayText = overlay.querySelector("h2");
+    
+    // Set simple text
+    overlayText.textContent = "Click to Resume";
+
+    const showOverlay = () => {
+        // Only show if we aren't already showing it
+        overlay.classList.add("active");
+    };
+
+    const hideOverlayAndFocus = () => {
+        overlay.classList.remove("active");
+        
+        // FORCE FOCUS
+        iframe.contentWindow.focus();
+        iframe.focus();
+    };
+
+    // 1. Detect if the user clicks AWAY from the game (Blur)
+    if (iframe.contentWindow) {
+        iframe.contentWindow.addEventListener("blur", () => {
+            // Wait a tiny bit to see if focus actually left the game
+            setTimeout(() => {
+                if (document.activeElement !== iframe) {
+                    showOverlay();
+                }
+            }, 100);
+        });
+        
+        // If the game manages to get focus internally, hide overlay
+        iframe.contentWindow.addEventListener("focus", () => {
+            overlay.classList.remove("active");
+        });
+    }
+
+    // 2. When user clicks the overlay, give focus back to game
+    overlay.onclick = (e) => {
+        e.stopPropagation();
+        hideOverlayAndFocus();
+    };
+    
+    // Cleanup function (Important for removing old event listeners when a new game loads)
+    if(iframe.cleanupFocus) iframe.cleanupFocus(); 
+    iframe.cleanupFocus = () => {
+        if (iframe.contentWindow) {
+             iframe.contentWindow.removeEventListener("blur", showOverlay);
+             iframe.contentWindow.removeEventListener("focus", hideOverlayAndFocus);
+        }
+        overlay.onclick = null;
+    };
+}
 
 
 // --- Render Games ---
@@ -533,34 +605,7 @@ function attach(files){
     });
 }
 // --- Pause on iframe blur ---
-document.addEventListener("visibilitychange", () => {
-    if(document.hidden) showFocusOverlay();
-});
 
-window.addEventListener("blur", () => {
-    showFocusOverlay();
-});
-
-if(currentIframe){
-    currentIframe.addEventListener("blur", () => {
-        showFocusOverlay();
-    });
-}
-
-// Refocus on overlay click
-focusOverlay.addEventListener("click", () => {
-    hideFocusOverlay();
-    if(currentIframe && currentIframe.contentWindow){
-        currentIframe.contentWindow.focus();
-    }
-});
-
-// Optional: refocus iframe when sidebar toggled
-toggleBtn.addEventListener("click", () => {
-    if(currentIframe && currentIframe.contentWindow){
-        currentIframe.contentWindow.focus();
-    }
-});
 
 // --- A-Z & Search ---
 function setupAZ(files){
@@ -585,6 +630,8 @@ async function fetchGames(){
         setupAZ(files);
     }catch(err){ gamesContainerEl.innerHTML="<p style='color:red;'>Failed to load games.</p>"; console.error(err); showAlert("Failed to fetch game list."); }
 }
+
+
 
 // --- Init ---
 showInitialPlaceholder();
