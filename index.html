@@ -431,6 +431,8 @@ async function loadGame(path) {
     iframe.style.height = "100%";
     iframe.style.border = "none";
     iframe.src = "about:blank";
+    iframe.allow = "fullscreen; autoplay; camera; microphone; display-capture; gamepad; clipboard-write";
+    iframe.tabIndex = 0;
     contentEl.innerHTML = "";
     contentEl.appendChild(iframe);
     currentIframe = iframe;
@@ -530,6 +532,35 @@ function attach(files){
         renderGames(files,null,document.getElementById("search").value.toLowerCase());
     });
 }
+// --- Pause on iframe blur ---
+document.addEventListener("visibilitychange", () => {
+    if(document.hidden) showFocusOverlay();
+});
+
+window.addEventListener("blur", () => {
+    showFocusOverlay();
+});
+
+if(currentIframe){
+    currentIframe.addEventListener("blur", () => {
+        showFocusOverlay();
+    });
+}
+
+// Refocus on overlay click
+focusOverlay.addEventListener("click", () => {
+    hideFocusOverlay();
+    if(currentIframe && currentIframe.contentWindow){
+        currentIframe.contentWindow.focus();
+    }
+});
+
+// Optional: refocus iframe when sidebar toggled
+toggleBtn.addEventListener("click", () => {
+    if(currentIframe && currentIframe.contentWindow){
+        currentIframe.contentWindow.focus();
+    }
+});
 
 // --- A-Z & Search ---
 function setupAZ(files){
