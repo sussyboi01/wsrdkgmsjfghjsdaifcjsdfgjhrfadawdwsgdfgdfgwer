@@ -273,7 +273,8 @@ const alertMessageEl = document.getElementById("alertMessage");
 
 let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
 let showOnlyFav = false;
-const CDN_BASE = "https://cdn.jsdelivr.net/gh/sussyboi01/iofjasiojfiowdjfoasiofjasiojsfajgtgjksjaklj9furjslfgoejaisjsilvergiggle@refs/heads/main/";
+const CDN_BASE_PRIMARY = "https://cdn.jsdelivr.net/gh/sussyboi01/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-@refs/heads/main/";
+const CDN_BASE_FALLBACK = "https://cdn.jsdelivr.net/gh/sussyboi01/iofjasiojfiowdjfoasiofjasiojsfajgtgjksjaklj9furjslfgoejaisjsilvergiggle@refs/heads/main/";
 
 // --- Custom Alert ---
 function showAlert(message){ alertMessageEl.textContent = message; customAlertEl.style.display = "block"; }
@@ -428,6 +429,12 @@ function rewriteHTML(html,prefix){
 
 let currentIframe = null; // reuse iframe
 
+// Assume these variables are defined elsewhere:
+// CDN_BASE_PRIMARY (for unzipped HTML)
+// CDN_BASE_FALLBACK (for gzipped HTML)
+// pako, rewriteHTML, currentIframe, contentEl, gamePlaceholder, focusOverlay, 
+// showLoadingPlaceholder, hidePlaceholder, showInitialPlaceholder, showAlert, setupSimpleFocus
+
 async function loadGame(path) {
     showLoadingPlaceholder();
 
@@ -446,9 +453,8 @@ async function loadGame(path) {
     iframe.sandbox = "allow-scripts allow-same-origin allow-pointer-lock";
     iframe.id = "gameFrame";
     
-    // Allow Fullscreen and Pointer Lock API
-    // Add 'gamepad' permission to allow the Gamepad API to work inside the iframe.
-    iframe.allow = "fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture; xr-spatial-tracking; pointer-lock";
+    // Allow Fullscreen, Gamepad, and Pointer Lock API
+    iframe.allow = "fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture; xr-spatial-tracking; pointer-lock; gamepad";
     iframe.tabIndex = 0;
 
     contentEl.innerHTML = ""; // Clear content (including placeholder)
@@ -457,27 +463,71 @@ async function loadGame(path) {
     contentEl.appendChild(focusOverlay); // Re-add the overlay element
     currentIframe = iframe;
 
+    let loadSuccess = false;
+    let finalError = null;
+
+    // --- ATTEMPT 1: Primary CDN (Uncompressed HTML) ---
     try {
-        const res = await fetch(CDN_BASE + path);
-        
-        // --- ERROR CHECK: Don't unzip if file is missing (404) ---
+        console.log("Attempting primary load (Uncompressed):", CDN_BASE_PRIMARY + path);
+        const res = await fetch(CDN_BASE_PRIMARY + path);
+
         if (!res.ok) {
-            throw new Error(`Game file not found (${res.status})`);
+            throw new Error(`Primary file not found (${res.status}). Falling back...`);
         }
 
-        const compressed = new Uint8Array(await res.arrayBuffer());
-        let htmlString = pako.ungzip(compressed, { to: "string" });
-        htmlString = rewriteHTML(htmlString, CDN_BASE);
-
+        const arrayBuffer = await res.arrayBuffer();
+        const decoder = new TextDecoder("utf-8");
+        let htmlString = decoder.decode(arrayBuffer);
+        
+        htmlString = rewriteHTML(htmlString, CDN_BASE_PRIMARY);
+        
+        // Inject content
         const doc = iframe.contentDocument || iframe.contentWindow.document;
         doc.open();
         doc.write(htmlString);
         doc.close();
 
-        compressed.fill(0); // Clear memory
-        htmlString = null;
+        htmlString = null; // Clear memory
+        loadSuccess = true;
 
-        // --- SIMPLE FOCUS LOGIC ---
+    } catch (errPrimary) {
+        finalError = errPrimary;
+        console.warn("Primary load failed:", errPrimary.message);
+
+        // --- ATTEMPT 2: Fallback CDN (Gzipped HTML) ---
+        if (!loadSuccess) {
+            try {
+                console.log("Attempting fallback load (Gzipped):", CDN_BASE_FALLBACK + path);
+                const res = await fetch(CDN_BASE_FALLBACK + path);
+                
+                if (!res.ok) {
+                    throw new Error(`Fallback file not found (${res.status})`);
+                }
+
+                const compressed = new Uint8Array(await res.arrayBuffer());
+                let htmlString = pako.ungzip(compressed, { to: "string" });
+                htmlString = rewriteHTML(htmlString, CDN_BASE_FALLBACK);
+
+                // Inject content
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write(htmlString);
+                doc.close();
+
+                compressed.fill(0); // Clear memory
+                htmlString = null;
+                loadSuccess = true;
+                finalError = null; // Clear primary error since fallback worked
+
+            } catch (errFallback) {
+                finalError = errFallback;
+                console.error("Fallback load also failed:", errFallback);
+            }
+        }
+    }
+
+    // --- FINAL STATUS HANDLING ---
+    if (loadSuccess) {
         // 1. Focus immediately so keyboard works right away
         iframe.contentWindow.focus();
         
@@ -485,14 +535,12 @@ async function loadGame(path) {
         setupSimpleFocus(iframe);
 
         hidePlaceholder();
-    } catch (err) {
-        console.error("Load Error:", err);
-        // Alert the user so they know why it's stuck
-        showAlert("Failed to load game: " + err.message);
+    } else {
+        // Alert the user on complete failure
+        showAlert("Failed to load game from all sources: " + finalError.message);
         showInitialPlaceholder(); // Show initial placeholder on failure
     }
 }
-
 function setupSimpleFocus(iframe) {
     const overlay = document.getElementById("focusOverlay");
     const overlayText = overlay.querySelector("h2");
