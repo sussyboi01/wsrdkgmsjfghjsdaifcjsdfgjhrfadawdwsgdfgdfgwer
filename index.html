@@ -71,14 +71,26 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
     display:flex; flex-direction:column; justify-content:center; align-items:center;
     background:#0d0d1a; z-index:0; text-align:center;
 }
-#gamePlaceholder img { width:200px; height:200px; object-fit:contain; margin-bottom:20px; }
+#gamePlaceholder img { 
+    max-width: 300px; 
+    max-height: 300px; 
+    width: auto;
+    height: auto;
+    object-fit: contain; /* Resizes to fit without cropping */
+    margin-bottom: 20px; 
+}
 #gamePlaceholder p { color:#aaa; font-size:20px; }
 
 /* --- Games Grid --- */
 #gamesContainer { flex:1; overflow-y:auto; scrollbar-width:none; margin-top:5px; }
 #gamesContainer::-webkit-scrollbar { display:none; }
 .game-card { background:#1b1b38; border-radius:12px; margin-bottom:15px; overflow:hidden; box-shadow:0 3px 10px rgba(0,0,0,.3); }
-.game-card img { width:100%; height:160px; object-fit:cover; }
+.game-card img { 
+    width: 100%; 
+    height: 160px; 
+    object-fit: contain; /* Resizes to fit without cropping */
+    background: #090914; /* Background color for empty space */
+}
 .game-info { padding:10px; text-align:center; }
 .game-title { font-size:16px; display:flex; justify-content:center; align-items:center; gap:6px; }
 .star { cursor:pointer; font-size:18px; color:gold; }
@@ -221,17 +233,16 @@ input { width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:
         <option value="classroom">Google Classroom</option>
         <option value="slides">Google Slides</option>
       </select>
-    </div>
-        <div class="setting-item">
-      <label for="bgSelect">Background Image</label>
-      <select id="bgSelect">
-        <option value="kai">Kai with Dog</option>
-        <option value="mango">Mango</option>
-        <option value="boi">Boi</option>
-        <option value="custom">Custom URL</option>
-      </select>
-    </div>
-
+   <div class="setting-item">
+     <label for="bgSelect">Background Image</label>
+     <select id="bgSelect">
+       <option value="kai">Kai with Dog</option>
+       <option value="mango">Mango</option>
+       <option value="boi">Boi</option>
+       <option value="custom">Custom URL</option>
+       <option value="upload">Upload Image File...</option> </select>
+     <input type="file" id="fileImageUpload" accept="image/*" style="display:none;">
+   </div>
   </div>
 </div>
 <div id="customDialog" class="custom-dialog-hidden">
@@ -326,19 +337,66 @@ const customDialogInput = document.getElementById("customDialogInput");
 const customDialogOk = document.getElementById("customDialogOk");
 const customDialogCancel = document.getElementById("customDialogCancel");
 
+const fileImageUpload = document.getElementById("fileImageUpload");
+
 bgSelect.onchange = (e) => {
     const choice = e.target.value;
 
     if (choice === "custom") {
-        // Show custom dialog
         customDialogInput.value = localStorage.getItem("customPlaceholder") || "";
         customDialog.classList.add("show");
+    } else if (choice === "upload") {
+        fileImageUpload.click(); // Open the file picker
     } else {
         localStorage.setItem("placeholderIcon", choice);
         applyPlaceholderIcon(choice);
         renderGames(currentFiles, null, document.getElementById("search").value.toLowerCase());
     }
 };
+
+// Handle the actual file upload
+fileImageUpload.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const base64Image = event.target.result;
+        
+        // Save the image data string to localStorage
+        localStorage.setItem("customPlaceholder", base64Image);
+        localStorage.setItem("placeholderIcon", "custom");
+        
+        // Apply it
+        applyPlaceholderIcon("custom");
+        renderGames(currentFiles, null, document.getElementById("search").value.toLowerCase());
+        
+        showAlert("Image uploaded successfully!");
+    };
+    reader.readAsDataURL(file);
+};
+
+function applyPlaceholderIcon(choice) {
+    let url;
+    if (choice === "custom") {
+        url = localStorage.getItem("customPlaceholder");
+    } else {
+        url = placeholderImages[choice];
+    }
+
+    if (!url) return;
+
+    // Update main placeholder
+    placeholderImg.src = url;
+
+    // Update all game card images
+    document.querySelectorAll(".game-card img").forEach(img => {
+        img.src = url;
+    });
+
+    localStorage.setItem("placeholderIcon", choice);
+    bgSelect.value = choice === "custom" ? (url.startsWith('data:') ? "upload" : "custom") : choice;
+}
 
 customDialogCancel.onclick = () => {
     customDialog.classList.remove("show");
