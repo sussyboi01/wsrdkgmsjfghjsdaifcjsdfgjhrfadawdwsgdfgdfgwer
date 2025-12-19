@@ -730,57 +730,40 @@ const GIT_BASE_PRIMARY = "https://api.github.com/repos/sussyboi01/wsrdkgmsjfghjs
 const GIT_BASE_SECONDARY = "https://api.github.com/repos/sussyboi01/iofjasiojfiowdjfoasiofjasiojsfajgtgjksjaklj9furjslfgoejaisjsilvergiggle/git/trees/main?recursive=1";
 
 async function fetchGames() {
+    let response;
+    let isSecondary = false;
+
     try {
-        const results = await Promise.allSettled([
-            fetch(GIT_BASE_PRIMARY).then(res => res.json()),
-            fetch(GIT_BASE_SECONDARY).then(res => res.json())
-        ]);
-
-        let rawFiles = [];
-
-        results.forEach((result) => {
-            if (result.status === "fulfilled" && result.value.tree) {
-                // Collect all files that are either .html or .html.gz
-                const files = result.value.tree.filter(f => 
-                    f.path.endsWith(".html") || f.path.endsWith(".html.gz")
-                );
-                rawFiles = [...rawFiles, ...files];
-            }
-        });
-
-        if (rawFiles.length === 0) {
-            gamesContainerEl.innerHTML = "<p style='color:#999;padding:12px;'>No games found.</p>";
+        // 1. Try Primary (HTML)
+        response = await fetch(GIT_BASE_PRIMARY);
+        if (!response.ok) throw new Error("Primary failed");
+        console.log("Fetching from Primary...");
+    } catch (err) {
+        // 2. Try Secondary (HTML.GZ) if Primary fails
+        try {
+            console.warn("Primary failed, switching to Secondary...");
+            response = await fetch(GIT_BASE_SECONDARY);
+            if (!response.ok) throw new Error("Secondary failed");
+            isSecondary = true; 
+        } catch (secErr) {
+            gamesContainerEl.innerHTML = "<p style='color:red;'>All sources failed to load.</p>";
             return;
         }
-
-        // --- Priority Logic: Group by Name and Pick Best Extension ---
-        const gameMap = new Map();
-
-        rawFiles.forEach(file => {
-            // Get base name (e.g., "mario" from "mario.html" or "mario.html.gz")
-            const baseName = file.path.replace(/\.html(\.gz)?$/, "");
-            const isGzip = file.path.endsWith(".gz");
-
-            const existing = gameMap.get(baseName);
-
-            // Logic: Add if it's the first time we see this name OR 
-            // replace the existing .gz file with a standard .html file
-            if (!existing || (existing.path.endsWith(".gz") && !isGzip)) {
-                gameMap.set(baseName, file);
-            }
-        });
-
-        // Convert the map back into a sorted array
-        const finalFiles = Array.from(gameMap.values());
-
-        renderGames(finalFiles);
-        setupAZ(finalFiles);
-
-    } catch (err) {
-        gamesContainerEl.innerHTML = "<p style='color:red;'>Failed to load games.</p>";
-        console.error(err);
-        showAlert("Failed to fetch game list.");
     }
+
+    const data = await response.json();
+    
+    // Filter based on which repo we successfully hit
+    const extension = isSecondary ? ".html.gz" : ".html";
+    const files = data.tree.filter(f => f.path.endsWith(extension));
+
+    if (files.length === 0) {
+        gamesContainerEl.innerHTML = "<p style='color:#999;padding:12px;'>No games found.</p>";
+        return;
+    }
+
+    renderGames(files);
+    setupAZ(files);
 }
 
 
