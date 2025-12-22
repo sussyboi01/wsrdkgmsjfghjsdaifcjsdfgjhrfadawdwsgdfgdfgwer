@@ -454,8 +454,15 @@ function applyPlaceholderIcon(choice) {
 
 
 // --- Utilities ---
-function formatName(name){ return name.replace(".html.gz","").replace(/^cl/,"").replace(/[-_]/g," ").replace(/([a-z])([A-Z])/g,"$1 $2").trim().replace(/^./,c=>c.toUpperCase()); }
-
+function formatName(name) {
+  return name
+    .replace(/\.html(\.gz)?$/, "") // Removes .html.gz or .html from the end
+    .replace(/^cl/, "")
+    .replace(/[-_]/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .trim()
+    .replace(/^./, c => c.toUpperCase());
+}
 // --- Placeholders ---
 function showInitialPlaceholder() {
     const savedIcon = localStorage.getItem("placeholderIcon") || "kai";
