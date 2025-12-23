@@ -522,90 +522,45 @@ async function loadGame(path) {
     iframe.allow = "fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture; xr-spatial-tracking; pointer-lock; gamepad";
     iframe.tabIndex = 0;
 
-    contentEl.innerHTML = ""; // Clear content (including placeholder)
+    contentEl.innerHTML = ""; 
     contentEl.appendChild(iframe);
-    contentEl.appendChild(gamePlaceholder); // Re-add placeholder (hidden for now)
-    contentEl.appendChild(focusOverlay); // Re-add the overlay element
+    contentEl.appendChild(gamePlaceholder); 
+    contentEl.appendChild(focusOverlay); 
     currentIframe = iframe;
 
-    let loadSuccess = false;
-    let finalError = null;
-
-    // --- ATTEMPT 1: Primary CDN (Uncompressed HTML) ---
     try {
-        console.log("Attempting primary load (Uncompressed):", CDN_BASE_PRIMARY + path);
+        console.log("Attempting load:", CDN_BASE_PRIMARY + path);
         const res = await fetch(CDN_BASE_PRIMARY + path);
 
         if (!res.ok) {
-            throw new Error(`Primary file not found (${res.status}). Falling back...`);
+            throw new Error(`File not found (${res.status})`);
         }
 
         const arrayBuffer = await res.arrayBuffer();
         const decoder = new TextDecoder("utf-8");
         let htmlString = decoder.decode(arrayBuffer);
         
+        // Process and Inject content
         htmlString = rewriteHTML(htmlString, CDN_BASE_PRIMARY);
         
-        // Inject content
         const doc = iframe.contentDocument || iframe.contentWindow.document;
         doc.open();
         doc.write(htmlString);
         doc.close();
 
-        htmlString = null; // Clear memory
-        loadSuccess = true;
-
-    } catch (errPrimary) {
-        finalError = errPrimary;
-        console.warn("Primary load failed:", errPrimary.message);
-
-        // --- ATTEMPT 2: Fallback CDN (Gzipped HTML) ---
-        if (!loadSuccess) {
-            try {
-                console.log("Attempting fallback load (Gzipped):", CDN_BASE_FALLBACK + path);
-                const res = await fetch(CDN_BASE_FALLBACK + path);
-                
-                if (!res.ok) {
-                    throw new Error(`Fallback file not found (${res.status})`);
-                }
-
-                const compressed = new Uint8Array(await res.arrayBuffer());
-                let htmlString = pako.ungzip(compressed, { to: "string" });
-                htmlString = rewriteHTML(htmlString, CDN_BASE_FALLBACK);
-
-                // Inject content
-                const doc = iframe.contentDocument || iframe.contentWindow.document;
-                doc.open();
-                doc.write(htmlString);
-                doc.close();
-
-                compressed.fill(0); // Clear memory
-                htmlString = null;
-                loadSuccess = true;
-                finalError = null; // Clear primary error since fallback worked
-
-            } catch (errFallback) {
-                finalError = errFallback;
-                console.error("Fallback load also failed:", errFallback);
-            }
-        }
-    }
-
-    // --- FINAL STATUS HANDLING ---
-    if (loadSuccess) {
-        // 1. Focus immediately so keyboard works right away
+        // Memory cleanup and UI updates
+        htmlString = null; 
         iframe.contentWindow.focus();
-        
-        // 2. Setup the "Click to Refocus" handler
         setupSimpleFocus(iframe);
-
         hidePlaceholder();
-    } else {
-        // Alert the user on complete failure
-        showAlert("Failed to load game from all sources: " + finalError.message);
-        showInitialPlaceholder(); // Show initial placeholder on failure
+
+    } catch (err) {
+        console.error("Load failed:", err.message);
+        showAlert("Failed to load game: " + err.message);
+        showInitialPlaceholder(); 
     }
 }
+
 function setupSimpleFocus(iframe) {
     const overlay = document.getElementById("focusOverlay");
     const overlayText = overlay.querySelector("h2");
@@ -736,41 +691,17 @@ function setupAZ(files){
 const GIT_BASE_PRIMARY = "https://api.github.com/repos/sussyboi01/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-/git/trees/main?recursive=1";
 const GIT_BASE_SECONDARY = "https://api.github.com/repos/sussyboi01/iofjasiojfiowdjfoasiofjasiojsfajgtgjksjaklj9furjslfgoejaisjsilvergiggle/git/trees/main?recursive=1";
 
-async function fetchGames() {
-    let response;
-    let isSecondary = false;
-
-    try {
-        // 1. Try Primary (HTML)
-        response = await fetch(GIT_BASE_PRIMARY);
-        if (!response.ok) throw new Error("Primary failed");
-        console.log("Fetching from Primary...");
-    } catch (err) {
-        // 2. Try Secondary (HTML.GZ) if Primary fails
-        try {
-            console.warn("Primary failed, switching to Secondary...");
-            response = await fetch(GIT_BASE_SECONDARY);
-            if (!response.ok) throw new Error("Secondary failed");
-            isSecondary = true; 
-        } catch (secErr) {
-            gamesContainerEl.innerHTML = "<p style='color:red;'>All sources failed to load.</p>";
-            return;
-        }
-    }
-
-    const data = await response.json();
-    
-    // Filter based on which repo we successfully hit
-    const extension = isSecondary ? ".html.gz" : ".html";
-    const files = data.tree.filter(f => f.path.endsWith(extension));
-
-    if (files.length === 0) {
-        gamesContainerEl.innerHTML = "<p style='color:#999;padding:12px;'>No games found.</p>";
-        return;
-    }
-
+async function fetchGames(){
+  try{
+    const res = await fetch("https://api.github.com/repos/sussyboi01/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-/git/trees/main?recursive=1");
+    const data = await res.json();
+    const files = (data && data.tree) ? data.tree.filter(f=>f.path.endsWith(".html")) : [];
     renderGames(files);
     setupAZ(files);
+  }catch(err){
+    gamesContainerEl.innerHTML="<p style='color:red;'>Failed to load games.</p>";
+    console.error(err);
+  }
 }
 
 
