@@ -254,7 +254,7 @@ body { margin:0; font-family:"Segoe UI",sans-serif; background:var(--bg-primary)
 .game-card img { 
     width:100%; 
     height:140px; 
-    object-fit:contain; 
+    object-fit:cover; 
     background:#090914;
 }
 .game-card-info { 
@@ -560,6 +560,52 @@ body { margin:0; font-family:"Segoe UI",sans-serif; background:var(--bg-primary)
 }
 .setting-item button:hover { background:var(--accent-hover); }
 
+/* Toggle switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #555;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+input:checked + .toggle-slider {
+    background-color: var(--accent);
+}
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+.toggle-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 /* Stats Dashboard Modal */
 .stats-grid {
     display:grid;
@@ -839,7 +885,17 @@ body { margin:0; font-family:"Segoe UI",sans-serif; background:var(--bg-primary)
         </div>
         
         <div class="setting-item">
-            <label for="bgSelect">Thumbnail Image</label>
+            <label class="toggle-label">
+                <span>Override Thumbnails</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="overrideThumbnails">
+                    <span class="toggle-slider"></span>
+                </label>
+            </label>
+        </div>
+        
+        <div class="setting-item" id="thumbnailOverrideSection" style="display:none;">
+            <label for="bgSelect">Fallback Thumbnail</label>
             <select id="bgSelect">
                 <option value="kai">Kai with Dog</option>
                 <option value="mango">Mango</option>
@@ -992,8 +1048,13 @@ async function loadData(key, defaultValue = null) {
 // ===========================
 // Global Variables & Constants
 // ===========================
-const CDN_BASE = "https://cdn.jsdelivr.net/gh/sussyboi01/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-@refs/heads/main/";
-const GIT_BASE = "https://api.github.com/repos/sussyboi01/sdgjseiofjsdioejaklsjfkznjvkdrilgqajfpasjfksgperujscklvgbo4hipasjpasl-/git/trees/main?recursive=1";
+const FOLDER_CDN = "https://cdn.jsdelivr.net/gh/sussyboi01/assets@main/";
+const SINGLE_CDN = "https://cdn.jsdelivr.net/gh/sussyboi01/assetssinglefile/";
+const COVERS_CDN = "https://cdn.jsdelivr.net/gh/sussyboi01/covers/";
+const ZONES_JSON = "https://cdn.jsdelivr.net/gh/sussyboi01/assets/zones.json";
+
+// IDs that use folder structure
+const FOLDER_IDS = new Set([113, 116, 117, 118, 120, 121, 122, 123, 124, 129, 165, 174, 175, 176, 178, 184, 186, 187, 197, 198, 199, 200, 203, 255, 256, 258, 260, 286, 294, 296, 302, 306, 307, 308, 309, 310, 311, 315, 317, 318, 330, 346, 347, 351, 352, 434, 441, 442, 447, 702]);
 
 const placeholderImages = {
     kai: "https://pbs.twimg.com/media/Ggj70WPXcAAV1L9.jpg:small",
@@ -1024,7 +1085,8 @@ let appData = {
         cloak: "docs",
         thumbnail: "kai",
         customURL: "",
-        uploadedImage: ""
+        uploadedImage: "",
+        overrideThumbnails: false
     },
     visitDates: []
 };
@@ -1056,20 +1118,6 @@ function closeAlert() {
     document.getElementById("customAlert").style.display = "none";
 }
 
-function formatName(filename) {
-    // strip directory path — only keep the last segment
-    let name = filename.split("/").pop();
-    name = name.replace(/\.html(\.gz)?$/, "");
-    if (name.toLowerCase().startsWith("cl")) {
-        name = name.substring(2);
-    }
-    return name
-        .replace(/[-_]/g, " ")
-        .replace(/([a-z])([A-Z])/g, "$1 $2")
-        .trim()
-        .replace(/^./, c => c.toUpperCase());
-}
-
 function formatTime(seconds) {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -1085,10 +1133,10 @@ function formatTimeShort(seconds) {
     return `${seconds}s`;
 }
 
-function categorizeGame(filename) {
-    const name = filename.toLowerCase();
+function categorizeGame(name) {
+    const lowerName = name.toLowerCase();
     for (const [category, keywords] of Object.entries(categoryKeywords)) {
-        if (keywords.some(keyword => name.includes(keyword))) return category;
+        if (keywords.some(keyword => lowerName.includes(keyword))) return category;
     }
     return "Other";
 }
@@ -1158,14 +1206,31 @@ document.getElementById("settingsModal").onclick = (e) => { if (e.target.id === 
 document.getElementById("themeSelect").onchange = (e) => applyTheme(e.target.value);
 document.getElementById("cloakSelect").onchange = (e) => applyCloak(e.target.value);
 
+// Override thumbnails toggle
+document.getElementById("overrideThumbnails").onchange = (e) => {
+    appData.settings.overrideThumbnails = e.target.checked;
+    document.getElementById("thumbnailOverrideSection").style.display = e.target.checked ? "block" : "none";
+    saveAppData();
+    renderGames();
+};
+
 // ===========================
 // Thumbnail System
 // ===========================
-function getThumbnailURL() {
+function getFallbackThumbnailURL() {
     const choice = appData.settings.thumbnail;
     if (choice === "upload" && appData.settings.uploadedImage) return appData.settings.uploadedImage;
     if (choice === "custom" && appData.settings.customURL) return appData.settings.customURL;
     return placeholderImages[choice] || placeholderImages.kai;
+}
+
+function getThumbnailURL(gameId) {
+    // If override is enabled, always use fallback
+    if (appData.settings.overrideThumbnails) {
+        return getFallbackThumbnailURL();
+    }
+    // Otherwise use the game's cover art
+    return `${COVERS_CDN}${gameId}.png`;
 }
 
 document.getElementById("bgSelect").onchange = (e) => {
@@ -1237,6 +1302,8 @@ document.getElementById("customDialogOk").onclick = () => {
             document.getElementById("themeSelect").value  = appData.settings.theme;
             document.getElementById("cloakSelect").value  = appData.settings.cloak;
             document.getElementById("bgSelect").value     = appData.settings.thumbnail;
+            document.getElementById("overrideThumbnails").checked = appData.settings.overrideThumbnails;
+            document.getElementById("thumbnailOverrideSection").style.display = appData.settings.overrideThumbnails ? "block" : "none";
             renderGames();
             renderCategories();
             document.getElementById("customDialog").classList.remove("show");
@@ -1278,21 +1345,25 @@ document.getElementById("importBtn").onclick = () => {
 };
 
 // ===========================
-// Fetch Games from GitHub
+// Fetch Games from JSON
 // ===========================
 async function fetchGames() {
     try {
-        const res  = await fetch(GIT_BASE);
+        const res  = await fetch(ZONES_JSON);
         const data = await res.json();
-        allGames = (data && data.tree)
-            ? data.tree
-                .filter(f => f.path.endsWith(".html") || f.path.endsWith(".html.gz"))
-                .map(f => ({
-                    path:     f.path,
-                    name:     formatName(f.path),
-                    category: categorizeGame(f.path)
-                }))
-            : [];
+        
+        // Filter out special entries (like Discord suggestion with id=-1)
+        // and map the array to our game objects
+        allGames = data
+            .filter(game => game.id >= 0)
+            .map(game => ({
+                id: game.id,
+                name: game.name,
+                url: game.url,  // Store the URL from JSON
+                category: categorizeGame(game.name),
+                isFolder: FOLDER_IDS.has(game.id)
+            }));
+        
         renderCategories();
         renderRecommendations();
         renderGames();
@@ -1310,8 +1381,8 @@ function renderRecommendations() {
     if (appData.recentGames.length === 0) { container.innerHTML = "Play more games to find out!"; return; }
 
     const categoryCounts = {};
-    appData.recentGames.forEach(path => {
-        const game = allGames.find(g => g.path === path);
+    appData.recentGames.forEach(id => {
+        const game = allGames.find(g => g.id === parseInt(id));
         if (game) categoryCounts[game.category] = (categoryCounts[game.category] || 0) + 1;
     });
 
@@ -1319,17 +1390,17 @@ function renderRecommendations() {
     if (!topCategory) { container.innerHTML = "Play more games to find out!"; return; }
 
     const recommendations = allGames
-        .filter(g => g.category === topCategory && !appData.recentGames.includes(g.path))
+        .filter(g => g.category === topCategory && !appData.recentGames.includes(g.id.toString()))
         .slice(0, 5);
 
     if (recommendations.length === 0) { container.innerHTML = "You've played all games in your favourite category!"; return; }
 
     container.innerHTML = recommendations.map(game =>
-        `<div class="recommended-game" data-path="${game.path}">${game.name}</div>`
+        `<div class="recommended-game" data-id="${game.id}">${game.name}</div>`
     ).join('');
 
     container.querySelectorAll(".recommended-game").forEach(item => {
-        item.onclick = () => loadGame(item.dataset.path);
+        item.onclick = () => loadGame(item.dataset.id);
     });
 }
 
@@ -1367,8 +1438,7 @@ function renderCategories() {
 // Render Games Grid
 // ===========================
 function renderGames() {
-    const searchTerm   = document.getElementById("searchInput").value.toLowerCase();
-    const thumbnailURL = getThumbnailURL();
+    const searchTerm = document.getElementById("searchInput").value.toLowerCase();
 
     if (searchTerm && !appData.searchHistory.includes(searchTerm)) {
         appData.searchHistory.unshift(searchTerm);
@@ -1378,7 +1448,7 @@ function renderGames() {
 
     let filtered = allGames.filter(game => {
         if (currentFilter && game.category !== currentFilter) return false;
-        if (showOnlyFavorites && !appData.favorites.includes(game.path)) return false;
+        if (showOnlyFavorites && !appData.favorites.includes(game.id.toString())) return false;
         if (searchTerm && !game.name.toLowerCase().includes(searchTerm)) return false;
         return true;
     });
@@ -1388,16 +1458,16 @@ function renderGames() {
     else if (currentSort === "name-desc") filtered.sort((a, b) => b.name.localeCompare(a.name));
     else if (currentSort === "recent") {
         filtered.sort((a, b) => {
-            const ai = appData.recentGames.indexOf(a.path), bi = appData.recentGames.indexOf(b.path);
+            const ai = appData.recentGames.indexOf(a.id.toString()), bi = appData.recentGames.indexOf(b.id.toString());
             if (ai === -1 && bi === -1) return 0;
             if (ai === -1) return 1;
             if (bi === -1) return -1;
             return ai - bi;
         });
     }
-    else if (currentSort === "mostplayed") filtered.sort((a, b) => (appData.playCount[b.path]||0) - (appData.playCount[a.path]||0));
-    else if (currentSort === "longest")    filtered.sort((a, b) => (appData.longestSessions[b.path]||0) - (appData.longestSessions[a.path]||0));
-    else if (currentSort === "totaltime")  filtered.sort((a, b) => (appData.gameTimes[b.path]||0) - (appData.gameTimes[a.path]||0));
+    else if (currentSort === "mostplayed") filtered.sort((a, b) => (appData.playCount[b.id]||0) - (appData.playCount[a.id]||0));
+    else if (currentSort === "longest")    filtered.sort((a, b) => (appData.longestSessions[b.id]||0) - (appData.longestSessions[a.id]||0));
+    else if (currentSort === "totaltime")  filtered.sort((a, b) => (appData.gameTimes[b.id]||0) - (appData.gameTimes[a.id]||0));
 
     if (filtered.length === 0) {
         document.getElementById("gamesGrid").innerHTML = '<div class="no-games">No games found</div>';
@@ -1405,11 +1475,12 @@ function renderGames() {
     }
 
     document.getElementById("gamesGrid").innerHTML = filtered.map(game => {
-        const isFav = appData.favorites.includes(game.path);
+        const isFav = appData.favorites.includes(game.id.toString());
+        const thumbnailURL = getThumbnailURL(game.id);
         return `
-            <div class="game-card" data-path="${game.path}">
-                <span class="star ${isFav ? '' : 'off'}" data-path="${game.path}">★</span>
-                <img src="${thumbnailURL}" alt="${game.name}" loading="lazy">
+            <div class="game-card" data-id="${game.id}">
+                <span class="star ${isFav ? '' : 'off'}" data-id="${game.id}">★</span>
+                <img src="${thumbnailURL}" alt="${game.name}" loading="lazy" onerror="this.src='${getFallbackThumbnailURL()}'">
                 <div class="game-card-info">
                     <div class="game-card-title">${game.name}</div>
                 </div>
@@ -1417,18 +1488,18 @@ function renderGames() {
     }).join('');
 
     document.querySelectorAll(".game-card").forEach(card => {
-        card.onclick = (e) => { if (!e.target.classList.contains("star")) loadGame(card.dataset.path); };
+        card.onclick = (e) => { if (!e.target.classList.contains("star")) loadGame(card.dataset.id); };
     });
 
     document.querySelectorAll(".star").forEach(star => {
         star.onclick = (e) => {
             e.stopPropagation();
-            const path = star.dataset.path;
-            if (appData.favorites.includes(path)) {
-                appData.favorites = appData.favorites.filter(f => f !== path);
+            const id = star.dataset.id;
+            if (appData.favorites.includes(id)) {
+                appData.favorites = appData.favorites.filter(f => f !== id);
                 star.classList.add("off");
             } else {
-                appData.favorites.push(path);
+                appData.favorites.push(id);
                 star.classList.remove("off");
             }
             saveAppData();
@@ -1456,70 +1527,75 @@ document.getElementById("continueBtn").onclick = () => {
 };
 document.getElementById("randomBtn").onclick = () => {
     if (allGames.length === 0) return;
-    loadGame(allGames[Math.floor(Math.random() * allGames.length)].path);
+    loadGame(allGames[Math.floor(Math.random() * allGames.length)].id);
 };
 
 // ===========================
-// Load Game  (the key fix)
+// Load Game
 // ===========================
-/*
-   Why the original broke:
-   • doc.write() into a sandboxed iframe loses the document's base URL, so any
-     <script src="..."> or <img src="..."> that the rewritten HTML still references
-     relatively will 404.
-   • .html.gz files are transparently decompressed by jsdelivr but the raw bytes
-     decoded with TextDecoder still sometimes produce garbled output.
-
-   Fix: use a Blob URL as the iframe src.  The rewriteHTML helper turns every
-   relative path into an absolute jsdelivr URL, then we blob-ify the whole string
-   and set iframe.src = blob URL.  This gives the iframe a proper origin and lets
-   sub-resources load normally.
-*/
-
 function rewriteHTML(html, base) {
-    // Rewrite common relative-path patterns to absolute CDN URLs
     return html
-        // src="./foo"  or  src="foo"
         .replace(/(\bsrc\s*=\s*["'])\.?\/?(?!https?:\/\/)([^"']+)/g, (m, quote, path) => {
-            // don't touch data: URIs or already-absolute URLs
             if (path.startsWith("data:") || path.startsWith("//")) return m;
             return quote + base + path;
         })
-        // href="./foo"  or  href="foo"  (but not mailto:, tel:, #anchors, or full URLs)
         .replace(/(\bhref\s*=\s*["'])\.?\/?(?!https?:\/\/)(?!mailto:)(?!tel:)(?!#)([^"']+)/g, (m, quote, path) => {
             if (path.startsWith("data:") || path.startsWith("//")) return m;
             return quote + base + path;
         })
-        // CSS url('./foo')
         .replace(/url\(\s*['"]?\.?\/?(?!https?:\/\/)([^'")]+)['"]?\s*\)/g, (m, path) => {
             if (path.startsWith("data:") || path.startsWith("//")) return m;
             return `url('${base}${path}')`;
         });
 }
 
-async function loadGame(path) {
-    currentGame = path;
-    const gameName = formatName(path);
+async function loadGame(gameId) {
+    gameId = gameId.toString();
+    currentGame = gameId;
+    
+    const game = allGames.find(g => g.id.toString() === gameId);
+    if (!game) {
+        showAlert("Game not found");
+        return;
+    }
+
+    // Construct the actual game URL based on ID
+    // Single file format: https://cdn.jsdelivr.net/gh/sussyboi01/assetssinglefile/ID.html
+    // Folder format: https://cdn.jsdelivr.net/gh/sussyboi01/assets@main/ID/index.html
+    let gameURL;
+    let baseURL;
+    
+    if (game.isFolder) {
+        // Folder game: FOLDERLINKBASE/ID/index.html
+        gameURL = `${FOLDER_CDN}${gameId}/index.html`;
+        baseURL = `${FOLDER_CDN}${gameId}/`;
+    } else {
+        // Single file game: LINKBASE/ID.html
+        gameURL = `${SINGLE_CDN}${gameId}.html`;
+        baseURL = SINGLE_CDN;
+    }
+
+    console.log("Loading game:", game.name, "ID:", gameId, "URL:", gameURL, "Base:", baseURL);
 
     // ── update tracking data ──
-    appData.recentGames = appData.recentGames.filter(g => g !== path);
-    appData.recentGames.unshift(path);
+    appData.recentGames = appData.recentGames.filter(g => g !== gameId);
+    appData.recentGames.unshift(gameId);
     if (appData.recentGames.length > 10) appData.recentGames = appData.recentGames.slice(0, 10);
-    appData.playCount[path] = (appData.playCount[path] || 0) + 1;
+    appData.playCount[gameId] = (appData.playCount[gameId] || 0) + 1;
     saveAppData();
 
     // ── UI: switch to game view, hide top bar ──
-    document.getElementById("currentGameTitle").textContent = gameName;
+    document.getElementById("currentGameTitle").textContent = game.name;
     document.getElementById("homepageView").style.display   = "none";
     document.getElementById("categorySidebar").classList.add("hidden");
-    document.getElementById("topBar").classList.add("hidden");          // hide top bar
+    document.getElementById("topBar").classList.add("hidden");
     document.getElementById("gameView").classList.add("active");
 
     // ── reset timers ──
     sessionStart     = Date.now();
     sessionElapsed   = 0;
     currentSessionMax = 0;
-    totalElapsed     = appData.gameTimes[path] || 0;
+    totalElapsed     = appData.gameTimes[gameId] || 0;
     updateTimerDisplay();
     startTimer();
 
@@ -1534,7 +1610,6 @@ async function loadGame(path) {
     iframe.allow   = "fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture; xr-spatial-tracking; pointer-lock; gamepad";
     iframe.tabIndex = 0;
 
-    // keep the focus overlay inside the container
     const overlay = document.getElementById("focusOverlay");
     document.getElementById("iframeContainer").innerHTML = "";
     document.getElementById("iframeContainer").appendChild(iframe);
@@ -1549,25 +1624,16 @@ async function loadGame(path) {
 
     // ── fetch HTML, rewrite paths, load via Blob URL ──
     try {
-        const res = await fetch(CDN_BASE + path);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const res = await fetch(gameURL);
+        if (!res.ok) throw new Error(`HTTP ${res.status} - ${gameURL}`);
 
-        let htmlString = await res.text();           // jsdelivr auto-gunzips .gz
+        let htmlString = await res.text();
+        htmlString = rewriteHTML(htmlString, baseURL);
 
-        // Compute the base for relative paths: if path has directories, include them
-        // e.g.  "games/foo/bar.html"  →  base ends with "games/foo/"
-        const lastSlash = path.lastIndexOf("/");
-        const dirPrefix = lastSlash !== -1 ? path.substring(0, lastSlash + 1) : "";
-        const base      = CDN_BASE + dirPrefix;
-
-        htmlString = rewriteHTML(htmlString, base);
-
-        // Create a blob URL — this gives the iframe a real origin so sub-resources work
         const blob       = new Blob([htmlString], { type: "text/html" });
         currentBlobURL   = URL.createObjectURL(blob);
         iframe.src       = currentBlobURL;
 
-        // Once loaded, focus the iframe and wire up the blur/focus overlay
         iframe.onload = () => {
             try { iframe.contentWindow.focus(); } catch(e) {}
             setupFocusDetection(iframe);
@@ -1645,21 +1711,23 @@ function updateTimerDisplay() {
 // Recent Games UI
 // ===========================
 function updateRecentGamesUI() {
-    document.getElementById("recentGamesList").innerHTML = appData.recentGames.map(path => {
-        const time = appData.gameTimes[path] ? formatTimeShort(appData.gameTimes[path]) : "Not played yet";
-        return `<div class="recent-game-item" data-path="${path}">
-                    <div class="recent-game-name">${formatName(path)}</div>
+    document.getElementById("recentGamesList").innerHTML = appData.recentGames.map(id => {
+        const game = allGames.find(g => g.id.toString() === id);
+        if (!game) return '';
+        const time = appData.gameTimes[id] ? formatTimeShort(appData.gameTimes[id]) : "Not played yet";
+        return `<div class="recent-game-item" data-id="${id}">
+                    <div class="recent-game-name">${game.name}</div>
                     <div class="recent-game-time">${time}</div>
                 </div>`;
     }).join('') || '<div style="color:#666; padding:8px;">No recent games</div>';
 
     document.querySelectorAll(".recent-game-item").forEach(item => {
-        item.onclick = () => { if (item.dataset.path !== currentGame) { stopTimer(); loadGame(item.dataset.path); } };
+        item.onclick = () => { if (item.dataset.id !== currentGame) { stopTimer(); loadGame(item.dataset.id); } };
     });
 }
 
 // ===========================
-// Sidebar Toggle  (fixed positioning logic)
+// Sidebar Toggle
 // ===========================
 document.getElementById("sidebarToggle").onclick = () => {
     const sidebar  = document.getElementById("statsSidebar");
@@ -1691,7 +1759,7 @@ function backToHomepage() {
 
     document.getElementById("gameView").classList.remove("active");
     document.getElementById("categorySidebar").classList.remove("hidden");
-    document.getElementById("topBar").classList.remove("hidden");        // restore top bar
+    document.getElementById("topBar").classList.remove("hidden");
     document.getElementById("homepageView").style.display = "block";
     renderRecommendations();
 }
@@ -1715,16 +1783,28 @@ function updateStatsDashboard() {
     document.getElementById("currentStreak").textContent    = calculateStreak();
 
     // Most played
-    let mostPlayedPath = null, maxPlays = 0;
-    for (const [p, c] of Object.entries(appData.playCount)) { if (c > maxPlays) { maxPlays = c; mostPlayedPath = p; } }
-    document.getElementById("mostPlayedGame").textContent = mostPlayedPath ? formatName(mostPlayedPath) : "N/A";
-    document.getElementById("mostPlayedTime").textContent = maxPlays + " plays";
+    let mostPlayedId = null, maxPlays = 0;
+    for (const [id, c] of Object.entries(appData.playCount)) { if (c > maxPlays) { maxPlays = c; mostPlayedId = id; } }
+    if (mostPlayedId) {
+        const game = allGames.find(g => g.id.toString() === mostPlayedId);
+        document.getElementById("mostPlayedGame").textContent = game ? game.name : "N/A";
+        document.getElementById("mostPlayedTime").textContent = maxPlays + " plays";
+    } else {
+        document.getElementById("mostPlayedGame").textContent = "N/A";
+        document.getElementById("mostPlayedTime").textContent = "0 plays";
+    }
 
     // Longest session
-    let longestPath = null, maxSession = 0;
-    for (const [p, s] of Object.entries(appData.longestSessions)) { if (s > maxSession) { maxSession = s; longestPath = p; } }
-    document.getElementById("longestSession").textContent     = longestPath ? Math.floor(maxSession / 60) + "m" : "0m";
-    document.getElementById("longestSessionGame").textContent = longestPath ? formatName(longestPath) : "N/A";
+    let longestId = null, maxSession = 0;
+    for (const [id, s] of Object.entries(appData.longestSessions)) { if (s > maxSession) { maxSession = s; longestId = id; } }
+    if (longestId) {
+        const game = allGames.find(g => g.id.toString() === longestId);
+        document.getElementById("longestSession").textContent     = Math.floor(maxSession / 60) + "m";
+        document.getElementById("longestSessionGame").textContent = game ? game.name : "N/A";
+    } else {
+        document.getElementById("longestSession").textContent     = "0m";
+        document.getElementById("longestSessionGame").textContent = "N/A";
+    }
 }
 
 // ===========================
@@ -1756,6 +1836,8 @@ async function initApp() {
     document.getElementById("themeSelect").value = appData.settings.theme;
     document.getElementById("cloakSelect").value = appData.settings.cloak;
     document.getElementById("bgSelect").value    = appData.settings.thumbnail;
+    document.getElementById("overrideThumbnails").checked = appData.settings.overrideThumbnails;
+    document.getElementById("thumbnailOverrideSection").style.display = appData.settings.overrideThumbnails ? "block" : "none";
     updateNetworkStatus();
     document.getElementById("homepageView").style.display = "block";
     await fetchGames();
