@@ -315,6 +315,43 @@ body { margin:0; font-family:"Segoe UI",sans-serif; background:var(--bg-primary)
 }
 
 /* ========================================
+   BROWSER VIEW — fullscreen iframe
+   ======================================== */
+.browser-view {
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    z-index:50;
+    background:var(--bg-primary);
+    flex-direction:column;
+}
+.browser-view.active { display:flex; }
+
+.browser-header {
+    background:var(--bg-secondary);
+    padding:15px 20px;
+    border-bottom:2px solid var(--border);
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.browser-iframe-container {
+    flex:1;
+    position:relative;
+}
+
+.browser-iframe-container iframe {
+    position:absolute;
+    top:0; left:0;
+    width:100%;
+    height:100%;
+    border:none;
+    display:block;
+}
+
+/* ========================================
    RIGHT STATS SIDEBAR
    ======================================== */
 .stats-sidebar { 
@@ -742,6 +779,7 @@ input:checked + .toggle-slider:before {
 }
 #customDialogOk:hover, #customDialogCopy:hover { background:var(--accent-hover); }
 
+
 /* Scrollbar Styling */
 ::-webkit-scrollbar { width:8px; height:8px; }
 ::-webkit-scrollbar-track { background:var(--bg-secondary); }
@@ -788,6 +826,7 @@ input:checked + .toggle-slider:before {
                 <option value="totaltime">Total Playtime</option>
             </select>
             <button id="favToggle">★ Favorites</button>
+            <button id="browserBtn">🌐 Browser</button>
             <button id="exportBtn">📤 Export</button>
             <button id="importBtn">📥 Import</button>
             <button id="settingsBtn">⚙ Settings</button>
@@ -853,6 +892,14 @@ input:checked + .toggle-slider:before {
                     </div>
                 </div>
             </div>
+
+            <!-- Browser View -->
+            <div class="browser-view" id="browserView">
+                <div class="browser-header">
+                    <button id="browserBackBtn" style="background:var(--accent); border:none; padding:10px 16px; border-radius:8px; color:white; cursor:pointer; font-size:14px;">← Back</button>
+                </div>
+                <div class="browser-iframe-container" id="browserIframeContainer"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -889,6 +936,16 @@ input:checked + .toggle-slider:before {
                 <span>Override Thumbnails</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="overrideThumbnails">
+                    <span class="toggle-slider"></span>
+                </label>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <label class="toggle-label">
+                <span>Developer Mode</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="developerMode">
                     <span class="toggle-slider"></span>
                 </label>
             </label>
@@ -955,6 +1012,8 @@ input:checked + .toggle-slider:before {
         </div>
     </div>
 </div>
+
+
 
 <!-- Custom URL Dialog -->
 <div id="customDialog">
@@ -1052,9 +1111,7 @@ const FOLDER_CDN = "https://cdn.jsdelivr.net/gh/sussyboi01/assets@main/";
 const SINGLE_CDN = "https://cdn.jsdelivr.net/gh/sussyboi01/assetssinglefile/";
 const COVERS_CDN = "https://cdn.jsdelivr.net/gh/sussyboi01/covers/";
 const ZONES_JSON = "https://cdn.jsdelivr.net/gh/sussyboi01/assets/zones.json";
-
-// IDs that use folder structure
-const FOLDER_IDS = new Set([113, 116, 117, 118, 120, 121, 122, 123, 124, 129, 165, 174, 175, 176, 178, 184, 186, 187, 197, 198, 199, 200, 203, 255, 256, 258, 260, 286, 294, 296, 302, 306, 307, 308, 309, 310, 311, 315, 317, 318, 330, 346, 347, 351, 352, 434, 441, 442, 447, 702]);
+const HTML_URL = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
 
 const placeholderImages = {
     kai: "https://pbs.twimg.com/media/Ggj70WPXcAAV1L9.jpg:small",
@@ -1086,7 +1143,8 @@ let appData = {
         thumbnail: "kai",
         customURL: "",
         uploadedImage: "",
-        overrideThumbnails: false
+        overrideThumbnails: false,
+        developerMode: false
     },
     visitDates: []
 };
@@ -1096,7 +1154,6 @@ let showOnlyFavorites = false;
 let currentSort = "name";
 let currentIframe = null;
 let currentGame = null;
-let currentBlobURL = null;
 
 // Timers
 let sessionStart = 0;
@@ -1198,6 +1255,49 @@ function applyCloak(type) {
 }
 
 // ===========================
+// Browser Functions
+// ===========================
+// EDIT THIS URL TO YOUR DESIRED LINK
+const BROWSER_URL = "https://mature-susy-daboisussyboi-9923fc5f.koyeb.app/";
+
+document.getElementById("browserBtn").onclick = () => {
+    openBrowser(BROWSER_URL);
+};
+
+function openBrowser(url) {
+    // Hide homepage and top bar
+    document.getElementById("homepageView").style.display = "none";
+    document.getElementById("categorySidebar").classList.add("hidden");
+    document.getElementById("topBar").classList.add("hidden");
+    
+    // Show browser view
+    document.getElementById("browserView").classList.add("active");
+    
+    // Create iframe
+    const container = document.getElementById("browserIframeContainer");
+    container.innerHTML = "";
+    
+    const iframe = document.createElement("iframe");
+    iframe.src = url;
+    iframe.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;border:none;";
+    iframe.sandbox = "allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms allow-top-navigation";
+    iframe.allow = "fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture";
+    
+    container.appendChild(iframe);
+}
+
+document.getElementById("browserBackBtn").onclick = () => {
+    // Close browser
+    document.getElementById("browserView").classList.remove("active");
+    document.getElementById("browserIframeContainer").innerHTML = "";
+    
+    // Show homepage
+    document.getElementById("categorySidebar").classList.remove("hidden");
+    document.getElementById("topBar").classList.remove("hidden");
+    document.getElementById("homepageView").style.display = "block";
+};
+
+// ===========================
 // Settings Modal
 // ===========================
 document.getElementById("settingsBtn").onclick = () => document.getElementById("settingsModal").classList.add("open");
@@ -1212,6 +1312,12 @@ document.getElementById("overrideThumbnails").onchange = (e) => {
     document.getElementById("thumbnailOverrideSection").style.display = e.target.checked ? "block" : "none";
     saveAppData();
     renderGames();
+};
+
+// Developer mode toggle
+document.getElementById("developerMode").onchange = (e) => {
+    appData.settings.developerMode = e.target.checked;
+    saveAppData();
 };
 
 // ===========================
@@ -1353,15 +1459,14 @@ async function fetchGames() {
         const data = await res.json();
         
         // Filter out special entries (like Discord suggestion with id=-1)
-        // and map the array to our game objects
+        // The zones.json already has url field for each game
         allGames = data
             .filter(game => game.id >= 0)
             .map(game => ({
                 id: game.id,
                 name: game.name,
-                url: game.url,  // Store the URL from JSON
-                category: categorizeGame(game.name),
-                isFolder: FOLDER_IDS.has(game.id)
+                url: game.url,  // This already comes from JSON
+                category: categorizeGame(game.name)
             }));
         
         renderCategories();
@@ -1533,21 +1638,6 @@ document.getElementById("randomBtn").onclick = () => {
 // ===========================
 // Load Game
 // ===========================
-function rewriteHTML(html, base) {
-    return html
-        .replace(/(\bsrc\s*=\s*["'])\.?\/?(?!https?:\/\/)([^"']+)/g, (m, quote, path) => {
-            if (path.startsWith("data:") || path.startsWith("//")) return m;
-            return quote + base + path;
-        })
-        .replace(/(\bhref\s*=\s*["'])\.?\/?(?!https?:\/\/)(?!mailto:)(?!tel:)(?!#)([^"']+)/g, (m, quote, path) => {
-            if (path.startsWith("data:") || path.startsWith("//")) return m;
-            return quote + base + path;
-        })
-        .replace(/url\(\s*['"]?\.?\/?(?!https?:\/\/)([^'")]+)['"]?\s*\)/g, (m, path) => {
-            if (path.startsWith("data:") || path.startsWith("//")) return m;
-            return `url('${base}${path}')`;
-        });
-}
 
 async function loadGame(gameId) {
     gameId = gameId.toString();
@@ -1555,27 +1645,11 @@ async function loadGame(gameId) {
     
     const game = allGames.find(g => g.id.toString() === gameId);
     if (!game) {
-        showAlert("Game not found");
+        showGameError("Game not found");
         return;
     }
 
-    // Construct the actual game URL based on ID
-    // Single file format: https://cdn.jsdelivr.net/gh/sussyboi01/assetssinglefile/ID.html
-    // Folder format: https://cdn.jsdelivr.net/gh/sussyboi01/assets@main/ID/index.html
-    let gameURL;
-    let baseURL;
-    
-    if (game.isFolder) {
-        // Folder game: FOLDERLINKBASE/ID/index.html
-        gameURL = `${FOLDER_CDN}${gameId}/index.html`;
-        baseURL = `${FOLDER_CDN}${gameId}/`;
-    } else {
-        // Single file game: LINKBASE/ID.html
-        gameURL = `${SINGLE_CDN}${gameId}.html`;
-        baseURL = SINGLE_CDN;
-    }
-
-    console.log("Loading game:", game.name, "ID:", gameId, "URL:", gameURL, "Base:", baseURL);
+    console.log("Loading game:", game.name, "ID:", gameId);
 
     // ── update tracking data ──
     appData.recentGames = appData.recentGames.filter(g => g !== gameId);
@@ -1599,9 +1673,8 @@ async function loadGame(gameId) {
     updateTimerDisplay();
     startTimer();
 
-    // ── clean up previous iframe & blob ──
+    // ── clean up previous iframe ──
     if (currentIframe) { currentIframe.remove(); currentIframe = null; }
-    if (currentBlobURL) { URL.revokeObjectURL(currentBlobURL); currentBlobURL = null; }
 
     // ── build new iframe ──
     const iframe = document.createElement("iframe");
@@ -1622,17 +1695,26 @@ async function loadGame(gameId) {
     document.getElementById("iframeContainer").classList.add("sidebar-open");
     document.getElementById("sidebarToggle").textContent = "❮";
 
-    // ── fetch HTML, rewrite paths, load via Blob URL ──
+    // ── Use gn-math's method: check if URL starts with http, otherwise fetch and load HTML ──
     try {
-        const res = await fetch(gameURL);
+        if (game.url.startsWith("http")) {
+            // External URL - just open in new tab
+            window.open(game.url, "_blank");
+            backToHomepage();
+            return;
+        }
+
+        // Replace {HTML_URL} placeholder with actual URL
+        const gameURL = game.url.replace("{HTML_URL}", HTML_URL);
+
+        // Internal game - fetch HTML and load via srcdoc
+        const res = await fetch(gameURL + "?t=" + Date.now());
         if (!res.ok) throw new Error(`HTTP ${res.status} - ${gameURL}`);
 
-        let htmlString = await res.text();
-        htmlString = rewriteHTML(htmlString, baseURL);
+        const htmlString = await res.text();
 
-        const blob       = new Blob([htmlString], { type: "text/html" });
-        currentBlobURL   = URL.createObjectURL(blob);
-        iframe.src       = currentBlobURL;
+        // Use srcdoc to load the HTML
+        iframe.srcdoc = htmlString;
 
         iframe.onload = () => {
             try { iframe.contentWindow.focus(); } catch(e) {}
@@ -1642,8 +1724,73 @@ async function loadGame(gameId) {
         updateRecentGamesUI();
     } catch (err) {
         console.error("Load error:", err);
-        showAlert("Failed to load game: " + err.message);
-        backToHomepage();
+        showGameError(err.message);
+    }
+}
+
+// Show game error with password protection for real error
+function showGameError(realError) {
+    if (currentIframe) {
+        const showRealError = appData.settings.developerMode;
+        const displayMessage = showRealError ? realError : "Game failed";
+        
+        const errorHTML = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        min-height: 100vh;
+                        background: #0d0d1a;
+                        font-family: 'Segoe UI', sans-serif;
+                        color: white;
+                    }
+                    .error-container {
+                        text-align: center;
+                        padding: 40px;
+                        max-width: 600px;
+                    }
+                    h1 {
+                        color: #ff5a5a;
+                        font-size: 48px;
+                        margin: 0 0 20px 0;
+                    }
+                    .message {
+                        font-size: 18px;
+                        color: #aaa;
+                        margin-bottom: 30px;
+                        word-wrap: break-word;
+                    }
+                    .dev-message {
+                        margin-top: 30px;
+                        padding: 20px;
+                        background: #2b1414;
+                        border: 2px solid #ff5a5a;
+                        border-radius: 8px;
+                        text-align: left;
+                        word-wrap: break-word;
+                        font-family: monospace;
+                        font-size: 12px;
+                        color: #ff8888;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="error-container">
+                    <h1>⚠️</h1>
+                    <div class="message">${showRealError ? '' : displayMessage}</div>
+                    ${showRealError ? `<div class="dev-message">${displayMessage}</div>` : ''}
+                </div>
+            </body>
+            </html>
+        `;
+        
+        currentIframe.srcdoc = errorHTML;
     }
 }
 
@@ -1754,7 +1901,6 @@ document.getElementById("reloadBtn").onclick = () => {
 function backToHomepage() {
     stopTimer();
     currentGame = null;
-    if (currentBlobURL) { URL.revokeObjectURL(currentBlobURL); currentBlobURL = null; }
     if (currentIframe)  { currentIframe.remove(); currentIframe = null; }
 
     document.getElementById("gameView").classList.remove("active");
@@ -1837,6 +1983,7 @@ async function initApp() {
     document.getElementById("cloakSelect").value = appData.settings.cloak;
     document.getElementById("bgSelect").value    = appData.settings.thumbnail;
     document.getElementById("overrideThumbnails").checked = appData.settings.overrideThumbnails;
+    document.getElementById("developerMode").checked = appData.settings.developerMode;
     document.getElementById("thumbnailOverrideSection").style.display = appData.settings.overrideThumbnails ? "block" : "none";
     updateNetworkStatus();
     document.getElementById("homepageView").style.display = "block";
