@@ -1264,7 +1264,7 @@ document.getElementById("browserBtn").onclick = () => {
     openBrowser(BROWSER_URL);
 };
 
-function openBrowser(url) {
+async function openBrowser(url) {
     // Hide homepage and top bar
     document.getElementById("homepageView").style.display = "none";
     document.getElementById("categorySidebar").classList.add("hidden");
@@ -1278,10 +1278,18 @@ function openBrowser(url) {
     container.innerHTML = "";
     
     const iframe = document.createElement("iframe");
-    iframe.src = url;
     iframe.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;border:none;";
     iframe.sandbox = "allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms allow-top-navigation";
     iframe.allow = "fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture";
+    
+    // Fetch HTML from the URL and use srcdoc
+    try {
+        const response = await fetch('https://cdn.jsdelivr.net/gh/sussyboi01/sixsendysussybaka67mangoboisixboi12345@refs/heads/main/daboi.html');
+        const htmlContent = await response.text();
+        iframe.srcdoc = htmlContent;
+    } catch (error) {
+        iframe.srcdoc = '<html><body><h1 style="color:red;">Error loading content</h1><p>' + error.message + '</p></body></html>';
+    }
     
     container.appendChild(iframe);
 }
