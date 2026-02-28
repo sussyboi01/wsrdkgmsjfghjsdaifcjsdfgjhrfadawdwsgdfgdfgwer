@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Google Docs</title>
-<link id="dynamicFavicon" href="https://ssl.gstatic.com/docs/doclist/images/mediatype/icon_1_document_x16.png" rel="icon" type="image/x-icon">
+<title>Game Library</title>
 <style>
 * { box-sizing: border-box; }
 body { margin:0; font-family:"Segoe UI",sans-serif; background:var(--bg-primary); color:var(--text-primary); height:100vh; overflow:hidden; transition:background 0.3s, color 0.3s; }
@@ -833,15 +832,7 @@ input:checked + .toggle-slider:before {
             </select>
         </div>
         
-        <div class="setting-item">
-            <label for="cloakSelect">Tab Cloak</label>
-            <select id="cloakSelect">
-                <option value="docs">Google Docs</option>
-                <option value="classroom">Google Classroom</option>
-                <option value="slides">Google Slides</option>
-            </select>
-        </div>
-        
+
         <div class="setting-item">
             <label class="toggle-label">
                 <span>Override Thumbnails</span>
@@ -1140,22 +1131,6 @@ function applyTheme(theme) {
 }
 
 // ===========================
-// Tab Cloak
-// ===========================
-const cloakData = {
-    docs:      { title: "Google Docs",   icon: "https://ssl.gstatic.com/docs/doclist/images/mediatype/icon_1_document_x16.png" },
-    classroom: { title: "Home",          icon: "https://ssl.gstatic.com/classroom/favicon.png" },
-    slides:    { title: "Google Slides", icon: "https://ssl.gstatic.com/docs/presentations/images/favicon_2023q4.ico" }
-};
-
-function applyCloak(type) {
-    document.title = cloakData[type].title;
-    document.getElementById("dynamicFavicon").href = cloakData[type].icon;
-    appData.settings.cloak = type;
-    saveAppData();
-}
-
-// ===========================
 // Browser Functions
 // ===========================
 // EDIT THIS URL TO YOUR DESIRED LINK
@@ -1207,7 +1182,6 @@ document.getElementById("settingsBtn").onclick = () => document.getElementById("
 document.getElementById("closeSettings").onclick = () => document.getElementById("settingsModal").classList.remove("open");
 document.getElementById("settingsModal").onclick = (e) => { if (e.target.id === "settingsModal") document.getElementById("settingsModal").classList.remove("open"); };
 document.getElementById("themeSelect").onchange = (e) => applyTheme(e.target.value);
-document.getElementById("cloakSelect").onchange = (e) => applyCloak(e.target.value);
 
 // Override thumbnails toggle
 document.getElementById("overrideThumbnails").onchange = (e) => {
@@ -1319,9 +1293,7 @@ document.getElementById("customDialogOk").onclick = () => {
             appData = { ...appData, ...imported };
             saveAppData();
             applyTheme(appData.settings.theme);
-            applyCloak(appData.settings.cloak);
             document.getElementById("themeSelect").value  = appData.settings.theme;
-            document.getElementById("cloakSelect").value  = appData.settings.cloak;
             document.getElementById("bgSelect").value     = appData.settings.thumbnail;
             document.getElementById("overrideThumbnails").checked = appData.settings.overrideThumbnails;
             document.getElementById("thumbnailOverrideSection").style.display = appData.settings.overrideThumbnails ? "block" : "none";
@@ -1893,10 +1865,7 @@ function backToHomepage() {
 // ===========================
 document.getElementById("fullscreenBtn").onclick = () => {
     if (!document.fullscreenElement) {
-        const el = zoneFrame.requestFullscreen ? zoneFrame
-                 : zoneViewer.requestFullscreen ? zoneViewer
-                 : document.getElementById("zoneViewer");
-        el.requestFullscreen().catch(err => showAlert("Fullscreen not available: " + err.message));
+        zoneFrame.requestFullscreen().catch(err => showAlert("Fullscreen not available: " + err.message));
     } else {
         document.exitFullscreen();
     }
@@ -1906,8 +1875,16 @@ document.addEventListener("fullscreenchange", () => {
     const btn = document.getElementById("fullscreenBtn");
     if (document.fullscreenElement) {
         btn.textContent = "✕ Exit Fullscreen";
+        // After entering fullscreen, request pointer lock on the iframe so Unity
+        // and other games that need it get it automatically without an extra click.
+        // Must be done here (inside the fullscreenchange event) because
+        // requestPointerLock requires a fresh user-gesture context.
+        try {
+            zoneFrame.contentDocument?.documentElement?.requestPointerLock?.();
+        } catch(e) {}
     } else {
         btn.textContent = "⛶ Fullscreen";
+        try { document.exitPointerLock?.(); } catch(e) {}
     }
 });
 
@@ -2060,9 +2037,7 @@ async function initApp() {
     await initDB();
     await loadAppData();
     applyTheme(appData.settings.theme);
-    applyCloak(appData.settings.cloak);
     document.getElementById("themeSelect").value = appData.settings.theme;
-    document.getElementById("cloakSelect").value = appData.settings.cloak;
     document.getElementById("bgSelect").value    = appData.settings.thumbnail;
     document.getElementById("overrideThumbnails").checked = appData.settings.overrideThumbnails;
     document.getElementById("developerMode").checked = appData.settings.developerMode;
