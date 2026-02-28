@@ -719,71 +719,7 @@ input:checked + .toggle-slider:before {
 .countdown-value.urgent { color:#ff5a5a; animation:urgentPulse 1s ease-in-out infinite; }
 @keyframes urgentPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
-/* ===========================
-   Securly Warning Overlay
-   =========================== */
-#securlyWarning {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    background: #0a0005;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 40px;
-    animation: securlyFadeIn 0.3s ease;
-}
-#securlyWarning.show { display: flex; }
-@keyframes securlyFadeIn { from { opacity:0; } to { opacity:1; } }
 
-.securly-icon {
-    font-size: 80px;
-    margin-bottom: 24px;
-    animation: securlyPulse 1.5s ease-in-out infinite;
-}
-@keyframes securlyPulse {
-    0%,100% { transform: scale(1); filter: drop-shadow(0 0 20px #ff0040); }
-    50%      { transform: scale(1.08); filter: drop-shadow(0 0 40px #ff0040); }
-}
-.securly-title {
-    font-size: clamp(36px, 8vw, 72px);
-    font-weight: 900;
-    color: #ff0040;
-    letter-spacing: 6px;
-    text-transform: uppercase;
-    text-shadow: 0 0 30px #ff0040, 0 0 60px #ff004080;
-    margin-bottom: 16px;
-}
-.securly-subtitle {
-    font-size: 18px;
-    color: #ff6680;
-    margin-bottom: 10px;
-    max-width: 480px;
-    line-height: 1.5;
-}
-.securly-detail {
-    font-size: 13px;
-    color: #884455;
-    margin-bottom: 40px;
-    max-width: 400px;
-}
-.securly-btn {
-    background: #ff0040;
-    color: white;
-    border: none;
-    padding: 16px 48px;
-    font-size: 18px;
-    font-weight: 700;
-    border-radius: 10px;
-    cursor: pointer;
-    letter-spacing: 1px;
-    transition: background 0.2s, transform 0.1s;
-    box-shadow: 0 0 30px #ff004060;
-}
-.securly-btn:hover { background: #cc0030; transform: scale(1.04); }
-.securly-btn:active { transform: scale(0.98); }
 </style>
 </head>
 <body>
@@ -1747,78 +1683,84 @@ async function loadGame(gameId) {
             ? REPOS.untitled.gameBaseUrl + game.id + ".html"
             : game.url.replace("{HTML_URL}", HTML_URL);
 
-    // ── Fetch + absolute URL rewrite + write directly into frame ──
-    fetch(gameURL + (gameURL.includes("?") ? "&" : "?") + "t=" + Date.now())
-        .then(response => {
-            if (!response.ok) throw new Error("HTTP " + response.status);
-            return response.text();
-        })
-        .then(html => {
-            // 1. Get base URL from game's <base href> or derive from fetch URL
-            const baseMatch = html.match(/<base\s[^>]*href=["']([^"']+)["']/i);
-            const base = baseMatch
-                ? baseMatch[1]
-                : gameURL.substring(0, gameURL.lastIndexOf('/') + 1);
+    // ── Fetch + sanitize + write directly into frame ──
+    let html;
+    try {
+        const res = await fetch(gameURL + "?t=" + Date.now());
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        html = await res.text();
+    } catch (err) {
+        console.error("Load error:", err);
+        showGameError(err.message);
+        return;
+    }
 
-            // 2. Sanitize: strip ads, tracking, sidebars, obfuscated JS, and gtag
+    // 1. Get base URL from game's <base href> or derive from fetch URL
+    const baseMatch = html.match(/<base\s[^>]*href=["']([^"']+)["']/i);
+    const base = baseMatch
+        ? baseMatch[1]
+        : gameURL.substring(0, gameURL.lastIndexOf('/') + 1);
 
-            // Strip ad/tracking scripts by known src URLs
-            html = html.replace(/<script[^>]+src="[^"]*(?:googlesyndication|googletagmanager|fundingchoicesmessages)[^"]*"[^>]*>\s*<\/script>/gi, "");
-            html = html.replace(/<ins\b[^>]*class="adsbygoogle"[^>]*>[\s\S]*?<\/ins>/gi, "");
+    // 2. Sanitize: strip ads, tracking, sidebars, and obfuscated JS
 
-            // Strip gtag / Google Analytics inline scripts
-            html = html.replace(/<script[^>]*>[\s\S]*?(?:gtag\s*\(|google_tag_manager|ga\s*\(\s*['"]send['"])[\s\S]*?<\/script>/gi, "");
-            html = html.replace(/<script[^>]*>\s*window\.dataLayer[\s\S]*?<\/script>/gi, "");
+    // Strip ad/tracking scripts by known src URLs
+    html = html.replace(/<script[^>]+src="[^"]*(?:googlesyndication|googletagmanager|fundingchoicesmessages|doubleclick|adnxs|outbrain|taboola)[^"]*"[^>]*>\s*<\/script>/gi, "");
+    html = html.replace(/<ins\b[^>]*class="adsbygoogle"[^>]*>[\s\S]*?<\/ins>/gi, "");
 
-            // Strip sidebar elements (id or class containing "sidebar" with optional number)
-            html = html.replace(/<(?:div|aside|section|nav)[^>]+(?:id|class)=["'][^"']*sidebar\d*[^"']*["'][^>]*>[\s\S]*?<\/(?:div|aside|section|nav)>/gi, "");
+    // Strip gtag / Google Analytics inline scripts
+    html = html.replace(/<script[^>]*>\s*(?:window\.dataLayer\s*=|function\s+gtag\s*\()[\s\S]*?<\/script>/gi, "");
+    html = html.replace(/<script[^>]+src="[^"]*(?:gtag\/js|analytics\.js|ga\.js)[^"]*"[^>]*>\s*<\/script>/gi, "");
 
-            // Strip obfuscated JavaScript — scripts whose body uses eval, atob, or large fromCharCode patterns
-            html = html.replace(/<script(?:[^>](?!src))*>[\s\S]*?(?:eval\s*\(|String\.fromCharCode|atob\s*\(|unescape\s*\()[\s\S]*?<\/script>/gi, "");
+    // Strip sidebar elements by id/class name
+    html = html.replace(/<(?:div|aside|section|nav)([^>]+)(?:id|class)=["'][^"']*\bsidebar\d*\b[^"']*["'][^>]*>[\s\S]*?<\/(?:div|aside|section|nav)>/gi, "");
 
-            // 3. Rewrite HTML tag attribute URLs (href=, src=) to absolute
-            //    Split on <script> blocks so we don't touch JS string literals here
-            const parts = html.split(/(<script[\s\S]*?<\/script>)/gi);
-            html = parts.map(part => {
-                if (/^<script/i.test(part)) return part;
-                return part.replace(
-                    /\b(href|src)=(["'])(?!https?:|\/\/|data:|blob:|javascript:|#)([^"']*)\2/gi,
-                    (_, attr, q, relUrl) => `${attr}=${q}${base}${relUrl}${q}`
-                );
-            }).join('');
+    // Strip clearly obfuscated scripts — large single-expression eval/fromCharCode blobs
+    // Use a tight match: the script body must be almost entirely the obfuscated expression
+    // (avoids false-positives on Unity/game scripts that legitimately use atob for small tasks)
+    html = html.replace(/<script\b(?![^>]*\bsrc\s*=)[^>]*>\s*(?:eval\s*\(|(?:var|let|const)\s+\w+\s*=\s*(?:atob|unescape)\s*\()[^;]{200,};\s*<\/script>/gi, "");
 
-            // 4. Rewrite JS asset path variable assignments to absolute
-            //    Unity games do: const buildUrl = "Build" — dynamic script.src then uses it
-            //    We rewrite "Build" -> "https://cdn.../199/Build" so script.src resolves correctly
-            html = html.replace(
-                /((?:buildUrl|loaderUrl|streamingAssetsUrl|dataUrl|frameworkUrl|codeUrl|unityBuildUrl)\s*=\s*)(["'])(?!https?:|\/\/|data:|blob:)([^"']+)\2/g,
-                (_, pre, q, val) => `${pre}${q}${base}${val}${q}`
-            );
+    // Fix Unity hostname check that breaks when not on original domain
+    html = html.replace(/new URL\(url, location\.origin\)\.hostname/g, '""');
 
-            // 5. Ensure <base href> is present as fallback for anything we missed
-            if (!/<base\b[^>]*href/i.test(html)) {
-                html = html.replace(/(<head[^>]*>)/i, `$1<base href="${base}">`);
-            }
+    // 3. Rewrite ALL tag attribute URLs to absolute — including <script src="...">
+    //    Only skip purely inline scripts (no src= attr) to avoid mangling JS string literals
+    //    Critical for Unity: <script src="Build/game.loader.js"> must become absolute
+    //    so document.currentScript.src resolves to the CDN, not your origin
+    const parts = html.split(/(<script[\s\S]*?<\/script>)/gi);
+    html = parts.map(part => {
+        // Skip inline scripts only — external scripts with src= must get rewritten
+        if (/^<script\b(?![^>]*\bsrc\s*=)/i.test(part)) return part;
+        return part.replace(
+            /\b(href|src)=(["'])(?!https?:|\/\/|data:|blob:|javascript:|#)([^"']*)\2/gi,
+            (_, attr, q, relUrl) => `${attr}=${q}${base}${relUrl}${q}`
+        );
+    }).join('');
 
-            // 6. Write directly into the frame document
-            zoneViewer.style.display = "block";
-            zoneViewer.hidden = false;
-            zoneFrame.srcdoc = "";
-            zoneFrame.src = "about:blank";
-            zoneFrame.onload = () => {
-                zoneFrame.onload = () => {
-                    try { zoneFrame.contentWindow.focus(); } catch(e) {}
-                    setupFocusDetection(zoneFrame);
-                };
-                zoneFrame.contentDocument.open();
-                zoneFrame.contentDocument.write(html);
-                zoneFrame.contentDocument.close();
-            };
-        })
-        .catch(err => {
-            console.error("Load error:", err);
-            showGameError(err.message);
-        });
+    // 4. Rewrite JS asset path variable assignments to absolute
+    //    Unity games do: const buildUrl = "Build" — dynamic script.src then uses it
+    html = html.replace(
+        /((?:buildUrl|loaderUrl|streamingAssetsUrl|dataUrl|frameworkUrl|codeUrl|unityBuildUrl)\s*=\s*)(["'])(?!https?:|\/\/|data:|blob:)([^"']+)\2/g,
+        (_, pre, q, val) => `${pre}${q}${base}${val}${q}`
+    );
+
+    // 5. Ensure <base href> is present as fallback for anything we missed
+    if (!/<base\b[^>]*href/i.test(html)) {
+        html = html.replace(/(<head[^>]*>)/i, `$1<base href="${base}">`);
+    }
+
+    // 6. Write directly into the frame document
+    zoneViewer.style.display = "block";
+    zoneViewer.hidden = false;
+    zoneFrame.src = "about:blank";
+    zoneFrame.onload = () => {
+        zoneFrame.onload = () => {
+            try { zoneFrame.contentWindow.focus(); } catch(e) {}
+            setupFocusDetection(zoneFrame);
+        };
+        zoneFrame.contentDocument.open();
+        zoneFrame.contentDocument.write(html);
+        zoneFrame.contentDocument.close();
+    };
 }
 
 // Show game error
@@ -1879,17 +1821,7 @@ function showGameError(realError) {
                     <div class="message">${showRealError ? '' : displayMessage}</div>
                     ${showRealError ? `<div class="dev-message">${displayMessage}</div>` : ''}
                 </div>
-            
-<!-- Securly Screen-Share Warning -->
-<div id="securlyWarning">
-    <div class="securly-icon">👁️</div>
-    <div class="securly-title">SECURLY IS ON</div>
-    <div class="securly-subtitle">Your screen is being viewed or controlled remotely.</div>
-    <div class="securly-detail">A screen sharing or remote control session was detected on this device.</div>
-    <button class="securly-btn" id="securlyDismiss">I Understand</button>
-</div>
-
-</body>
+            </body>
             </html>
         `;
         
@@ -2142,116 +2074,6 @@ async function initApp() {
 }
 
 initApp();
-
-
-// ===========================
-// Securly / Screen-Share Detection
-// ===========================
-(function detectScreenShare() {
-    let warningShown = false;
-
-    function showWarning() {
-        if (warningShown) return;
-        warningShown = true;
-        document.getElementById('securlyWarning').classList.add('show');
-    }
-
-    document.getElementById('securlyDismiss').onclick = () => {
-        document.getElementById('securlyWarning').classList.remove('show');
-        warningShown = false; // allow re-trigger if still sharing
-    };
-
-    // Method 1: getDisplayMedia / screen capture tracks
-    // Intercept getDisplayMedia so we know if the page itself starts sharing
-    if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
-        const _orig = navigator.mediaDevices.getDisplayMedia.bind(navigator.mediaDevices);
-        navigator.mediaDevices.getDisplayMedia = async function(...args) {
-            const stream = await _orig(...args);
-            stream.getTracks().forEach(track => {
-                track.addEventListener('ended', () => { warningShown = false; });
-            });
-            showWarning();
-            return stream;
-        };
-    }
-
-    // Method 2: RTCPeerConnection — detect screenshare/remote-desktop tracks
-    // Securly, GoGuardian, etc. use WebRTC to stream the screen.
-    // We watch for inbound 'video' tracks on any RTCPeerConnection — 
-    // a plain game or site does not receive a video track FROM the network.
-    const _OrigRTC = window.RTCPeerConnection || window.webkitRTCPeerConnection;
-    if (_OrigRTC) {
-        const PatchedRTC = function(...args) {
-            const pc = new _OrigRTC(...args);
-
-            pc.addEventListener('track', (e) => {
-                const track = e.track;
-                if (!track) return;
-
-                // A screen-share/remote-desktop delivers video FROM remote to us.
-                // Data-channel-only connections (used for basic monitoring agents)
-                // won't fire 'track' — but screen viewing/control will.
-                if (track.kind === 'video') {
-                    showWarning();
-                    track.addEventListener('ended', () => {
-                        // Hide warning when screen share ends
-                        document.getElementById('securlyWarning').classList.remove('show');
-                        warningShown = false;
-                    });
-                }
-
-                // Remote control: look for a data channel being opened alongside video
-                // (remote control tools send input events back over a data channel)
-            });
-
-            pc.addEventListener('datachannel', (e) => {
-                // A data channel opened alongside an existing video track = remote control
-                // Check if we already have video senders/receivers
-                setTimeout(() => {
-                    const receivers = pc.getReceivers ? pc.getReceivers() : [];
-                    const hasVideo = receivers.some(r => r.track && r.track.kind === 'video');
-                    if (hasVideo) showWarning();
-                }, 200);
-            });
-
-            return pc;
-        };
-
-        // Copy prototype chain
-        PatchedRTC.prototype = _OrigRTC.prototype;
-        Object.defineProperties(PatchedRTC, Object.getOwnPropertyDescriptors(_OrigRTC));
-        try {
-            window.RTCPeerConnection = PatchedRTC;
-            if (window.webkitRTCPeerConnection) window.webkitRTCPeerConnection = PatchedRTC;
-        } catch(e) {}
-    }
-
-    // Method 3: Screen Capture API — check if display surface is being captured
-    // Chrome 132+ exposes getViewportMedia / Screen Capture API changes
-    // Periodically check if any video track reports a 'monitor' or 'window' display surface
-    async function checkCaptureAPI() {
-        try {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
-            // If Screen Capture API is available and a screen source is active, 
-            // document.pictureInPictureEnabled combined with visibility changes can hint at it.
-            // More reliably: check document.visibilityState — when a remote viewer
-            // takes control the tab often loses/regains focus rapidly.
-        } catch(e) {}
-    }
-
-    // Method 4: Visibility + focus anomaly detection
-    // Remote control tools cause rapid focus loss/gain cycles as they inject input.
-    // Normal user doesn't lose focus 3+ times in 2 seconds.
-    let focusLossCount = 0;
-    let focusTimer = null;
-    window.addEventListener('blur', () => {
-        focusLossCount++;
-        clearTimeout(focusTimer);
-        focusTimer = setTimeout(() => { focusLossCount = 0; }, 2000);
-        if (focusLossCount >= 3) showWarning();
-    });
-
-})();
 
 </script>
 </body>
