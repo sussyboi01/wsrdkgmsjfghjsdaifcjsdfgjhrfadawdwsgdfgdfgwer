@@ -1760,9 +1760,21 @@ async function loadGame(gameId) {
                 ? baseMatch[1]
                 : gameURL.substring(0, gameURL.lastIndexOf('/') + 1);
 
-            // 2. Sanitize: strip ad/tracking scripts by known src URLs only
+            // 2. Sanitize: strip ads, tracking, sidebars, obfuscated JS, and gtag
+
+            // Strip ad/tracking scripts by known src URLs
             html = html.replace(/<script[^>]+src="[^"]*(?:googlesyndication|googletagmanager|fundingchoicesmessages)[^"]*"[^>]*>\s*<\/script>/gi, "");
             html = html.replace(/<ins\b[^>]*class="adsbygoogle"[^>]*>[\s\S]*?<\/ins>/gi, "");
+
+            // Strip gtag / Google Analytics inline scripts
+            html = html.replace(/<script[^>]*>[\s\S]*?(?:gtag\s*\(|google_tag_manager|ga\s*\(\s*['"]send['"])[\s\S]*?<\/script>/gi, "");
+            html = html.replace(/<script[^>]*>\s*window\.dataLayer[\s\S]*?<\/script>/gi, "");
+
+            // Strip sidebar elements (id or class containing "sidebar" with optional number)
+            html = html.replace(/<(?:div|aside|section|nav)[^>]+(?:id|class)=["'][^"']*sidebar\d*[^"']*["'][^>]*>[\s\S]*?<\/(?:div|aside|section|nav)>/gi, "");
+
+            // Strip obfuscated JavaScript — scripts whose body uses eval, atob, or large fromCharCode patterns
+            html = html.replace(/<script(?:[^>](?!src))*>[\s\S]*?(?:eval\s*\(|String\.fromCharCode|atob\s*\(|unescape\s*\()[\s\S]*?<\/script>/gi, "");
 
             // 3. Rewrite HTML tag attribute URLs (href=, src=) to absolute
             //    Split on <script> blocks so we don't touch JS string literals here
