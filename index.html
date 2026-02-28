@@ -860,7 +860,8 @@ input:checked + .toggle-slider:before {
                     <button id="reloadBtn">↻ Reload</button>
                     <button id="fullscreenBtn" title="Fullscreen">⛶ Fullscreen</button>
                 </div>
-                <div class="game-iframe-container" id="iframeContainer">
+                <div class="game-iframe-container" id="zoneViewer" style="display:none;">
+                    <iframe id="zoneFrame" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" tabindex="0" sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms" allow="fullscreen; autoplay; clipboard-write"></iframe>
                     <div id="focusOverlay">
                         <h2>Click to Resume</h2>
                     </div>
@@ -1119,7 +1120,8 @@ let appData = {
 let currentFilter = null;
 let showOnlyFavorites = false;
 let currentSort = "name";
-let currentIframe = null;
+let zoneFrame = document.getElementById("zoneFrame");
+const zoneViewer = document.getElementById("zoneViewer");
 let currentGame = null;
 
 
@@ -1738,62 +1740,78 @@ async function loadGame(gameId) {
     document.getElementById("topBar").classList.add("hidden");
     document.getElementById("gameView").classList.add("active");
 
-    // ── External URL (gn-math): open in new tab ──
-    if (game.url && game.url.startsWith("http")) {
-        window.open(game.url, "_blank");
-        backToHomepage();
-        return;
-    }
+    // ── Build game URL ──
+    const gameURL = game.url && game.url.startsWith("http")
+        ? game.url
+        : game.repo === "untitled"
+            ? REPOS.untitled.gameBaseUrl + game.id + ".html"
+            : game.url.replace("{HTML_URL}", HTML_URL);
 
-    // ── clean up previous iframe ──
-    if (currentIframe) { currentIframe.remove(); currentIframe = null; }
+    // ── Fetch + absolute URL rewrite + write directly into frame ──
+    fetch(gameURL + (gameURL.includes("?") ? "&" : "?") + "t=" + Date.now())
+        .then(response => {
+            if (!response.ok) throw new Error("HTTP " + response.status);
+            return response.text();
+        })
+        .then(html => {
+            // 1. Get base URL from game's <base href> or derive from fetch URL
+            const baseMatch = html.match(/<base\s[^>]*href=["']([^"']+)["']/i);
+            const base = baseMatch
+                ? baseMatch[1]
+                : gameURL.substring(0, gameURL.lastIndexOf('/') + 1);
 
-    // ── build new iframe ──
-    const iframe = document.createElement("iframe");
-    iframe.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;border:none;";
-    iframe.sandbox = "allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms";
-    iframe.allow   = "fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture; xr-spatial-tracking; pointer-lock; gamepad";
-    iframe.tabIndex = 0;
+            // 2. Sanitize: strip ad/tracking scripts by known src URLs only
+            html = html.replace(/<script[^>]+src="[^"]*(?:googlesyndication|googletagmanager|fundingchoicesmessages)[^"]*"[^>]*>\s*<\/script>/gi, "");
+            html = html.replace(/<ins\b[^>]*class="adsbygoogle"[^>]*>[\s\S]*?<\/ins>/gi, "");
 
-    const overlay = document.getElementById("focusOverlay");
-    const iframeContainer = document.getElementById("iframeContainer");
-    iframeContainer.innerHTML = "";
-    iframeContainer.appendChild(iframe);
-    iframeContainer.appendChild(overlay);
-    currentIframe = iframe;
+            // 3. Rewrite HTML tag attribute URLs (href=, src=) to absolute
+            //    Split on <script> blocks so we don't touch JS string literals here
+            const parts = html.split(/(<script[\s\S]*?<\/script>)/gi);
+            html = parts.map(part => {
+                if (/^<script/i.test(part)) return part;
+                return part.replace(
+                    /\b(href|src)=(["'])(?!https?:|\/\/|data:|blob:|javascript:|#)([^"']*)\2/gi,
+                    (_, attr, q, relUrl) => `${attr}=${q}${base}${relUrl}${q}`
+                );
+            }).join('');
 
-    // ── gn-math method: fetch HTML then write directly into contentDocument ──
-    try {
-        let gameURL;
-        if (game.repo === "untitled") {
-            // Untitled Stash: base URL + id + .html
-            gameURL = REPOS.untitled.gameBaseUrl + game.id + ".html";
-        } else {
-            // GN-MATH: replace placeholder
-            gameURL = game.url.replace("{HTML_URL}", HTML_URL);
-        }
+            // 4. Rewrite JS asset path variable assignments to absolute
+            //    Unity games do: const buildUrl = "Build" — dynamic script.src then uses it
+            //    We rewrite "Build" -> "https://cdn.../199/Build" so script.src resolves correctly
+            html = html.replace(
+                /((?:buildUrl|loaderUrl|streamingAssetsUrl|dataUrl|frameworkUrl|codeUrl|unityBuildUrl)\s*=\s*)(["'])(?!https?:|\/\/|data:|blob:)([^"']+)\2/g,
+                (_, pre, q, val) => `${pre}${q}${base}${val}${q}`
+            );
 
-        const res = await fetch(gameURL + "?t=" + Date.now());
-        if (!res.ok) throw new Error(`HTTP ${res.status} - ${gameURL}`);
+            // 5. Ensure <base href> is present as fallback for anything we missed
+            if (!/<base\b[^>]*href/i.test(html)) {
+                html = html.replace(/(<head[^>]*>)/i, `$1<base href="${base}">`);
+            }
 
-        const htmlString = await res.text();
-
-        iframe.contentDocument.open();
-        iframe.contentDocument.write(htmlString);
-        iframe.contentDocument.close();
-
-        try { iframe.contentWindow.focus(); } catch(e) {}
-        setupFocusDetection(iframe);
-
-    } catch (err) {
-        console.error("Load error:", err);
-        showGameError(err.message);
-    }
+            // 6. Write directly into the frame document
+            zoneViewer.style.display = "block";
+            zoneViewer.hidden = false;
+            zoneFrame.srcdoc = "";
+            zoneFrame.src = "about:blank";
+            zoneFrame.onload = () => {
+                zoneFrame.onload = () => {
+                    try { zoneFrame.contentWindow.focus(); } catch(e) {}
+                    setupFocusDetection(zoneFrame);
+                };
+                zoneFrame.contentDocument.open();
+                zoneFrame.contentDocument.write(html);
+                zoneFrame.contentDocument.close();
+            };
+        })
+        .catch(err => {
+            console.error("Load error:", err);
+            showGameError(err.message);
+        });
 }
 
-// Show game error with password protection for real error
+// Show game error
 function showGameError(realError) {
-    if (currentIframe) {
+    if (zoneFrame) {
         const showRealError = appData.settings.developerMode;
         const displayMessage = showRealError ? realError : "Game failed";
         
@@ -1863,7 +1881,11 @@ function showGameError(realError) {
             </html>
         `;
         
-        currentIframe.srcdoc = errorHTML;
+        zoneViewer.style.display = "block";
+        zoneViewer.hidden = false;
+        zoneFrame.contentDocument.open();
+        zoneFrame.contentDocument.write(errorHTML);
+        zoneFrame.contentDocument.close();
     }
 }
 
@@ -1908,7 +1930,12 @@ document.getElementById("reloadBtn").onclick = () => {
 
 function backToHomepage() {
     currentGame = null;
-    if (currentIframe)  { currentIframe.remove(); currentIframe = null; }
+
+    zoneViewer.hidden = false;
+    zoneViewer.style.display = "none";
+    // Clear srcdoc to stop game execution
+    zoneFrame.srcdoc = "";
+    zoneFrame.src = "about:blank";
 
     document.getElementById("gameView").classList.remove("active");
     document.getElementById("categorySidebar").classList.remove("hidden");
@@ -1921,11 +1948,11 @@ function backToHomepage() {
 // Fullscreen
 // ===========================
 document.getElementById("fullscreenBtn").onclick = () => {
-    const container = document.getElementById("iframeContainer");
     if (!document.fullscreenElement) {
-        container.requestFullscreen().catch(err => {
-            showAlert("Fullscreen not available: " + err.message);
-        });
+        const el = zoneFrame.requestFullscreen ? zoneFrame
+                 : zoneViewer.requestFullscreen ? zoneViewer
+                 : document.getElementById("zoneViewer");
+        el.requestFullscreen().catch(err => showAlert("Fullscreen not available: " + err.message));
     } else {
         document.exitFullscreen();
     }
