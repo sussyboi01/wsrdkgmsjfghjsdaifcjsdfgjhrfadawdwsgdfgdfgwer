@@ -643,7 +643,7 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
     <div class="home-buttons">
         <div class="home-btn" onclick="showAppPage('games')" style="--btn-glow: var(--accent)">
             <div class="btn-icon">🎮</div>
-            <div class="btn-label">da james</div>
+            <div class="btn-label">Games</div>
         </div>
         <div class="home-btn" onclick="showAppPage('music')" style="--btn-glow: var(--accent)">
             <div class="btn-icon">🎵</div>
@@ -995,7 +995,10 @@ const HOME_MESSAGES = [
    "67 sussy bakas in ohio💀",
    "geomtry dash",
    "savesta: ay ay do that one song u been singing the other day kumalala: kumalala kumyulala",
-   "2200+ games"
+   "2200+ games",
+   "when you lowkenuinly hit the griddy",
+   "dewey > sheldon > brick",
+   "guacwardddd",
 ];
 
 function pickRandomMessage() {
@@ -1014,6 +1017,11 @@ function applyGlobalTheme(theme) {
 }
 
 function showAppPage(name) {
+    // Pause shorts video when leaving that tab
+    const currentlyOnShorts = document.getElementById('page-shorts').classList.contains('active');
+    if (currentlyOnShorts && name !== 'shorts' && window.pauseShortsVideo) {
+        window.pauseShortsVideo();
+    }
     document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('page-' + name).classList.add('active');
@@ -2197,6 +2205,12 @@ document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if
             sFeed = shuffleArray(data); sFeedIdx = 0; sFeedTotalNum.textContent = sFeed.length;
             sLoadIntoFrame(sFeedFrame, sFeedPlayerWrap, sFeedLoading, sFeed[0], 'down'); updateFeedUI();
         } catch(e) { sFeedLoading.innerHTML = `<div style="color:var(--accent);font-family:'Segoe UI',sans-serif;font-size:12px;text-align:center;padding:20px">NO FEED<br><span style="color:var(--text-muted);font-size:10px">Could not load feed.json</span></div>`; }
+    };
+
+    // Expose pause so showAppPage can stop video when leaving shorts
+    window.pauseShortsVideo = () => {
+        pauseFrame(sFeedFrame);
+        pauseFrame(sFavsFrame);
     };
 })();
 </script>
