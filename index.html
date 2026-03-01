@@ -913,6 +913,34 @@ input:checked + .toggle-slider:before {
     <p id="alertMessage"></p>
     <button onclick="closeAlert()">OK</button>
 </div>
+
+<script>
+// Must be inside an iframe AND that iframe must be on the same origin.
+// If opened directly as a top-level tab — close it.
+// If embedded on a foreign origin — blank and close.
+(function() {
+    // Case 1: opened as a top-level tab
+    if (window.self === window.top) {
+        document.documentElement.innerHTML = "";
+        window.close();
+        return;
+    }
+    // Case 2: embedded on a different origin
+    // Accessing window.top.location.href throws a SecurityError if cross-origin,
+    // which is exactly what we want to detect.
+    try {
+        const parentOrigin = window.top.location.origin;
+        if (parentOrigin !== window.location.origin) {
+            document.documentElement.innerHTML = "";
+            window.close();
+        }
+    } catch (e) {
+        // SecurityError = cross-origin parent = not allowed
+        document.documentElement.innerHTML = "";
+        window.close();
+    }
+})();
+</script>
 <script>
 // ===========================
 // IndexedDB Setup
@@ -1800,26 +1828,20 @@ async function loadGame(gameId) {
     // 2. Remove the inline gtag config block (window.dataLayer + gtag function + gtag calls)
     html = html.replace(/<script\b[^>]*>[\s\S]*?window\.dataLayer[\s\S]*?<\/script>/gi, "");
 
-    // 3. Remove any element with id="sidebar1" or id="sidebar2" (any tag)
-    html = html.replace(/<[a-z][^>]*\bid=["']sidebar[12]["'][^>]*>[\s\S]*?<\/[a-z]+>/gi, "");
-    // Also catch self-closing or short elements
-    html = html.replace(/<[a-z][^>]*\bid=["']sidebar[12]["'][^>]*\/?>/gi, "");
+    // 3. Remove sidebar ad containers (sidebar1/2, sidebarad1/2) + injected close buttons
+    //    Only runs if a sidebar element is present in the fetched HTML
+    if (/id=["']sidebar/.test(html)) {
+        // Remove containers: sidebar1, sidebar2, sidebarad1, sidebarad2
+        html = html.replace(/<[a-z][^>]*\bid=["']sidebar(?:ad)?[12]["'][^>]*>[\s\S]*?<\/[a-z]+>/gi, "");
+        // Catch self-closing or empty variants
+        html = html.replace(/<[a-z][^>]*\bid=["']sidebar(?:ad)?[12]["'][^>]*\/?>/gi, "");
+        // Remove injected close buttons whose class contains "sidebar"
+        html = html.replace(/<[a-z][^>]*\bclass=["'][^"']*sidebar[^"']*["'][^>]*>[\s\S]*?<\/[a-z]+>/gi, "");
+        html = html.replace(/<[a-z][^>]*\bclass=["'][^"']*sidebar[^"']*["'][^>]*\/?>/gi, "");
+    }
 
-    // 4. Remove ONLY the specific ad-injection obfuscated script.
-    //    Fingerprinted by its unique string array containing known ad domains/identifiers.
-    //    This avoids nuking Unity loader scripts which also contain _0x patterns.
-    html = html.replace(/<script\b(?![^>]*\bsrc\s*=)[^>]*>([\s\S]*?)<\/script>/gi, (match, body) => {
-        // Must contain the specific obfuscated array fingerprint strings from the ad injector
-        const isAdInjector = (
-            body.includes('sidebarad1') ||
-            body.includes('sidebarad2') ||
-            body.includes('duplace.ne') ||
-            body.includes('eadisgay.e') ||
-            body.includes('sidebar-fr') ||
-            body.includes('G-WX5VS54Z')
-        );
-        return isAdInjector ? '' : match;
-    });
+    // 4. Remove hex-obfuscated scripts: anything matching _0x pattern
+    html = html.replace(/<script\b(?![^>]*\bsrc\s*=)[^>]*>[\s\S]*?_0x[0-9a-fA-F]+[\s\S]*?<\/script>/gi, "");
 
     // ── Fix relative URLs so assets load from CDN ──
 
