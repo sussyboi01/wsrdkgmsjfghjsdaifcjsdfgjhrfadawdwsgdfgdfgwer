@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Library</title>
+<title>daboi site</title>
 <style>
+/* ═══════════════════════════════════════════
+   GLOBAL THEME VARIABLES
+═══════════════════════════════════════════ */
 * { box-sizing: border-box; }
-body { margin:0; font-family:"Segoe UI",sans-serif; background:var(--bg-primary); color:var(--text-primary); height:100vh; overflow:hidden; transition:background 0.3s, color 0.3s; }
-
-/* CSS Variables for Themes */
 :root {
     --bg-primary: #0d0d1a;
     --bg-secondary: #14142b;
@@ -20,737 +20,670 @@ body { margin:0; font-family:"Segoe UI",sans-serif; background:var(--bg-primary)
     --text-primary: #ffffff;
     --text-secondary: #aaa;
     --text-muted: #666;
+    --danger: #ff5a5a;
+    /* aliases */
+    --bg: var(--bg-primary);
+    --panel: var(--bg-secondary);
+    --card: var(--bg-card);
+    --text: var(--text-primary);
+    --text2: var(--text-secondary);
+    --muted: var(--text-muted);
+    --glass: rgba(90,90,255,0.06);
+    --border2: var(--border);
+    --accent2: var(--accent-hover);
 }
-
 [data-theme="blue"] {
-    --bg-primary: #0a1929;
-    --bg-secondary: #0d2137;
-    --bg-tertiary: #1a2744;
-    --bg-card: #1e3a5f;
-    --accent: #3ea6ff;
-    --accent-hover: #5eb8ff;
-    --border: #1e3a5f;
+    --bg-primary: #0a1929; --bg-secondary: #0d2137; --bg-tertiary: #1a2744;
+    --bg-card: #1e3a5f; --accent: #3ea6ff; --accent-hover: #5eb8ff; --border: #1e3a5f;
+    --glass: rgba(62,166,255,0.06);
 }
-
 [data-theme="red"] {
-    --bg-primary: #1a0d0d;
-    --bg-secondary: #2b1414;
-    --bg-tertiary: #381b1b;
-    --bg-card: #502626;
-    --accent: #ff5a5a;
-    --accent-hover: #ff7878;
-    --border: #502626;
+    --bg-primary: #1a0d0d; --bg-secondary: #2b1414; --bg-tertiary: #381b1b;
+    --bg-card: #502626; --accent: #ff5a5a; --accent-hover: #ff7878; --border: #502626;
+    --glass: rgba(255,90,90,0.06);
 }
-
 [data-theme="green"] {
-    --bg-primary: #0d1a0d;
-    --bg-secondary: #142b14;
-    --bg-tertiary: #1b381b;
-    --bg-card: #265026;
-    --accent: #5aff5a;
-    --accent-hover: #78ff78;
-    --border: #265026;
+    --bg-primary: #0d1a0d; --bg-secondary: #142b14; --bg-tertiary: #1b381b;
+    --bg-card: #265026; --accent: #5aff5a; --accent-hover: #78ff78; --border: #265026;
+    --glass: rgba(90,255,90,0.06);
 }
-
 [data-theme="ocean"] {
-    --bg-primary: #0d1a1a;
-    --bg-secondary: #142b2b;
-    --bg-tertiary: #1b3838;
-    --bg-card: #265050;
-    --accent: #5affff;
-    --accent-hover: #78ffff;
-    --border: #265050;
+    --bg-primary: #0d1a1a; --bg-secondary: #142b2b; --bg-tertiary: #1b3838;
+    --bg-card: #265050; --accent: #5affff; --accent-hover: #78ffff; --border: #265050;
+    --glass: rgba(90,255,255,0.06);
 }
-
 [data-theme="sunset"] {
-    --bg-primary: #1a100d;
-    --bg-secondary: #2b1814;
-    --bg-tertiary: #38221b;
-    --bg-card: #503826;
-    --accent: #ff8a5a;
-    --accent-hover: #ffa078;
-    --border: #503826;
+    --bg-primary: #1a100d; --bg-secondary: #2b1814; --bg-tertiary: #38221b;
+    --bg-card: #503826; --accent: #ff8a5a; --accent-hover: #ffa078; --border: #503826;
+    --glass: rgba(255,138,90,0.06);
 }
 
-/* Layout Structure */
-.app-container { display:flex; height:100vh; }
+/* ═══════════════════════════════════════════
+   GLOBAL NAV BAR
+═══════════════════════════════════════════ */
+html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:var(--bg-primary); color:var(--text-primary); height:100%; overflow:hidden; transition:background 0.3s, color 0.3s; }
 
-/* Left Category Sidebar */
-.category-sidebar { 
-    width:180px; 
-    background:var(--bg-secondary); 
-    border-right:2px solid var(--border); 
-    overflow-y:auto; 
-    padding:15px 10px;
-    flex-shrink:0;
-    transition:transform 0.3s;
-}
-.category-sidebar.hidden { transform:translateX(-100%); position:absolute; }
-.category-sidebar h3 { 
-    font-size:14px; 
-    margin:0 0 12px 0; 
-    color:var(--accent); 
-    text-transform:uppercase;
-    letter-spacing:1px;
-}
-.category-item { 
-    padding:8px 10px; 
-    margin-bottom:4px; 
-    background:var(--bg-tertiary); 
-    border-radius:6px; 
-    cursor:pointer; 
-    font-size:13px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    transition:background 0.2s;
-}
-.category-item:hover { background:var(--bg-card); }
-.category-item.active { background:var(--accent); color:white; }
-.category-count { 
-    background:var(--bg-card); 
-    padding:2px 6px; 
-    border-radius:10px; 
-    font-size:11px;
-    color:var(--text-secondary);
-}
-.category-item.active .category-count { background:var(--accent-hover); color:white; }
-
-.alt-hint {
-    margin-top:auto;
-    padding:12px 8px;
-    font-size:11px;
-    color:white;
-    text-align:center;
-    line-height:1.4;
-    background:var(--bg-tertiary);
-    border-radius:6px;
-}
-
-/* Repo Switcher */
-.repo-switcher {
-    margin-top:16px;
-    margin-bottom:12px;
-}
-.repo-switcher-label {
-    font-size:11px;
-    color:var(--text-secondary);
-    text-transform:uppercase;
-    letter-spacing:1px;
-    margin-bottom:6px;
-    padding:0 2px;
-}
-.repo-btn {
-    padding:8px 10px;
-    margin-bottom:4px;
-    background:var(--bg-tertiary);
-    border-radius:6px;
-    cursor:pointer;
-    font-size:12px;
-    font-weight:600;
-    color:var(--text-secondary);
-    transition:background 0.2s, color 0.2s;
-    text-align:center;
-    border:2px solid transparent;
-}
-.repo-btn:hover { background:var(--bg-card); color:var(--text-primary); }
-.repo-btn.active { background:var(--accent); color:white; border-color:var(--accent-hover); }
-
-/* Main Content Area */
-.main-content { 
-    flex:1; 
-    display:flex; 
-    flex-direction:column; 
-    overflow:hidden;
-}
-
-/* Top Navigation Bar */
-.top-bar { 
-    background:var(--bg-secondary); 
-    padding:15px 20px; 
-    border-bottom:2px solid var(--border);
-    display:flex;
-    gap:12px;
-    align-items:center;
-    flex-wrap:wrap;
-    transition:all 0.3s;
-}
-.top-bar.hidden {
-    display:none;
-}
-.top-bar input[type="text"] { 
-    flex:1; 
-    min-width:200px;
-    padding:10px 15px; 
-    border-radius:8px; 
-    border:none; 
-    background:var(--bg-tertiary); 
-    color:var(--text-primary); 
-}
-.top-bar button, .top-bar select { 
-    background:var(--bg-card); 
-    border:none; 
-    padding:10px 16px; 
-    border-radius:8px; 
-    color:var(--text-primary); 
-    cursor:pointer; 
-    font-size:14px;
-    transition:background 0.2s;
-}
-.top-bar button:hover, .top-bar select:hover { background:var(--accent); }
-.top-bar button.active { background:var(--accent); }
-.top-bar select { cursor:pointer; }
-
-/* Content Area */
-.content-area { 
-    flex:1; 
-    overflow-y:auto; 
-    padding:20px;
-    display:flex;
-    transition:all 0.3s;
-}
-
-/* Homepage View */
-.homepage-view { 
-    flex:1;
-    display:none;
-}
-.quick-actions { 
-    display:flex; 
-    gap:12px; 
-    margin-bottom:20px;
-    flex-wrap:wrap;
-}
-.quick-actions button { 
-    background:var(--accent); 
-    border:none; 
-    padding:12px 20px; 
-    border-radius:8px; 
-    color:white; 
-    cursor:pointer; 
-    font-size:14px;
-    transition:background 0.2s;
-}
-.quick-actions button:hover { background:var(--accent-hover); }
-
-.recommended-section {
-    margin-bottom:20px;
-    padding:15px;
-    background:var(--bg-secondary);
-    border-radius:12px;
-}
-.recommended-section h3 {
-    margin:0 0 12px 0;
-    color:var(--accent);
-    font-size:16px;
-}
-.recommended-games {
-    display:flex;
-    gap:12px;
-    flex-wrap:wrap;
-}
-.recommended-game {
-    background:var(--bg-tertiary);
-    padding:10px 16px;
-    border-radius:8px;
-    cursor:pointer;
-    transition:background 0.2s;
-    font-size:14px;
-}
-.recommended-game:hover {
-    background:var(--accent);
-    color:white;
-}
-
-.games-grid { 
-    display:grid; 
-    grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); 
-    gap:20px;
-}
-.game-card { 
-    background:var(--bg-tertiary); 
-    border-radius:12px; 
-    overflow:hidden; 
-    cursor:pointer;
-    transition:transform 0.2s, box-shadow 0.2s;
-    position:relative;
-}
-.game-card:hover { 
-    transform:translateY(-4px); 
-    box-shadow:0 8px 20px rgba(90,90,255,0.3);
-}
-.game-card img { 
-    width:100%; 
-    height:140px; 
-    object-fit:cover; 
-    background:#090914;
-}
-.game-card-info { 
-    padding:12px; 
-    text-align:center;
-}
-.game-card-title { 
-    font-size:14px; 
-    margin-bottom:8px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-}
-.game-card .star { 
-    position:absolute; 
-    top:8px; 
-    right:8px; 
-    font-size:20px; 
-    cursor:pointer;
-    color:gold;
-    text-shadow:0 2px 4px rgba(0,0,0,0.5);
-    z-index:2;
-    transition:transform 0.2s;
-}
-.game-card .star.off { color:#555; }
-.game-card .star:hover { transform:scale(1.2); }
-
-/* ========================================
-   GAME VIEW — full screen layout
-   ======================================== */
-.game-view { 
-    display:none;
-    position:fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    z-index:50;
-    background:var(--bg-primary);
-}
-.game-view.active { display:flex; }
-
-/* Game Controls Bar */
-.game-controls-bar {
-    position:fixed;
-    top:0; left:0; right:0;
-    z-index:110;
-    background:var(--bg-secondary);
-    border-bottom:2px solid var(--border);
-    padding:8px 16px;
-    display:flex;
-    gap:10px;
-    align-items:center;
-}
-.game-controls-bar button {
-    background:var(--accent);
-    border:none;
-    padding:8px 16px;
-    border-radius:8px;
-    color:white;
-    cursor:pointer;
-    font-size:14px;
-    transition:background 0.2s;
-}
-.game-controls-bar button:hover { background:var(--accent-hover); }
-
-/* The iframe stretches to fill everything */
-.game-iframe-container { 
-    flex:1;
-    position:relative;
-    margin-top:46px;
-}
-.game-iframe-container iframe { 
-    position:absolute;
-    top:0; left:0;
-    width:100%; 
-    height:100%; 
-    border:none;
-    display:block;
-}
-
-/* ========================================
-   BROWSER VIEW — fullscreen iframe
-   ======================================== */
-.browser-view {
-    display:none;
-    position:fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    z-index:50;
-    background:var(--bg-primary);
-    flex-direction:column;
-}
-.browser-view.active { display:flex; }
-
-.browser-header {
-    background:var(--bg-secondary);
-    padding:15px 20px;
-    border-bottom:2px solid var(--border);
-    display:flex;
-    gap:12px;
-    align-items:center;
-}
-
-.browser-iframe-container {
-    flex:1;
-    position:relative;
-}
-
-.browser-iframe-container iframe {
-    position:absolute;
-    top:0; left:0;
-    width:100%;
-    height:100%;
-    border:none;
-    display:block;
-}
-
-
-
-/* Focus Overlay */
-#focusOverlay {
-    position:absolute;
-    top:0; left:0;
-    width:100%; height:100%;
-    background:rgba(0,0,0,0.8);
-    display:none;
-    justify-content:center;
-    align-items:center;
-    z-index:100;
-    cursor:pointer;
-    backdrop-filter:blur(5px);
-}
-#focusOverlay.active { display:flex; }
-#focusOverlay h2 {
-    color:white; 
-    font-size:28px; 
-    pointer-events:none;
-    user-select:none;
-    text-shadow:0 2px 8px black;
-}
-
-/* Modals */
-.modal-overlay { 
-    position:fixed; 
-    top:0; left:0; 
-    width:100%; height:100%; 
-    background:rgba(0,0,0,0.8); 
-    z-index:1000; 
-    display:flex; 
-    justify-content:center; 
-    align-items:center; 
-    opacity:0; 
-    pointer-events:none; 
-    transition:opacity 0.2s; 
-    backdrop-filter:blur(5px);
-}
-.modal-overlay.open { opacity:1; pointer-events:auto; }
-.modal-box { 
-    background:var(--bg-tertiary); 
-    width:450px; 
-    max-width:90%;
-    max-height:80vh;
-    padding:25px; 
-    border-radius:12px; 
-    box-shadow:0 5px 20px rgba(0,0,0,0.5); 
-    border:2px solid var(--accent);
-    position:relative;
-    overflow-y:auto;
-}
-.modal-box h2 { 
-    margin:0 0 20px 0; 
-    font-size:22px; 
-    border-bottom:2px solid var(--border); 
-    padding-bottom:12px;
-    color:var(--accent);
-}
-.close-modal { 
-    position:absolute; 
-    top:15px; 
-    right:20px; 
-    cursor:pointer; 
-    color:var(--text-secondary); 
-    font-size:28px;
-    transition:color 0.2s;
-}
-.close-modal:hover { color:var(--text-primary); }
-.setting-item { 
-    margin-bottom:18px;
-}
-.setting-item label { 
-    display:block; 
-    margin-bottom:6px; 
-    font-size:14px; 
-    color:var(--text-secondary);
-}
-.setting-item select { 
-    width:100%; 
-    padding:10px; 
-    border-radius:6px; 
-    border:none; 
-    background:var(--bg-card); 
-    color:var(--text-primary); 
-    cursor:pointer;
-}
-.setting-item input[type="file"] { 
-    display:none;
-}
-.setting-item button { 
-    width:100%; 
-    padding:10px; 
-    border-radius:6px; 
-    border:none; 
-    background:var(--accent); 
-    color:white; 
-    cursor:pointer;
-    transition:background 0.2s;
-}
-.setting-item button:hover { background:var(--accent-hover); }
-
-/* Toggle switch */
-.toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 24px;
-}
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-.toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #555;
-    transition: 0.3s;
-    border-radius: 24px;
-}
-.toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.3s;
-    border-radius: 50%;
-}
-input:checked + .toggle-slider {
-    background-color: var(--accent);
-}
-input:checked + .toggle-slider:before {
-    transform: translateX(26px);
-}
-.toggle-label {
+#global-nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 62px;
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--border);
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    z-index: 9999;
+    transition: background 0.3s, border-color 0.3s;
+}
+#global-nav .nav-row {
+    display: flex;
     align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    height: 31px;
+    border-bottom: 1px solid var(--border);
+}
+#global-nav .nav-row:last-child { border-bottom: none; }
+#global-nav .nav-logo {
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-right: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+#global-nav .nav-logo:hover { color: var(--accent-hover); }
+#global-nav .nav-sep { color: var(--border); font-size: 14px; }
+.nav-btn {
+    background: var(--bg-card);
+    border: none;
+    padding: 3px 9px;
+    border-radius: 5px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    height: 22px;
+    line-height: 22px;
+    display: flex; align-items: center;
+}
+.nav-btn:hover { background: var(--accent); color: white; }
+.nav-btn.active { background: var(--accent); color: white; }
+#global-nav .spacer { flex: 1; }
+#global-nav label { font-size: 10px; color: var(--text-secondary); white-space: nowrap; }
+#theme-bar-select {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 2px 6px;
+    border-radius: 5px;
+    font-size: 11px;
+    cursor: pointer;
+    height: 22px;
+}
+/* Clock area in nav */
+#nav-clock-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+#nav-clock-time {
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+    font-variant-numeric: tabular-nums;
+}
+#nav-clock-period {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+#nav-countdown {
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+#nav-countdown-label { font-size: 10px; opacity: 0.7; }
+#nav-countdown-value { font-family: monospace; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+#nav-countdown-value.urgent { color: #ff5a5a; animation: urgentPulse 1s ease-in-out infinite; }
+#nav-alt-hint {
+    font-size: 10px;
+    color: var(--text-muted);
+    opacity: 0.7;
+    white-space: nowrap;
 }
 
-
-
-/* Custom Alert */
-#customAlert { 
-    position:fixed; 
-    top:50%; left:50%; 
-    transform:translate(-50%,-50%); 
-    background:var(--bg-tertiary); 
-    border:2px solid var(--accent); 
-    border-radius:12px; 
-    padding:25px; 
-    z-index:9999; 
-    color:var(--text-primary); 
-    display:none; 
-    min-width:280px; 
-    text-align:center; 
-    box-shadow:0 4px 20px rgba(0,0,0,0.5);
+/* ═══════════════════════════════════════════
+   PAGE SYSTEM - uses visibility so display doesn't conflict with flex/block
+═══════════════════════════════════════════ */
+.app-page {
+    position: fixed;
+    top: 62px; left: 0; right: 0; bottom: 0;
+    overflow: hidden;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 1;
 }
-#customAlert button { 
-    margin-top:15px; 
-    padding:8px 20px; 
-    border:none; 
-    border-radius:6px; 
-    background:var(--accent); 
-    color:white; 
-    cursor:pointer;
-    transition:background 0.2s;
-}
-#customAlert button:hover { background:var(--accent-hover); }
-
-/* Custom Dialog */
-#customDialog {
-    position:fixed;
-    top:0; left:0; right:0; bottom:0;
-    background:rgba(0,0,0,0.8);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    z-index:9999;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity 0.2s ease;
-    backdrop-filter:blur(5px);
-}
-#customDialog.show {
-    opacity:1;
-    pointer-events:auto;
-}
-.custom-dialog-box {
-    background:var(--bg-tertiary);
-    padding:25px;
-    border-radius:12px;
-    border:2px solid var(--accent);
-    width:400px;
-    max-width:90%;
-}
-#customDialogMessage {
-    font-size:16px;
-    margin-bottom:15px;
-    color:var(--text-primary);
-}
-#customDialogInput {
-    width:100%;
-    padding:10px;
-    border-radius:6px;
-    border:none;
-    background:var(--bg-card);
-    color:var(--text-primary);
-    margin-bottom:15px;
-}
-#customDialogTextarea {
-    width:100%;
-    padding:10px;
-    border-radius:6px;
-    border:none;
-    background:var(--bg-card);
-    color:var(--text-primary);
-    margin-bottom:15px;
-    min-height:100px;
-    font-family:monospace;
-    font-size:12px;
-    resize:vertical;
-}
-.custom-dialog-buttons {
-    display:flex;
-    gap:10px;
-}
-.custom-dialog-buttons button {
-    flex:1;
-    padding:10px;
-    border:none;
-    border-radius:6px;
-    font-weight:bold;
-    cursor:pointer;
-    transition:background 0.2s;
-}
-#customDialogCancel {
-    background:#555;
-    color:white;
-}
-#customDialogCancel:hover { background:#777; }
-#customDialogOk, #customDialogCopy {
-    background:var(--accent);
-    color:white;
-}
-#customDialogOk:hover, #customDialogCopy:hover { background:var(--accent-hover); }
-
-
-/* Sidebar Clock */
-.sidebar-clock {
-    margin-top:12px;
-    margin-bottom:12px;
-    padding:10px;
-    background:var(--bg-tertiary);
-    border-radius:8px;
-    text-align:center;
-}
-.clock-time {
-    font-size:13px;
-    font-weight:700;
-    color:var(--accent);
-    font-variant-numeric:tabular-nums;
-    letter-spacing:0.5px;
-    font-family:monospace;
-}
-.clock-period {
-    margin-top:4px;
-    font-size:12px;
-    font-weight:600;
-    color:var(--text-primary);
-    min-height:16px;
+.app-page.active {
+    visibility: visible;
+    pointer-events: auto;
+    z-index: 2;
 }
 
-/* Scrollbar Styling */
-::-webkit-scrollbar { width:8px; height:8px; }
-::-webkit-scrollbar-track { background:var(--bg-secondary); }
-::-webkit-scrollbar-thumb { background:var(--accent); border-radius:4px; }
-::-webkit-scrollbar-thumb:hover { background:var(--accent-hover); }
-
-/* No games message */
-.no-games { 
-    text-align:center; 
-    padding:60px 20px; 
-    color:var(--text-muted);
-    font-size:18px;
+/* ═══════════════════════════════════════════
+   HOME PAGE
+═══════════════════════════════════════════ */
+#page-home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    background: var(--bg-primary);
 }
 
-/* Loading indicator */
-.loading {
-    text-align:center;
-    padding:40px;
-    color:var(--text-secondary);
+.home-title {
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: lowercase;
+    text-shadow: 0 0 40px var(--accent), 0 0 80px var(--accent);
+    animation: titlePulse 3s ease-in-out infinite;
+}
+@keyframes titlePulse {
+    0%, 100% { text-shadow: 0 0 40px var(--accent), 0 0 80px var(--accent); }
+    50% { text-shadow: 0 0 60px var(--accent), 0 0 120px var(--accent), 0 0 200px var(--accent); }
 }
 
-/* Search autocomplete */
-.search-wrapper { flex:1; min-width:200px; position:relative; }
-.search-wrapper input { width:100%; padding:10px 15px; border-radius:8px; border:none; background:var(--bg-tertiary); color:var(--text-primary); outline:none; }
-.autocomplete-list { position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--bg-card); border:1px solid var(--border); border-radius:8px; z-index:500; overflow:hidden; display:none; box-shadow:0 4px 16px rgba(0,0,0,0.4); max-height:220px; overflow-y:auto; }
-.autocomplete-list.open { display:block; }
-.autocomplete-item { padding:9px 14px; font-size:13px; cursor:pointer; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
-.autocomplete-item:hover, .autocomplete-item.selected { background:var(--accent); color:white; }
-.autocomplete-item .ac-icon { font-size:11px; color:var(--text-muted); flex-shrink:0; }
-.autocomplete-item:hover .ac-icon, .autocomplete-item.selected .ac-icon { color:rgba(255,255,255,0.7); }
+.home-message {
+    font-size: 15px;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    font-style: italic;
+    min-height: 24px;
+    text-align: center;
+    max-width: 500px;
+    padding: 0 20px;
+}
 
-/* Countdown */
-.countdown-display { margin-top:8px; padding:8px 10px; background:var(--bg-tertiary); border-radius:6px; text-align:center; }
-.countdown-label { color:var(--text-secondary); font-size:10px; text-transform:uppercase; letter-spacing:1px; margin-bottom:3px; }
-.countdown-value { font-size:15px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
-.countdown-value.urgent { color:#ff5a5a; animation:urgentPulse 1s ease-in-out infinite; }
+.home-buttons {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 20px;
+}
+
+.home-btn {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: transform 0.12s ease-out, box-shadow 0.2s;
+    transform-style: preserve-3d;
+
+    /* 3D bottom/right shadow for raised look */
+    box-shadow:
+        0 8px 0 rgba(0,0,0,0.5),
+        0 8px 20px rgba(0,0,0,0.4),
+        0 0 30px var(--accent-glow, transparent);
+}
+.home-btn::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 22px;
+    background: radial-gradient(ellipse at center, var(--btn-glow, var(--accent)) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: -1;
+    filter: blur(12px);
+}
+.home-btn:hover::before { opacity: 0.6; }
+.home-btn:hover {
+    transform: perspective(400px) translateY(-6px) rotateX(4deg) scale(1.04);
+    box-shadow:
+        0 14px 0 rgba(0,0,0,0.4),
+        0 20px 40px rgba(0,0,0,0.4),
+        0 0 50px var(--btn-glow, var(--accent));
+}
+.home-btn:active {
+    transform: perspective(400px) translateY(2px) rotateX(-1deg) scale(0.98);
+    box-shadow:
+        0 4px 0 rgba(0,0,0,0.5),
+        0 6px 10px rgba(0,0,0,0.4);
+}
+.home-btn .btn-icon {
+    font-size: 42px;
+    line-height: 1;
+    filter: drop-shadow(0 0 8px var(--accent));
+    transition: filter 0.2s;
+}
+.home-btn:hover .btn-icon {
+    filter: drop-shadow(0 0 16px var(--accent));
+}
+.home-btn .btn-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════ */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-hover); }
+
+
+/* ═══════════════════════════════════════════
+   ── GAMES PAGE (index) ──
+═══════════════════════════════════════════ */
+#page-games { display: block; }
+
+#page-games .app-container { display:flex; height:calc(100vh - 62px); }
+#page-games .category-sidebar {
+    width:180px; background:var(--bg-secondary); border-right:2px solid var(--border);
+    overflow-y:auto; padding:15px 10px; flex-shrink:0; transition:transform 0.3s;
+}
+#page-games .category-sidebar.hidden { transform:translateX(-100%); position:absolute; z-index:-1; }
+#page-games .category-sidebar h3 { font-size:14px; margin:0 0 12px 0; color:var(--accent); text-transform:uppercase; letter-spacing:1px; }
+#page-games .category-item {
+    padding:8px 10px; margin-bottom:4px; background:var(--bg-tertiary); border-radius:6px;
+    cursor:pointer; font-size:13px; display:flex; justify-content:space-between; align-items:center; transition:background 0.2s;
+}
+#page-games .category-item:hover { background:var(--bg-card); }
+#page-games .category-item.active { background:var(--accent); color:white; }
+#page-games .category-count { background:var(--bg-card); padding:2px 6px; border-radius:10px; font-size:11px; color:var(--text-secondary); }
+#page-games .category-item.active .category-count { background:var(--accent-hover); color:white; }
+#page-games .alt-hint { margin-top:auto; padding:12px 8px; font-size:11px; color:white; text-align:center; line-height:1.4; background:var(--bg-tertiary); border-radius:6px; }
+#page-games .repo-switcher { margin-top:16px; margin-bottom:12px; }
+#page-games .repo-switcher-label { font-size:11px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; padding:0 2px; }
+#page-games .repo-btn {
+    padding:8px 10px; margin-bottom:4px; background:var(--bg-tertiary); border-radius:6px; cursor:pointer;
+    font-size:12px; font-weight:600; color:var(--text-secondary); transition:background 0.2s, color 0.2s; text-align:center; border:2px solid transparent;
+}
+#page-games .repo-btn:hover { background:var(--bg-card); color:var(--text-primary); }
+#page-games .repo-btn.active { background:var(--accent); color:white; border-color:var(--accent-hover); }
+#page-games .main-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+#page-games .top-bar {
+    background:var(--bg-secondary); padding:15px 20px; border-bottom:2px solid var(--border);
+    display:flex; gap:12px; align-items:center; flex-wrap:wrap; transition:all 0.3s;
+}
+#page-games .top-bar.hidden { display:none; }
+#page-games .top-bar input[type="text"] { flex:1; min-width:200px; padding:10px 15px; border-radius:8px; border:none; background:var(--bg-tertiary); color:var(--text-primary); outline:none; }
+#page-games .top-bar button, #page-games .top-bar select {
+    background:var(--bg-card); border:none; padding:10px 16px; border-radius:8px;
+    color:var(--text-primary); cursor:pointer; font-size:14px; transition:background 0.2s;
+}
+#page-games .top-bar button:hover, #page-games .top-bar select:hover { background:var(--accent); }
+#page-games .top-bar button.active { background:var(--accent); }
+#page-games .top-bar select { cursor:pointer; }
+#page-games .content-area { flex:1; overflow-y:auto; padding:20px; display:flex; transition:all 0.3s; }
+#page-games .homepage-view { flex:1; display:none; }
+#page-games .quick-actions { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+#page-games .quick-actions button {
+    background:var(--accent); border:none; padding:12px 20px; border-radius:8px;
+    color:white; cursor:pointer; font-size:14px; transition:background 0.2s;
+}
+#page-games .quick-actions button:hover { background:var(--accent-hover); }
+#page-games .recommended-section { margin-bottom:20px; padding:15px; background:var(--bg-secondary); border-radius:12px; }
+#page-games .recommended-section h3 { margin:0 0 12px 0; color:var(--accent); font-size:16px; }
+#page-games .recommended-games { display:flex; gap:12px; flex-wrap:wrap; }
+#page-games .recommended-game { background:var(--bg-tertiary); padding:10px 16px; border-radius:8px; cursor:pointer; transition:background 0.2s; font-size:14px; }
+#page-games .recommended-game:hover { background:var(--accent); color:white; }
+#page-games .games-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:20px; }
+#page-games .game-card { background:var(--bg-tertiary); border-radius:12px; overflow:hidden; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; position:relative; transform-style:preserve-3d; perspective:600px; }
+#page-games .game-card:hover { box-shadow:0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px var(--accent); }
+#page-games .game-card img { width:100%; height:140px; object-fit:cover; background:#090914; }
+#page-games .game-card-info { padding:12px; text-align:center; }
+#page-games .game-card-title { font-size:14px; margin-bottom:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#page-games .game-card .star { position:absolute; top:8px; right:8px; font-size:20px; cursor:pointer; color:gold; text-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:2; transition:transform 0.2s; }
+#page-games .game-card .star.off { color:#555; }
+#page-games .game-card .star:hover { transform:scale(1.2); }
+#page-games .game-view { display:none; position:fixed; top:62px; left:0; width:100%; height:calc(100% - 62px); z-index:50; background:var(--bg-primary); }
+#page-games .game-view.active { display:flex; }
+#page-games .game-controls-bar { position:fixed; top:62px; left:0; right:0; z-index:110; background:var(--bg-secondary); border-bottom:2px solid var(--border); padding:8px 16px; display:flex; gap:10px; align-items:center; }
+#page-games .game-controls-bar button { background:var(--accent); border:none; padding:8px 16px; border-radius:8px; color:white; cursor:pointer; font-size:14px; transition:background 0.2s; }
+#page-games .game-controls-bar button:hover { background:var(--accent-hover); }
+#page-games .game-iframe-container { flex:1; position:relative; margin-top:46px; }
+#page-games .game-iframe-container iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; display:block; }
+#page-games #focusOverlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index:100; cursor:pointer; backdrop-filter:blur(5px); }
+#page-games #focusOverlay.active { display:flex; }
+#page-games #focusOverlay h2 { color:white; font-size:28px; pointer-events:none; user-select:none; text-shadow:0 2px 8px black; }
+#page-games .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; display:flex; justify-content:center; align-items:center; opacity:0; pointer-events:none; transition:opacity 0.2s; backdrop-filter:blur(5px); }
+#page-games .modal-overlay.open { opacity:1; pointer-events:auto; }
+#page-games .modal-box { background:var(--bg-tertiary); width:450px; max-width:90%; max-height:80vh; padding:25px; border-radius:12px; box-shadow:0 5px 20px rgba(0,0,0,0.5); border:2px solid var(--accent); position:relative; overflow-y:auto; }
+#page-games .modal-box h2 { margin:0 0 20px 0; font-size:22px; border-bottom:2px solid var(--border); padding-bottom:12px; color:var(--accent); }
+#page-games .close-modal { position:absolute; top:15px; right:20px; cursor:pointer; color:var(--text-secondary); font-size:28px; transition:color 0.2s; }
+#page-games .close-modal:hover { color:var(--text-primary); }
+#page-games .setting-item { margin-bottom:18px; }
+#page-games .setting-item label { display:block; margin-bottom:6px; font-size:14px; color:var(--text-secondary); }
+#page-games .setting-item select { width:100%; padding:10px; border-radius:6px; border:none; background:var(--bg-card); color:var(--text-primary); cursor:pointer; }
+#page-games .setting-item input[type="file"] { display:none; }
+#page-games .setting-item button { width:100%; padding:10px; border-radius:6px; border:none; background:var(--accent); color:white; cursor:pointer; transition:background 0.2s; }
+#page-games .setting-item button:hover { background:var(--accent-hover); }
+#page-games .toggle-switch { position:relative; display:inline-block; width:50px; height:24px; }
+#page-games .toggle-switch input { opacity:0; width:0; height:0; }
+#page-games .toggle-slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#555; transition:0.3s; border-radius:24px; }
+#page-games .toggle-slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:0.3s; border-radius:50%; }
+#page-games input:checked + .toggle-slider { background-color:var(--accent); }
+#page-games input:checked + .toggle-slider:before { transform:translateX(26px); }
+#page-games .toggle-label { display:flex; justify-content:space-between; align-items:center; }
+#page-games #customAlert { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--bg-tertiary); border:2px solid var(--accent); border-radius:12px; padding:25px; z-index:9999; color:var(--text-primary); display:none; min-width:280px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.5); }
+#page-games #customAlert button { margin-top:15px; padding:8px 20px; border:none; border-radius:6px; background:var(--accent); color:white; cursor:pointer; transition:background 0.2s; }
+#page-games #customAlert button:hover { background:var(--accent-hover); }
+#page-games #customDialog { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:9999; opacity:0; pointer-events:none; transition:opacity 0.2s ease; backdrop-filter:blur(5px); }
+#page-games #customDialog.show { opacity:1; pointer-events:auto; }
+#page-games .custom-dialog-box { background:var(--bg-tertiary); padding:25px; border-radius:12px; border:2px solid var(--accent); width:400px; max-width:90%; }
+#page-games #customDialogMessage { font-size:16px; margin-bottom:15px; color:var(--text-primary); }
+#page-games #customDialogInput { width:100%; padding:10px; border-radius:6px; border:none; background:var(--bg-card); color:var(--text-primary); margin-bottom:15px; }
+#page-games #customDialogTextarea { width:100%; padding:10px; border-radius:6px; border:none; background:var(--bg-card); color:var(--text-primary); margin-bottom:15px; min-height:100px; font-family:monospace; font-size:12px; resize:vertical; }
+#page-games .custom-dialog-buttons { display:flex; gap:10px; }
+#page-games .custom-dialog-buttons button { flex:1; padding:10px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; transition:background 0.2s; }
+#page-games #customDialogCancel { background:#555; color:white; }
+#page-games #customDialogCancel:hover { background:#777; }
+#page-games #customDialogOk, #page-games #customDialogCopy { background:var(--accent); color:white; }
+#page-games #customDialogOk:hover, #page-games #customDialogCopy:hover { background:var(--accent-hover); }
+#page-games .no-games { text-align:center; padding:60px 20px; color:var(--text-muted); font-size:18px; }
+#page-games .loading { text-align:center; padding:40px; color:var(--text-secondary); }
+#page-games .search-wrapper { flex:1; min-width:200px; position:relative; }
+#page-games .search-wrapper input { width:100%; padding:10px 15px; border-radius:8px; border:none; background:var(--bg-tertiary); color:var(--text-primary); outline:none; }
+#page-games .autocomplete-list { position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--bg-card); border:1px solid var(--border); border-radius:8px; z-index:500; overflow:hidden; display:none; box-shadow:0 4px 16px rgba(0,0,0,0.4); max-height:220px; overflow-y:auto; }
+#page-games .autocomplete-list.open { display:block; }
+#page-games .autocomplete-item { padding:9px 14px; font-size:13px; cursor:pointer; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
+#page-games .autocomplete-item:hover, #page-games .autocomplete-item.selected { background:var(--accent); color:white; }
+#page-games .autocomplete-item .ac-icon { font-size:11px; color:var(--text-muted); flex-shrink:0; }
+#page-games .countdown-display { margin-top:8px; padding:8px 10px; background:var(--bg-tertiary); border-radius:6px; text-align:center; }
+#page-games .countdown-label { color:var(--text-secondary); font-size:10px; text-transform:uppercase; letter-spacing:1px; margin-bottom:3px; }
+#page-games .countdown-value { font-size:15px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+#page-games .countdown-value.urgent { color:#ff5a5a; animation:urgentPulse 1s ease-in-out infinite; }
 @keyframes urgentPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
 
+/* ═══════════════════════════════════════════
+   ── MUSIC PAGE ──
+═══════════════════════════════════════════ */
+#page-music { overflow: hidden; }
+#page-music .app { display:grid; grid-template-columns:260px 1fr; gap:14px; height:calc(100vh - 62px); padding:14px; position:relative; z-index:1; }
+#page-music .sidebar { background:var(--bg-secondary); border:1px solid var(--border); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:12px; height:calc(100vh - 90px); overflow:auto; box-shadow:0 2px 8px rgba(0,0,0,0.4); }
+#page-music .logo { font-weight:900; font-size:16px; color:var(--accent); letter-spacing:1px; padding:8px 4px; border-bottom:1px solid var(--border); padding-bottom:14px; }
+#page-music .side-section { margin-top:4px; }
+#page-music .card { background:var(--bg-secondary); border:1px solid var(--border); border-radius:10px; padding:12px; }
+#page-music .section-title { font-size:10px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:8px; opacity:0.7; }
+#page-music .btn { background:transparent; color:var(--text-secondary); border:1px solid var(--border); padding:6px 12px; border-radius:8px; cursor:pointer; font-family:'Segoe UI',sans-serif; font-size:12px; font-weight:600; letter-spacing:.5px; transition:all .18s; white-space:nowrap; }
+#page-music .btn:hover { border-color:var(--accent); color:var(--accent); background:var(--glass); }
+#page-music .btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent-hover)); color:white; border:none; font-weight:700; }
+#page-music .btn-primary:hover { box-shadow:0 2px 12px rgba(0,0,0,0.4); color:white; }
+#page-music .playlist-item { display:flex; gap:10px; align-items:center; padding:8px 10px; border-radius:6px; cursor:pointer; font-size:14px; font-weight:500; color:var(--text-secondary); transition:all .2s; border:1px solid transparent; }
+#page-music .playlist-item:hover { background:var(--glass); border-color:var(--border); color:var(--accent); }
+#page-music .main { display:flex; flex-direction:column; gap:12px; min-height:0; overflow:hidden; height:calc(100vh - 90px); }
+#page-music .topbar { padding:10px 12px; }
+#page-music .search { display:flex; gap:10px; align-items:center; }
+#page-music .search input { flex:1; padding:10px 14px; border-radius:8px; border:1px solid var(--border); background:rgba(0,5,15,0.9); color:var(--text-primary); font-family:'Segoe UI',sans-serif; font-size:15px; outline:none; transition:all .2s; }
+#page-music .search input:focus { border-color:var(--accent); }
+#page-music .content-wrapper { flex:1; display:grid; grid-template-columns:1fr; min-height:0; overflow:hidden; }
+#page-music .left-main { display:flex; flex-direction:column; gap:12px; min-height:0; overflow:hidden; }
+#page-music .results { display:flex; flex-direction:column; gap:6px; max-height:200px; overflow-y:auto; }
+#page-music .results::-webkit-scrollbar { width:4px; }
+#page-music .results::-webkit-scrollbar-thumb { background:var(--accent-hover); border-radius:2px; }
+#page-music .queue-list { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:4px; }
+#page-music .queue-list::-webkit-scrollbar { width:4px; }
+#page-music .queue-list::-webkit-scrollbar-thumb { background:var(--accent-hover); border-radius:2px; }
+#page-music .track-row { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; border:1px solid transparent; transition:all .18s; }
+#page-music .track-row:hover { background:var(--glass); border-color:var(--border); }
+#page-music .track-thumb { width:44px; height:44px; border-radius:6px; object-fit:cover; flex-shrink:0; border:1px solid var(--border); }
+#page-music .track-meta { flex:1; min-width:0; }
+#page-music .track-title { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#page-music .track-sub { font-size:11px; color:var(--text-muted); margin-top:2px; }
+#page-music .player-bar { background:var(--bg-secondary); border:1px solid var(--border); border-radius:12px; padding:10px 14px; display:flex; align-items:center; gap:14px; flex-shrink:0; }
+#page-music .player-left { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+#page-music .player-thumb { width:48px; height:48px; border-radius:8px; object-fit:cover; border:1px solid var(--border); flex-shrink:0; }
+#page-music .player-info { flex:1; min-width:0; }
+#page-music .player-info > div:first-child { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#page-music .player-controls { display:flex; align-items:center; gap:8px; }
+#page-music .control-btn { background:transparent; border:1px solid var(--border); color:var(--text); padding:8px 12px; border-radius:8px; cursor:pointer; font-size:16px; transition:all .18s; }
+#page-music .control-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--glass); }
+#page-music .muted { color:var(--text-muted); }
+#page-music .small { font-size:11px; }
+#page-music .highlight { background:rgba(0,207,255,0.08) !important; border-color:rgba(0,207,255,0.25) !important; }
+#page-music .playlist-drawer { position:fixed; right:-400px; top:62px; bottom:0; width:380px; background:var(--bg-secondary); border-left:1px solid var(--border); z-index:800; display:flex; flex-direction:column; transition:right 0.3s; }
+#page-music .playlist-drawer.open { right:0; }
+#page-music .drawer-header { padding:14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:8px; flex-shrink:0; }
+#page-music .drawer-title { font-size:14px; font-weight:700; color:var(--accent); }
+#page-music .drawer-body { flex:1; overflow-y:auto; padding:14px; }
+#page-music .drawer-footer { padding:12px 14px; border-top:1px solid var(--border); display:flex; gap:8px; align-items:center; flex-shrink:0; }
+#page-music .playlist-song { display:flex; align-items:center; justify-content:space-between; padding:8px; border-radius:8px; margin-bottom:6px; background:transparent; border:1px solid transparent; transition:all .18s; }
+#page-music .playlist-song:hover { background:var(--glass); border-color:var(--border); }
+#page-music .song-meta { flex:1; margin-left:8px; min-width:0; }
+#page-music .song-actions { display:flex; gap:6px; align-items:center; flex-shrink:0; }
+#page-music .close-btn { background:transparent; border:1px solid var(--border); color:var(--text-muted); font-size:14px; cursor:pointer; padding:5px 8px; border-radius:6px; transition:all .18s; }
+#page-music .close-btn:hover { border-color:var(--accent); color:var(--accent); }
+#page-music .fade-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:transparent; pointer-events:none; transition:background .28s ease; z-index:100; }
+#page-music .fade-overlay.visible { background:rgba(0,0,0,0.6); pointer-events:auto; }
+#page-music #customDialog { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,20,0.85); justify-content:center; align-items:center; z-index:9999; font-family:'Segoe UI',sans-serif; }
+#page-music .dialog-box { background:linear-gradient(160deg,#040e1e,#020810); padding:24px; border-radius:12px; min-width:340px; color:var(--accent); display:flex; flex-direction:column; gap:14px; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,0.4); }
+#page-music .dialog-msg { font-weight:600; font-size:16px; color:var(--text); }
+#page-music .dialog-input { display:none; width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border); background:rgba(0,5,15,0.9); color:var(--accent); font-family:'Segoe UI',sans-serif; font-size:15px; outline:none; }
+#page-music .dialog-btns { display:flex; justify-content:flex-end; gap:8px; }
+#page-music #playlistAddSelect { flex:1; padding:8px 12px; border-radius:8px; background:rgba(0,5,15,0.9); border:1px solid var(--border); color:var(--text); font-family:'Segoe UI',sans-serif; font-size:14px; outline:none; }
+@media(max-width:1000px){
+  #page-music .app { grid-template-columns:1fr; }
+}
+
+
+/* ═══════════════════════════════════════════
+   ── WATCH PAGE ──
+═══════════════════════════════════════════ */
+#page-watch { overflow: hidden; }
+#page-watch .page { position:absolute; inset:0; z-index:1; display:none; flex-direction:column; }
+#page-watch .page.active { display:flex; }
+#page-watch #searchPage { padding:16px; gap:14px; overflow:hidden; }
+#page-watch .topbar { flex-shrink:0; display:flex; align-items:center; gap:12px; }
+#page-watch .logo { font-weight:900; font-size:15px; letter-spacing:1px; color:var(--accent); white-space:nowrap; flex-shrink:0; }
+#page-watch .search-wrap { flex:1; display:flex; gap:8px; align-items:center; }
+#page-watch .search-wrap input { flex:1; padding:11px 16px; background:rgba(0,5,15,0.9); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:'Segoe UI',sans-serif; font-size:15px; outline:none; transition:all .2s; }
+#page-watch .search-wrap input:focus { border-color:var(--accent); }
+#page-watch .btn { background:transparent; color:var(--text-secondary); border:1px solid var(--border); padding:9px 14px; border-radius:10px; cursor:pointer; font-family:'Segoe UI',sans-serif; font-size:13px; font-weight:600; letter-spacing:.5px; transition:all .18s; white-space:nowrap; }
+#page-watch .btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(0,0,0,0.2); }
+#page-watch .btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent-hover)); color:white; border:none; font-weight:700; }
+#page-watch .btn-primary:hover { color:white; }
+#page-watch .results-area { flex:1; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; align-content:start; padding-right:4px; }
+#page-watch .results-area::-webkit-scrollbar { width:4px; }
+#page-watch .results-area::-webkit-scrollbar-thumb { background:var(--accent-hover); border-radius:2px; }
+#page-watch .result-card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden; cursor:pointer; transition:all .18s; position:relative; }
+#page-watch .result-card:hover { border-color:var(--accent); box-shadow:0 2px 8px rgba(0,0,0,0.4); transform:translateY(-2px); }
+#page-watch .result-thumb { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:#000; }
+#page-watch .result-info { padding:10px 12px 12px; }
+#page-watch .result-title { font-size:13px; font-weight:600; line-height:1.4; color:var(--text); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+#page-watch .result-channel { font-size:12px; color:var(--text-muted); margin-top:4px; }
+#page-watch .result-fav { position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.7); border:1px solid var(--border); color:var(--text-muted); border-radius:50%; width:28px; height:28px; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .18s; opacity:0; }
+#page-watch .result-card:hover .result-fav { opacity:1; }
+#page-watch .result-fav.faved { opacity:1; color:var(--danger); }
+#page-watch .empty-state { grid-column:1/-1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:60px 20px; color:var(--text-muted); }
+#page-watch .big-label { font-family:'Segoe UI',sans-serif; font-size:13px; letter-spacing:1px; color:var(--text-secondary); }
+#page-watch .sub { font-size:13px; letter-spacing:1px; opacity:.6; }
+#page-watch .prompt-box { border:1px dashed var(--border); border-radius:12px; padding:20px 30px; text-align:center; font-family:'Segoe UI',sans-serif; font-size:11px; letter-spacing:2px; color:var(--text-muted); line-height:2.2; animation:wPulse 3s ease-in-out infinite; }
+@keyframes wPulse { 0%,100%{border-color:var(--border)} 50%{border-color:rgba(0,207,255,0.35)} }
+#page-watch .section-label { font-family:'Segoe UI',sans-serif; font-size:10px; letter-spacing:2px; color:var(--accent); opacity:.7; grid-column:1/-1; padding:4px 0 2px; }
+#page-watch .search-loading { grid-column:1/-1; display:flex; justify-content:center; padding:40px; }
+#page-watch .spinner { width:32px; height:32px; border:3px solid var(--text-muted); border-top-color:var(--accent); border-radius:50%; animation:wspin .8s linear infinite; }
+@keyframes wspin { to { transform:rotate(360deg); } }
+#page-watch #playerPage { flex-direction:row; overflow:hidden; }
+#page-watch .player-col { flex:1; display:flex; flex-direction:column; gap:0; overflow:hidden; }
+#page-watch .player-topbar { flex-shrink:0; padding:12px 16px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--border); background:rgba(3,12,24,0.9); }
+#page-watch .now-playing-title { flex:1; font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#page-watch .now-playing-channel { font-size:12px; color:var(--text-muted); margin-top:1px; }
+#page-watch .video-container { flex:1; background:#000; position:relative; }
+#page-watch .video-container iframe { width:100%; height:100%; border:none; display:block; }
+#page-watch .sidebar { width:300px; flex-shrink:0; background:var(--bg-secondary); border-left:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+#page-watch .sidebar-tabs { display:flex; flex-shrink:0; border-bottom:1px solid var(--border); }
+#page-watch .tab-btn { flex:1; padding:12px 8px; background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-family:'Segoe UI',sans-serif; font-size:10px; font-weight:600; letter-spacing:1.5px; transition:all .18s; border-bottom:2px solid transparent; }
+#page-watch .tab-btn:hover { color:var(--text-secondary); }
+#page-watch .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+#page-watch .tab-panel { display:none; flex:1; overflow-y:auto; padding:10px; }
+#page-watch .tab-panel.active { display:flex; flex-direction:column; gap:8px; }
+#page-watch .tab-panel::-webkit-scrollbar { width:4px; }
+#page-watch .tab-panel::-webkit-scrollbar-thumb { background:var(--accent-hover); border-radius:2px; }
+#page-watch .video-row { display:flex; gap:10px; align-items:flex-start; padding:8px; border-radius:8px; cursor:pointer; border:1px solid transparent; transition:all .18s; }
+#page-watch .video-row:hover { background:rgba(0,0,0,0.2); border-color:var(--border); }
+#page-watch .video-row.playing { background:rgba(0,207,255,0.07); border-color:rgba(0,207,255,0.2); }
+#page-watch .video-row-thumb { width:80px; height:45px; border-radius:5px; object-fit:cover; flex-shrink:0; background:#000; border:1px solid var(--border); }
+#page-watch .video-row-meta { flex:1; min-width:0; }
+#page-watch .video-row-title { font-size:12px; font-weight:600; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+#page-watch .video-row-channel { font-size:11px; color:var(--text-muted); margin-top:3px; }
+#page-watch .video-row-fav { flex-shrink:0; background:transparent; border:none; color:var(--text-muted); font-size:14px; cursor:pointer; padding:2px; transition:all .15s; }
+#page-watch .video-row-fav.faved { color:var(--danger); }
+#page-watch .video-row-fav:hover { transform:scale(1.2); }
+#page-watch .empty-panel { text-align:center; padding:30px 16px; color:var(--text-muted); font-family:'Segoe UI',sans-serif; font-size:10px; letter-spacing:2px; line-height:2; }
+#page-watch .topbar-heart { font-size:20px; cursor:pointer; color:var(--text-muted); transition:all .18s; flex-shrink:0; }
+#page-watch .topbar-heart:hover { transform:scale(1.15); }
+#page-watch .topbar-heart.faved { color:var(--danger); }
+
+
+/* ═══════════════════════════════════════════
+   ── SHORTS PAGE ──
+═══════════════════════════════════════════ */
+#page-shorts { overflow: hidden; }
+#page-shorts .page { position:absolute; inset:0; z-index:1; display:none; align-items:center; justify-content:center; }
+#page-shorts .page.active { display:flex; }
+#page-shorts .player-wrap { width:340px; height:604px; border-radius:18px; overflow:hidden; background:#000; border:1px solid var(--border); box-shadow:0 2px 12px rgba(0,0,0,0.5); flex-shrink:0; position:relative; }
+#page-shorts .player-wrap iframe { width:100%; height:100%; border:none; display:block; }
+#page-shorts .loading { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:#000; transition:opacity .3s; }
+#page-shorts .loading.hidden { opacity:0; pointer-events:none; }
+#page-shorts .spinner { width:36px; height:36px; border:3px solid var(--text-muted); border-top-color:var(--accent); border-radius:50%; animation:sspin .8s linear infinite; }
+@keyframes sspin { to { transform:rotate(360deg); } }
+#page-shorts .player-wrap.slide-up { animation:sSlideUp .22s ease forwards; }
+#page-shorts .player-wrap.slide-down { animation:sSlideDown .22s ease forwards; }
+@keyframes sSlideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes sSlideDown { from{transform:translateY(-30px);opacity:0} to{transform:translateY(0);opacity:1} }
+#page-shorts .controls-panel { display:flex; flex-direction:column; align-items:center; gap:12px; background:rgba(4,13,26,0.88); border:1px solid var(--border); padding:16px 12px; border-radius:16px; backdrop-filter:blur(12px); box-shadow:0 2px 8px rgba(0,0,0,0.4); min-width:114px; }
+#page-shorts .ctrl-btn { background:transparent; color:var(--text); border:1px solid var(--border); padding:10px 14px; border-radius:10px; cursor:pointer; font-family:'Segoe UI',sans-serif; font-size:14px; font-weight:600; letter-spacing:.5px; width:100%; text-align:center; transition:all .18s; white-space:nowrap; }
+#page-shorts .ctrl-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(0,0,0,0.2); }
+#page-shorts .ctrl-btn:disabled { opacity:0.28; cursor:not-allowed; }
+#page-shorts .heart-btn { font-size:28px; cursor:pointer; user-select:none; transition:all .18s; color:var(--text-muted); line-height:1; }
+#page-shorts .heart-btn:hover { transform:scale(1.15); }
+#page-shorts .heart-btn.faved { color:var(--danger); }
+#page-shorts .counter { font-family:'Segoe UI',sans-serif; font-size:11px; color:var(--text-muted); letter-spacing:1px; text-align:center; }
+#page-shorts .counter span { color:var(--accent); }
+#page-shorts #favsGridPage { flex-direction:column; overflow:hidden; align-items:center; }
+#page-shorts .fav-header { flex-shrink:0; width:100%; max-width:580px; padding:24px 20px 14px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+#page-shorts .fav-title { font-family:'Segoe UI',sans-serif; font-size:14px; font-weight:900; letter-spacing:1px; color:var(--accent); }
+#page-shorts .fav-subtitle { font-family:'Segoe UI',sans-serif; font-size:11px; color:var(--text-muted); letter-spacing:1px; margin-top:3px; }
+#page-shorts .fav-grid { flex:1; width:100%; max-width:580px; overflow-y:auto; padding:0 20px 24px; display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:12px; align-content:start; }
+#page-shorts .fav-grid::-webkit-scrollbar { width:4px; }
+#page-shorts .fav-grid::-webkit-scrollbar-thumb { background:var(--accent-hover); border-radius:2px; }
+#page-shorts .fav-card { background:rgba(4,13,26,0.8); border:1px solid var(--border); border-radius:12px; overflow:hidden; cursor:pointer; transition:all .18s; position:relative; }
+#page-shorts .fav-card:hover { border-color:var(--accent); box-shadow:0 2px 8px rgba(0,0,0,0.4); transform:translateY(-2px); }
+#page-shorts .fav-thumb { width:100%; aspect-ratio:9/16; object-fit:cover; display:block; background:#000; }
+#page-shorts .fav-label { padding:6px 8px; font-size:10px; color:var(--text-muted); font-family:'Segoe UI',sans-serif; letter-spacing:1px; text-align:center; }
+#page-shorts .fav-remove { position:absolute; top:6px; right:6px; background:rgba(0,0,0,0.75); border:1px solid rgba(255,59,92,0.5); color:var(--danger); border-radius:50%; width:22px; height:22px; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .18s; }
+#page-shorts .fav-card:hover .fav-remove { opacity:1; }
+#page-shorts .empty-favs { grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--text-muted); font-family:'Segoe UI',sans-serif; font-size:12px; letter-spacing:2px; line-height:2.2; }
+#page-shorts #favsFeedPage { gap:20px; }
 </style>
 </head>
 <body>
 
+<!-- ═══════════════════════════════════════════
+     GLOBAL NAV BAR
+═══════════════════════════════════════════ -->
+<div id="global-nav">
+    <!-- Row 1: Logo + page navigation + theme -->
+    <div class="nav-row">
+        <a class="nav-logo" onclick="showAppPage('home')" href="#">daboi</a>
+        <span class="nav-sep">|</span>
+        <button class="nav-btn" id="nav-home" onclick="showAppPage('home')">🏠 Home</button>
+        <button class="nav-btn" id="nav-games" onclick="showAppPage('games')">🎮 Games</button>
+        <button class="nav-btn" id="nav-music" onclick="showAppPage('music')">🎵 BOI Music</button>
+        <button class="nav-btn" id="nav-watch" onclick="showAppPage('watch')">📺 BOITube</button>
+        <button class="nav-btn" id="nav-shorts" onclick="showAppPage('shorts')">▶ Shorts</button>
+    </div>
+    <!-- Row 2: Clock + countdown + ALT+1 hint + settings + export/import -->
+    <div class="nav-row">
+        <div id="nav-clock-area">
+            <span id="nav-clock-time">00:00:00.000</span>
+            <span id="nav-clock-period"></span>
+        </div>
+        <span class="nav-sep">|</span>
+        <div id="nav-countdown">
+            <span id="nav-countdown-label">Next Period</span>:&nbsp;<span id="nav-countdown-value">--:--</span>
+        </div>
+        <span class="nav-sep">|</span>
+        <span id="nav-alt-hint">ALT+1 → Google Classroom</span>
+        <div class="spacer"></div>
+        <button class="nav-btn" id="exportBtn">📤 Export</button>
+        <button class="nav-btn" id="importBtn">📥 Import</button>
+        <button class="nav-btn" id="settingsBtn">⚙ Settings</button>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     HOME PAGE
+═══════════════════════════════════════════ -->
+<div class="app-page active" id="page-home">
+    <div class="home-title">daboi site</div>
+    <div class="home-message" id="homeMessage">loading...</div>
+    <div class="home-buttons">
+        <div class="home-btn" onclick="showAppPage('games')" style="--btn-glow: var(--accent)">
+            <div class="btn-icon">🎮</div>
+            <div class="btn-label">Games</div>
+        </div>
+        <div class="home-btn" onclick="showAppPage('music')" style="--btn-glow: var(--accent)">
+            <div class="btn-icon">🎵</div>
+            <div class="btn-label">BOI Music</div>
+        </div>
+        <div class="home-btn" onclick="showAppPage('watch')" style="--btn-glow: var(--accent)">
+            <div class="btn-icon">📺</div>
+            <div class="btn-label">BOITube</div>
+        </div>
+        <div class="home-btn" onclick="showAppPage('shorts')" style="--btn-glow: var(--accent)">
+            <div class="btn-icon">▶</div>
+            <div class="btn-label">BOITube Shorts</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     GAMES PAGE
+═══════════════════════════════════════════ -->
+<div class="app-page" id="page-games">
 <div class="app-container">
-    <!-- Left Category Sidebar -->
     <div class="category-sidebar" id="categorySidebar">
         <h3>Categories</h3>
         <div id="categoryList">Loading...</div>
-
         <div class="repo-switcher">
             <div class="repo-switcher-label">Game Repo</div>
             <div class="repo-btn active" id="repoGnMath" data-repo="gnmath">GN-MATH</div>
             <div class="repo-btn" id="repoUntitled" data-repo="untitled">Untitled Stash</div>
             <div class="repo-btn" id="repoCustom" data-repo="custom">Custom</div>
         </div>
-
-        <div class="sidebar-clock">
-            <div class="clock-time" id="clockTime">00:00:00.000</div>
-            <div class="clock-period" id="clockPeriod"></div>
-        </div>
-
-        <div class="countdown-display" id="countdownDisplay">
-            <div class="countdown-label" id="countdownLabel">Next Period</div>
-            <div class="countdown-value" id="countdownValue">--:--</div>
-        </div>
-        <div class="alt-hint">Press ALT+1 (at the same time) for instant switching!</div>
     </div>
-
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Top Navigation Bar (hidden when playing) -->
         <div class="top-bar" id="topBar">
             <div class="search-wrapper">
                 <input type="text" id="searchInput" placeholder="Search games..." autocomplete="off">
@@ -761,35 +694,20 @@ input:checked + .toggle-slider:before {
                 <option value="name-desc">Sort: Z-A</option>
                 <option value="recent">Recently Played</option>
             </select>
-            <button id="browserBtn">🌐 Browser</button>
-            <button id="exportBtn">📤 Export</button>
-            <button id="importBtn">📥 Import</button>
-            <button id="settingsBtn">⚙ Settings</button>
         </div>
-
-        <!-- Content Area -->
         <div class="content-area">
-            <!-- Homepage View -->
             <div class="homepage-view" id="homepageView">
                 <div class="quick-actions">
                     <button id="continueBtn">▶ Continue Last Game</button>
                     <button id="randomBtn">🎲 Random Game</button>
                     <button id="recentBtn">🕒 Recently Played</button>
                 </div>
-                
                 <div class="recommended-section">
                     <h3>Recommended For You</h3>
-                    <div class="recommended-games" id="recommendedGames">
-                        Play more games to find out!
-                    </div>
+                    <div class="recommended-games" id="recommendedGames">Play more games to find out!</div>
                 </div>
-                
-                <div class="games-grid" id="gamesGrid">
-                    <div class="loading">Loading games...</div>
-                </div>
+                <div class="games-grid" id="gamesGrid"><div class="loading">Loading games...</div></div>
             </div>
-
-            <!-- Game Playing View (goes fullscreen via fixed positioning) -->
             <div class="game-view" id="gameView">
                 <div class="game-controls-bar" id="gameControlsBar">
                     <button id="backBtn">← Back</button>
@@ -798,29 +716,16 @@ input:checked + .toggle-slider:before {
                 </div>
                 <div class="game-iframe-container" id="zoneViewer" style="display:none;">
                     <iframe id="zoneFrame" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" tabindex="0" sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms" allow="fullscreen; autoplay; clipboard-write"></iframe>
-                    <div id="focusOverlay">
-                        <h2>Click to Resume</h2>
-                    </div>
+                    <div id="focusOverlay"><h2>Click to Resume</h2></div>
                 </div>
-            </div>
-
-            <!-- Browser View -->
-            <div class="browser-view" id="browserView">
-                <div class="browser-header">
-                    <button id="browserBackBtn" style="background:var(--accent); border:none; padding:10px 16px; border-radius:8px; color:white; cursor:pointer; font-size:14px;">← Back</button>
-                </div>
-                <div class="browser-iframe-container" id="browserIframeContainer"></div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Settings Modal -->
 <div class="modal-overlay" id="settingsModal">
     <div class="modal-box">
         <span class="close-modal" id="closeSettings">×</span>
         <h2>Settings</h2>
-        
         <div class="setting-item">
             <label for="themeSelect">Theme</label>
             <select id="themeSelect">
@@ -832,28 +737,14 @@ input:checked + .toggle-slider:before {
                 <option value="sunset">Sunset Orange</option>
             </select>
         </div>
-        
-
         <div class="setting-item">
-            <label class="toggle-label">
-                <span>Override Thumbnails</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="overrideThumbnails">
-                    <span class="toggle-slider"></span>
-                </label>
-            </label>
+            <label class="toggle-label"><span>Override Thumbnails</span>
+            <label class="toggle-switch"><input type="checkbox" id="overrideThumbnails"><span class="toggle-slider"></span></label></label>
         </div>
-        
         <div class="setting-item">
-            <label class="toggle-label">
-                <span>Developer Mode</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="developerMode">
-                    <span class="toggle-slider"></span>
-                </label>
-            </label>
+            <label class="toggle-label"><span>Developer Mode</span>
+            <label class="toggle-switch"><input type="checkbox" id="developerMode"><span class="toggle-slider"></span></label></label>
         </div>
-
         <div class="setting-item">
             <label for="clockPrecision">Clock Precision</label>
             <select id="clockPrecision">
@@ -862,17 +753,10 @@ input:checked + .toggle-slider:before {
                 <option value="off">Clock off</option>
             </select>
         </div>
-
         <div class="setting-item">
-            <label class="toggle-label">
-                <span>24-Hour Clock</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="use24Hour">
-                    <span class="toggle-slider"></span>
-                </label>
-            </label>
+            <label class="toggle-label"><span>24-Hour Clock</span>
+            <label class="toggle-switch"><input type="checkbox" id="use24Hour"><span class="toggle-slider"></span></label></label>
         </div>
-        
         <div class="setting-item" id="thumbnailOverrideSection">
             <label for="bgSelect">Fallback Thumbnail</label>
             <select id="bgSelect">
@@ -883,7 +767,6 @@ input:checked + .toggle-slider:before {
                 <option value="upload">Upload Image File</option>
             </select>
         </div>
-        
         <div class="setting-item" id="uploadSection" style="display:none;">
             <label>Upload Thumbnail</label>
             <input type="file" id="fileImageUpload" accept="image/*">
@@ -891,10 +774,6 @@ input:checked + .toggle-slider:before {
         </div>
     </div>
 </div>
-
-
-
-<!-- Custom URL Dialog -->
 <div id="customDialog">
     <div class="custom-dialog-box">
         <div id="customDialogMessage">Enter your custom image URL</div>
@@ -907,21 +786,276 @@ input:checked + .toggle-slider:before {
         </div>
     </div>
 </div>
+<div id="customAlert"><p id="alertMessage"></p><button onclick="closeAlert()">OK</button></div>
+</div><!-- end page-games -->
 
-<!-- Custom Alert -->
-<div id="customAlert">
-    <p id="alertMessage"></p>
-    <button onclick="closeAlert()">OK</button>
+
+<!-- ═══════════════════════════════════════════
+     MUSIC PAGE
+═══════════════════════════════════════════ -->
+<div class="app-page" id="page-music">
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">BOI MUSIC</div>
+    <div class="side-section card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="section-title" style="margin-bottom:0">Playlists</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="newPlaylistBtn">+ New</button>
+          <button class="btn" id="deletePlaylistBtn">Del</button>
+        </div>
+      </div>
+      <div id="playlistsList"></div>
+    </div>
+    <div class="side-section card">
+      <div class="section-title">Queue Controls</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn" id="clearQueueBtn">Clear Queue</button>
+        <button class="btn" id="shuffleBtn">⇄ Shuffle</button>
+      </div>
+    </div>
+    <div style="margin-top:auto;font-family:'Segoe UI',sans-serif;font-size:9px;color:var(--text-muted);letter-spacing:2px;text-align:center">BOI MUSIC v2.0</div>
+  </aside>
+  <main class="main">
+    <div class="topbar card">
+      <div class="search">
+        <input id="musicSearchInput" placeholder="Search YouTube for music…">
+        <button class="btn btn-primary" id="searchBtn">Search</button>
+      </div>
+    </div>
+    <div class="content-wrapper">
+      <div class="left-main">
+        <section class="card">
+          <div class="section-title">Search Results</div>
+          <div id="results" class="results"></div>
+        </section>
+        <section class="card" style="flex:1;display:flex;flex-direction:column;min-height:0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div class="section-title" style="margin-bottom:0">Now Playing Queue</div>
+            <div class="muted small">Queue: <span id="queueCount" style="color:var(--accent);font-weight:700">0</span></div>
+          </div>
+          <div id="queueList" class="queue-list"></div>
+        </section>
+      </div>
+    </div>
+    <div class="player-bar">
+      <div class="player-left">
+        <img id="playerThumb" class="player-thumb" src="" alt="">
+        <div class="player-info">
+          <div id="playerTitle">Not playing</div>
+          <div id="playerArtist" class="muted small">—</div>
+          <div style="margin-top:6px"><button class="btn" id="addToPlaylistBtn" style="font-size:11px;padding:4px 8px">+ Playlist</button></div>
+        </div>
+      </div>
+      <div class="player-controls">
+        <button class="control-btn" id="prevBtn">⏮</button>
+        <button class="control-btn" id="playPauseBtn" style="font-size:22px;padding:6px 14px">▶️</button>
+        <button class="control-btn" id="nextBtn">⏭</button>
+        <button class="control-btn" id="repeatBtn" title="Repeat mode">🔁</button>
+      </div>
+      <div style="width:22%;display:flex;justify-content:flex-end;align-items:center;gap:8px"></div>
+    </div>
+  </main>
 </div>
+<div id="musicCustomDialog" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,20,0.85);justify-content:center;align-items:center;z-index:9999;">
+  <div class="dialog-box">
+    <div id="musicDialogMessage" class="dialog-msg"></div>
+    <input id="musicDialogInput" class="dialog-input" autocomplete="off">
+    <div class="dialog-btns">
+      <button id="musicDialogOk" class="btn btn-primary">OK</button>
+      <button id="musicDialogCancel" class="btn" style="display:none">Cancel</button>
+    </div>
+  </div>
+</div>
+<div id="playlistDrawer" class="playlist-drawer" aria-hidden="true">
+  <div class="drawer-header">
+    <div class="drawer-title">Playlist Editor</div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button class="btn" id="playPlaylistBtn">▶ Play All</button>
+      <button class="btn" id="togglePlaylistRepeatBtn">Repeat: <span id="playlistRepeatState">Off</span></button>
+      <button class="close-btn" id="closeDrawerBtn" title="Close">✕</button>
+    </div>
+  </div>
+  <div class="drawer-body">
+    <div style="margin-bottom:12px">
+      <div class="small muted">Selected playlist</div>
+      <div id="selectedPlaylistName" style="font-weight:700;font-size:16px;margin-top:4px;color:var(--accent)">None</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
+      <select id="playlistAddSelect"></select>
+      <button class="btn" id="addCurrentToSelectedBtn">Add Current</button>
+      <button class="btn" id="createPlaylistFromDrawerBtn">+ New</button>
+    </div>
+    <div id="playlistSongs"></div>
+  </div>
+  <div class="drawer-footer">
+    <div style="flex:1" class="muted small">Delete playlists via the sidebar "Del" button</div>
+    <button class="btn" id="closeDrawerBtnFooter">Close</button>
+  </div>
+</div>
+<div id="fadeOverlay" class="fade-overlay"></div>
+<iframe id="yt-player" src="" allow="autoplay; encrypted-media" allowfullscreen style="position:fixed;bottom:-400px;left:-400px;width:320px;height:180px;pointer-events:none;z-index:-1;border:none;"></iframe>
+</div><!-- end page-music -->
+
+
+<!-- ═══════════════════════════════════════════
+     WATCH PAGE
+═══════════════════════════════════════════ -->
+<div class="app-page" id="page-watch">
+<div class="page active" id="searchPage">
+  <div class="topbar">
+    <div class="logo">BOI WATCH</div>
+    <div class="search-wrap">
+      <input id="watchSearchInput" placeholder="Search or paste a YouTube URL…" autocomplete="off">
+      <button class="btn btn-primary" id="watchSearchBtn">Search</button>
+    </div>
+    <button class="btn" id="goToFavsBtn">♥ Favs</button>
+  </div>
+  <div class="results-area" id="resultsArea">
+    <div class="empty-state">
+      <div class="prompt-box">SEARCH FOR VIDEOS<br><span style="color:var(--accent);font-size:13px">──────────────</span><br>OR PASTE A YOUTUBE URL<br>TO WATCH DIRECTLY</div>
+    </div>
+  </div>
+</div>
+<div class="page" id="playerPage">
+  <div class="player-col">
+    <div class="player-topbar">
+      <button class="btn" id="backToSearchBtn">← Back</button>
+      <div style="flex:1;min-width:0">
+        <div class="now-playing-title" id="nowPlayingTitle">—</div>
+        <div class="now-playing-channel" id="nowPlayingChannel"></div>
+      </div>
+      <div class="topbar-heart" id="playerFavBtn" title="Favorite">♡</div>
+    </div>
+    <div class="video-container">
+      <iframe id="watchPlayerFrame" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
+    </div>
+  </div>
+  <div class="sidebar">
+    <div class="sidebar-tabs">
+      <button class="tab-btn active" data-tab="tabResults" data-panel="tabResults">RESULTS</button>
+      <button class="tab-btn" data-tab="tabFavorites" data-panel="tabFavorites">FAVS</button>
+    </div>
+    <div class="tab-panel active" id="tabResults"></div>
+    <div class="tab-panel" id="tabFavorites"></div>
+  </div>
+</div>
+</div><!-- end page-watch -->
+
+
+<!-- ═══════════════════════════════════════════
+     SHORTS PAGE
+═══════════════════════════════════════════ -->
+<div class="app-page" id="page-shorts">
+<div class="page active" id="feedPage">
+  <div class="player-wrap" id="feedPlayerWrap">
+    <iframe id="feedFrame" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
+    <div class="loading" id="feedLoading"><div class="spinner"></div></div>
+  </div>
+  <div class="controls-panel">
+    <button class="ctrl-btn" id="feedUpBtn">▲ Prev</button>
+    <div class="heart-btn" id="feedFavBtn" title="Favorite (F)">♡</div>
+    <button class="ctrl-btn" id="feedDownBtn">▼ Next</button>
+    <button class="ctrl-btn" id="openFavsGridBtn">♥ Favs</button>
+    <div class="counter"><span id="feedCurNum">—</span> / <span id="feedTotalNum">—</span></div>
+  </div>
+</div>
+<div class="page" id="favsGridPage">
+  <div class="fav-header">
+    <div>
+      <div class="fav-title">FAVORITES</div>
+      <div class="fav-subtitle" id="favSubtitle"></div>
+    </div>
+    <button class="ctrl-btn" id="favsGridBackBtn" style="width:auto;padding:8px 16px">✕ Back</button>
+  </div>
+  <div class="fav-grid" id="favGrid"></div>
+</div>
+<div class="page" id="favsFeedPage">
+  <div class="player-wrap" id="favsPlayerWrap">
+    <iframe id="favsFrame" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
+    <div class="loading" id="favsLoading"><div class="spinner"></div></div>
+  </div>
+  <div class="controls-panel">
+    <button class="ctrl-btn" id="favsUpBtn">▲ Prev</button>
+    <div class="heart-btn" id="favsFavBtn" title="Unfavorite">♥</div>
+    <button class="ctrl-btn" id="favsDownBtn">▼ Next</button>
+    <button class="ctrl-btn" id="favsFeedBackBtn">✕ Back</button>
+    <div class="counter"><span id="favsCurNum">—</span> / <span id="favsTotalNum">—</span></div>
+  </div>
+</div>
+</div><!-- end page-shorts -->
+
 
 <script>
-// ===========================
-// IndexedDB Setup
-// ===========================
+/* ═══════════════════════════════════════════
+   GLOBAL NAVIGATION & THEME
+═══════════════════════════════════════════ */
+
+// ── Messages: add yours here! ──
+const HOME_MESSAGES = [
+    "welcome back, boi 👾",
+    "what are we doing today?",
+    "don't get caught lol",
+    "press alt+1 for the escape hatch 😉",
+    "loading awesomeness...",
+    "boi has entered the chat",
+    "another day, another game",
+    "vibes: immaculate",
+    "this site goes hard fr fr",
+    "no cap this slaps",
+];
+
+function pickRandomMessage() {
+    const el = document.getElementById('homeMessage');
+    el.textContent = HOME_MESSAGES[Math.floor(Math.random() * HOME_MESSAGES.length)];
+}
+pickRandomMessage();
+
+function applyGlobalTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme === 'purple' ? '' : theme);
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('daboi_theme', theme);
+    // Sync the games settings select if it exists
+    const ts = document.getElementById('themeSelect');
+    if (ts) ts.value = theme;
+}
+
+function showAppPage(name) {
+    document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    const nb = document.getElementById('nav-' + name);
+    if (nb) nb.classList.add('active');
+    // Lazy-init games when first opened
+    if (name === 'games' && !window._gamesInited) {
+        window._gamesInited = true;
+        initApp();
+    }
+    // Lazy-init shorts feed
+    if (name === 'shorts' && !window._shortsInited) {
+        window._shortsInited = true;
+        loadFeed();
+    }
+    // Lazy-init music
+    if (name === 'music' && !window._musicInited) {
+        window._musicInited = true;
+        loadQueueFromLocal(); // async, fire-and-forget
+        // playlists already loaded on page load via async IIFE
+    }
+}
+
+// Load saved theme
+(function() {
+    const saved = localStorage.getItem('daboi_theme') || 'purple';
+    applyGlobalTheme(saved);
+})();
+
+
+/* ═══════════════════════════════════════════
+   GAMES SCRIPT (from index__1_.html)
+═══════════════════════════════════════════ */
 let db;
-const DB_NAME = "GameLibraryDB";
-const DB_VERSION = 1;
-const STORE_NAME = "gameData";
+const DB_NAME = "GameLibraryDB", DB_VERSION = 1, STORE_NAME = "gameData";
 
 function initDB() {
     return new Promise((resolve, reject) => {
@@ -930,13 +1064,10 @@ function initDB() {
         request.onsuccess = () => { db = request.result; resolve(db); };
         request.onupgradeneeded = (e) => {
             const database = e.target.result;
-            if (!database.objectStoreNames.contains(STORE_NAME)) {
-                database.createObjectStore(STORE_NAME, { keyPath: "key" });
-            }
+            if (!database.objectStoreNames.contains(STORE_NAME)) database.createObjectStore(STORE_NAME, { keyPath: "key" });
         };
     });
 }
-
 async function saveToIndexedDB(key, value) {
     if (!db) await initDB();
     return new Promise((resolve, reject) => {
@@ -947,7 +1078,6 @@ async function saveToIndexedDB(key, value) {
         request.onerror = () => reject(request.error);
     });
 }
-
 async function getFromIndexedDB(key) {
     if (!db) await initDB();
     return new Promise((resolve, reject) => {
@@ -958,147 +1088,58 @@ async function getFromIndexedDB(key) {
         request.onerror = () => reject(request.error);
     });
 }
-
-// ===========================
-// Dual Storage System
-// ===========================
 async function saveData(key, value) {
     const jsonValue = JSON.stringify(value);
-    try { localStorage.setItem(key, jsonValue); } catch (e) { console.error("localStorage save failed:", e); }
-    try { await saveToIndexedDB(key, value); } catch (e) { console.error("IndexedDB save failed:", e); }
+    try { localStorage.setItem(key, jsonValue); } catch (e) {}
+    try { await saveToIndexedDB(key, value); } catch (e) {}
 }
-
 async function loadData(key, defaultValue = null) {
-    try {
-        const lsData = localStorage.getItem(key);
-        if (lsData) return JSON.parse(lsData);
-    } catch (e) { console.error("localStorage load failed:", e); }
-    try {
-        const idbData = await getFromIndexedDB(key);
-        if (idbData !== undefined) {
-            localStorage.setItem(key, JSON.stringify(idbData));
-            return idbData;
-        }
-    } catch (e) { console.error("IndexedDB load failed:", e); }
+    try { const lsData = localStorage.getItem(key); if (lsData) return JSON.parse(lsData); } catch (e) {}
+    try { const idbData = await getFromIndexedDB(key); if (idbData !== undefined) { localStorage.setItem(key, JSON.stringify(idbData)); return idbData; } } catch (e) {}
     return defaultValue;
 }
 
-// ===========================
-// ===========================
-// Global Variables & Constants
-// ===========================
-
-// All external URLs decoded once here — never call atob() inline elsewhere
-const FOLDER_CDN  = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2duLW1hdGgvYXNzZXRzQG1haW4v");
-const SINGLE_CDN  = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL3N1c3N5Ym9pMDEvYXNzZXRzc2luZ2xlZmlsZS8=");
-const COVERS_CDN  = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2duLW1hdGgvY292ZXJzLw==");
-const ZONES_JSON  = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2duLW1hdGgvYXNzZXRzL3pvbmVzLmpzb24=");
-const HTML_URL    = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2duLW1hdGgvaHRtbEBtYWlu");
-const UNTITLED_JSON = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2hleG9yb2QvYWRhc2RndGVyZ3NjdmJmcjVldHlyYXdkYXNkZmVnZXJ0YXdkQUByZWZzL2hlYWRzL21haW4vZmlsZXMuanNvbg==");
-const UNTITLED_BASE = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2hleG9yb2QvYWRhc2RndGVyZ3NjdmJmcjVldHlyYXdkYXNkZmVnZXJ0YXdkQUByZWZzL2hlYWRzL21haW4v");
-const IMG_KAI     = atob("aHR0cHM6Ly9wYnMudHdpbWcuY29tL21lZGlhL0dnajcwV1BYY0FBVjFMOS5qcGc6c21hbGw=");
-const IMG_MANGO   = atob("aHR0cHM6Ly9lbmNyeXB0ZWQtdGJuMC5nc3RhdGljLmNvbS9pbWFnZXM/cT10Ym46QU5kOUdjVHBSTkVZeExjODRXSU5PSXozd09NeGtjMHNnODVReTNxV2V3JnM=");
-const IMG_BOI     = atob("aHR0cHM6Ly9wcmV2aWV3LnJlZGQuaXQvaW1wLW1pbWlja2luZy10aGUtc3BvbmdlYm9iLWJvaS1tZW1lLW1hZGUtYnktbWUtdjAtMzk1bWtsMzVkb204MS5qcGc/d2lkdGg9NjQwJmNyb3A9c21hcnQmYXV0bz13ZWJwJnM9MDM0Njk4ODhlODBhNWYzZTYxYjg1YTg2NmI3ZTMxYzlkYTM2MzhlMw==");
-const URL_CLASSROOM = atob("aHR0cHM6Ly9jbGFzc3Jvb20uZ29vZ2xlLmNvbQ==");
-
-const CUSTOM_ZONES_JSON = "https://cdn.jsdelivr.net/gh/sussyboi01/games@main/zones.json";
-const CUSTOM_BASE = "https://cdn.jsdelivr.net/gh/sussyboi01/games@main/";
-
+const FOLDER_CDN  = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/";
+const SINGLE_CDN  = "https://cdn.jsdelivr.net/gh/sussyboi01/assetssinglefile/";
+const COVERS_CDN  = "https://cdn.jsdelivr.net/gh/gn-math/covers/";
+const ZONES_JSON  = "https://cdn.jsdelivr.net/gh/gn-math/assets/zones.json";
+const HTML_URL    = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
+const IMG_KAI     = "https://pbs.twimg.com/media/Ggj70WPXcAAV1L9.jpg:small";
+const IMG_MANGO   = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpRNEYxLc84WINOIz3wOMxkc0sg85Qy3qWew&s";
+const IMG_BOI     = "https://preview.redd.it/imp-mimicking-the-spongebob-boi-meme-made-by-me-v0-395mkl35dom81.jpg?width=640&crop=smart&auto=webp&s=03469888e80a5f3e61b85a866b7e31c9da3638e3";
+const URL_CLASSROOM = "https://classroom.google.com";
 const REPOS = {
-    gnmath: {
-        name: "GN-MATH",
-        gamesJsonUrl: ZONES_JSON,
-    },
-    untitled: {
-        name: "Untitled Stash",
-        gamesJsonUrl: UNTITLED_JSON,
-        gameBaseUrl:  UNTITLED_BASE,
-    },
-    custom: {
-        name: "Custom",
-        gamesJsonUrl: CUSTOM_ZONES_JSON,
-        gameBaseUrl:  CUSTOM_BASE,
-    }
+    gnmath: { name:"GN-MATH", gamesJsonUrl:ZONES_JSON, gameBaseUrl:"https://cdn.jsdelivr.net/gh/gn-math/html@main" },
+    untitled: { name:"Untitled Stash", gamesJsonUrl:"https://cdn.jsdelivr.net/gh/hexorod/adasdgtergscvbfr5etyrawdasdfegertawdA@refs/heads/main/files.json", gameBaseUrl:"https://cdn.jsdelivr.net/gh/hexorod/adasdgtergscvbfr5etyrawdasdfegertawdA@refs/heads/main/" },
+    custom: { name:"Custom", gamesJsonUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/games@main/zones.json", gameBaseUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/games@main/" }
 };
-
 let currentRepo = "gnmath";
-
-const placeholderImages = {
-    kai:   IMG_KAI,
-    mango: IMG_MANGO,
-    boi:   IMG_BOI,
-};
-
+const placeholderImages = { kai:IMG_KAI, mango:IMG_MANGO, boi:IMG_BOI };
 const categoryKeywords = {
-    "Driving": ["car", "race", "racing", "drive", "drift", "moto", "bike", "motor"],
-    "Action": ["shoot", "gun", "battle", "fight", "war", "zombie", "attack", "combat"],
-    "Sports": ["soccer", "football", "basketball", "tennis", "golf", "sport", "ball"],
-    "Puzzle": ["puzzle", "match", "block", "candy", "bubble", "brain", "logic"],
-    "Adventure": ["adventure", "quest", "explore", "journey", "dungeon"],
-    "Arcade": ["arcade", "classic", "retro", "pac", "snake"],
-    "Strategy": ["strategy", "tower", "defense", "chess", "tactic"],
+    "Driving":["car","race","racing","drive","drift","moto","bike","motor"],
+    "Action":["shoot","gun","battle","fight","war","zombie","attack","combat"],
+    "Sports":["soccer","football","basketball","tennis","golf","sport","ball"],
+    "Puzzle":["puzzle","match","block","candy","bubble","brain","logic"],
+    "Adventure":["adventure","quest","explore","journey","dungeon"],
+    "Arcade":["arcade","classic","retro","pac","snake"],
+    "Strategy":["strategy","tower","defense","chess","tactic"],
 };
-
 let allGames = [];
 let appData = {
-    favorites: [],
-    recentGames: [],
-    gameTimes: {},
-    playCount: {},
-    longestSessions: {},
-    searchHistory: [],
-    settings: {
-        theme: "purple",
-        cloak: "docs",
-        thumbnail: "kai",
-        customURL: "",
-        uploadedImage: "",
-        overrideThumbnails: false,
-        developerMode: false,
-        use24Hour: false,
-        clockPrecision: "ms"
-    },
-    visitDates: []
+    favorites:[], repoFavorites:{}, recentGames:[], gameTimes:{}, playCount:{}, longestSessions:{}, searchHistory:[],
+    settings:{ theme:"purple", cloak:"docs", thumbnail:"kai", customURL:"", uploadedImage:"", overrideThumbnails:false, developerMode:false, use24Hour:false, clockPrecision:"ms" },
+    visitDates:[]
 };
-
-let currentFilter = null;
-let showOnlyFavorites = false;
-let currentSort = "name";
+let currentFilter = null, showOnlyFavorites = false, currentSort = "name";
 let zoneFrame = document.getElementById("zoneFrame");
 const zoneViewer = document.getElementById("zoneViewer");
-let currentGame = null;
+let currentGame = null, isActive = true;
 
-
-// Timer state (minimal, kept for tracking only)
-let isActive = true;
-
-// ===========================
-// Utility Functions
-// ===========================
 function showAlert(message) {
     document.getElementById("alertMessage").textContent = message;
     document.getElementById("customAlert").style.display = "block";
 }
-
-function closeAlert() {
-    document.getElementById("customAlert").style.display = "none";
-}
-
-function formatTime(seconds) {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
-
-function formatTimeShort(seconds) {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    if (h > 0) return `${h}h ${m}m`;
-    if (m > 0) return `${m}m`;
-    return `${seconds}s`;
-}
-
+function closeAlert() { document.getElementById("customAlert").style.display = "none"; }
 function categorizeGame(name) {
     const lowerName = name.toLowerCase();
     for (const [category, keywords] of Object.entries(categoryKeywords)) {
@@ -1106,145 +1147,44 @@ function categorizeGame(name) {
     }
     return "Other";
 }
-
 function updateStreak() {
     const today = new Date().toDateString();
-    if (!appData.visitDates.includes(today)) {
-        appData.visitDates.push(today);
-        saveAppData();
-    }
+    if (!appData.visitDates.includes(today)) { appData.visitDates.push(today); saveAppData(); }
 }
-
-function calculateStreak() {
-    if (appData.visitDates.length === 0) return 0;
-    const dates = appData.visitDates.map(d => new Date(d)).sort((a, b) => b - a);
-    let streak = 1;
-    for (let i = 0; i < dates.length - 1; i++) {
-        const diff = Math.floor((dates[i] - dates[i + 1]) / (1000 * 60 * 60 * 24));
-        if (diff === 1) streak++;
-        else break;
-    }
-    return streak;
-}
-
-// ===========================
-// Data Persistence
-// ===========================
 async function saveAppData() { await saveData("appData", appData); }
-
 async function loadAppData() {
     const loaded = await loadData("appData");
     if (loaded) appData = { ...appData, ...loaded };
+    if (!appData.repoFavorites) appData.repoFavorites = {};
+    if (appData.favorites && appData.favorites.length > 0) {
+        appData.favorites.forEach(id => { const key = "gnmath:" + id; if (!appData.repoFavorites[key]) appData.repoFavorites[key] = true; });
+        appData.favorites = []; await saveAppData();
+    }
     updateStreak();
 }
-
-// ===========================
-// Theme System
-// ===========================
 function applyTheme(theme) {
-    document.body.setAttribute("data-theme", theme);
+    applyGlobalTheme(theme);
     appData.settings.theme = theme;
     saveAppData();
 }
-
-// ===========================
-// Browser Functions
-// ===========================
-// EDIT THIS URL TO YOUR DESIRED LINK
-const BROWSER_URL = atob("aHR0cHM6Ly9zdXNzeWJvaTAxLmdpdGh1Yi5pby9kYWJvaXpicm93d293Lw==");
-
-document.getElementById("browserBtn").onclick = () => {
-    openBrowser(BROWSER_URL);
-};
-
-async function openBrowser(url) {
-    // Hide homepage and top bar
-    document.getElementById("homepageView").style.display = "none";
-    document.getElementById("categorySidebar").classList.add("hidden");
-    document.getElementById("topBar").classList.add("hidden");
-    
-    // Show browser view
-    document.getElementById("browserView").classList.add("active");
-    
-    // Create iframe
-    const container = document.getElementById("browserIframeContainer");
-    container.innerHTML = "";
-    
-    const iframe = document.createElement("iframe");
-    iframe.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;border:none;";
-    iframe.sandbox = "allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms allow-top-navigation";
-    iframe.allow = "fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture";
-    
-    // Fetch HTML from the URL and use srcdoc
-    iframe.src = url;
-    
-    container.appendChild(iframe);
-}
-
-document.getElementById("browserBackBtn").onclick = () => {
-    // Close browser
-    document.getElementById("browserView").classList.remove("active");
-    document.getElementById("browserIframeContainer").innerHTML = "";
-    
-    // Show homepage
-    document.getElementById("categorySidebar").classList.remove("hidden");
-    document.getElementById("topBar").classList.remove("hidden");
-    document.getElementById("homepageView").style.display = "block";
-};
-
-// ===========================
-// Settings Modal
-// ===========================
 document.getElementById("settingsBtn").onclick = () => document.getElementById("settingsModal").classList.add("open");
 document.getElementById("closeSettings").onclick = () => document.getElementById("settingsModal").classList.remove("open");
 document.getElementById("settingsModal").onclick = (e) => { if (e.target.id === "settingsModal") document.getElementById("settingsModal").classList.remove("open"); };
 document.getElementById("themeSelect").onchange = (e) => applyTheme(e.target.value);
-
-// Override thumbnails toggle
-document.getElementById("overrideThumbnails").onchange = (e) => {
-    appData.settings.overrideThumbnails = e.target.checked;
-    // thumbnailOverrideSection is always visible now
-    saveAppData();
-    renderGames();
-};
-
-// Developer mode toggle
-document.getElementById("developerMode").onchange = (e) => {
-    appData.settings.developerMode = e.target.checked;
-    saveAppData();
-};
-
-// 24-hour clock toggle
-document.getElementById("use24Hour").onchange = (e) => {
-    appData.settings.use24Hour = e.target.checked;
-    saveAppData();
-};
-
-// Clock precision
-document.getElementById("clockPrecision").onchange = (e) => {
-    appData.settings.clockPrecision = e.target.value;
-    saveAppData();
-};
-
-// ===========================
-// Thumbnail System
-// ===========================
+document.getElementById("overrideThumbnails").onchange = (e) => { appData.settings.overrideThumbnails = e.target.checked; saveAppData(); renderGames(); };
+document.getElementById("developerMode").onchange = (e) => { appData.settings.developerMode = e.target.checked; saveAppData(); };
+document.getElementById("use24Hour").onchange = (e) => { appData.settings.use24Hour = e.target.checked; saveAppData(); };
+document.getElementById("clockPrecision").onchange = (e) => { appData.settings.clockPrecision = e.target.value; saveAppData(); };
 function getFallbackThumbnailURL() {
     const choice = appData.settings.thumbnail;
     if (choice === "upload" && appData.settings.uploadedImage) return appData.settings.uploadedImage;
     if (choice === "custom" && appData.settings.customURL) return appData.settings.customURL;
     return placeholderImages[choice] || placeholderImages.kai;
 }
-
 function getThumbnailURL(gameId) {
-    // If override is enabled, always use fallback
-    if (appData.settings.overrideThumbnails) {
-        return getFallbackThumbnailURL();
-    }
-    // Otherwise use the game's cover art
+    if (appData.settings.overrideThumbnails) return getFallbackThumbnailURL();
     return `${COVERS_CDN}${gameId}.png`;
 }
-
 document.getElementById("bgSelect").onchange = (e) => {
     const choice = e.target.value;
     if (choice === "custom") {
@@ -1257,47 +1197,35 @@ document.getElementById("bgSelect").onchange = (e) => {
     } else if (choice === "upload") {
         document.getElementById("fileImageUpload").click();
     } else {
-        appData.settings.thumbnail = choice;
-        saveAppData();
-        renderGames();
+        appData.settings.thumbnail = choice; saveAppData(); renderGames();
     }
 };
-
 document.getElementById("fileImageUpload").onchange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const file = e.target.files[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = (event) => {
         appData.settings.uploadedImage = event.target.result;
         appData.settings.thumbnail = "upload";
         document.getElementById("bgSelect").value = "upload";
-        saveAppData();
-        renderGames();
-        showAlert("Image uploaded successfully!");
+        saveAppData(); renderGames(); showAlert("Image uploaded successfully!");
     };
     reader.readAsDataURL(file);
 };
-
 document.getElementById("customDialogCancel").onclick = () => {
     document.getElementById("customDialog").classList.remove("show");
     document.getElementById("bgSelect").value = appData.settings.thumbnail;
 };
-
-document.getElementById("customDialogOk").onclick = () => {
-    const input    = document.getElementById("customDialogInput");
+document.getElementById("customDialogOk").onclick = async () => {
+    const input = document.getElementById("customDialogInput");
     const textarea = document.getElementById("customDialogTextarea");
-
     if (input.style.display !== "none") {
         const url = input.value.trim();
         if (!url) { showAlert("Please enter a valid URL"); return; }
         const imgTest = new Image();
         imgTest.onload = () => {
-            appData.settings.customURL = url;
-            appData.settings.thumbnail = "custom";
+            appData.settings.customURL = url; appData.settings.thumbnail = "custom";
             document.getElementById("bgSelect").value = "custom";
-            saveAppData();
-            renderGames();
-            document.getElementById("customDialog").classList.remove("show");
+            saveAppData(); renderGames(); document.getElementById("customDialog").classList.remove("show");
         };
         imgTest.onerror = () => showAlert("Invalid image URL");
         imgTest.src = url;
@@ -1305,382 +1233,196 @@ document.getElementById("customDialogOk").onclick = () => {
         const data = textarea.value.trim();
         if (!data) { showAlert("Please paste backup data"); return; }
         try {
-            const decoded  = atob(data);
-            const imported = JSON.parse(decoded);
-            appData = { ...appData, ...imported };
-            saveAppData();
-            applyTheme(appData.settings.theme);
-            document.getElementById("themeSelect").value  = appData.settings.theme;
-            document.getElementById("bgSelect").value     = appData.settings.thumbnail;
+            const decoded = atob(data); const imported = JSON.parse(decoded);
+            // Support both new full-backup format and old appData-only format
+            const importedAppData = imported.appData || imported;
+            appData = { ...appData, ...importedAppData }; saveAppData(); applyTheme(appData.settings.theme);
+            document.getElementById("themeSelect").value = appData.settings.theme;
+            document.getElementById("bgSelect").value = appData.settings.thumbnail;
             document.getElementById("overrideThumbnails").checked = appData.settings.overrideThumbnails;
-            document.getElementById("thumbnailOverrideSection").style.display = appData.settings.overrideThumbnails ? "block" : "none";
-            renderGames();
-            renderCategories();
-            document.getElementById("customDialog").classList.remove("show");
-            showAlert("Data imported successfully!");
-            setTimeout(() => location.reload(), 1000);
+            // Restore BOITube favs
+            if (imported.boitubeFavs) await saveData('bw_favorites', imported.boitubeFavs);
+            // Restore Shorts favs
+            if (imported.shortsFavs) await saveData('favshorts', imported.shortsFavs);
+            // Restore Music queue + playlists
+            if (imported.musicQueue) await saveData('BOIMUSIC_QUEUE', imported.musicQueue);
+            if (imported.musicPlaylists) await saveData('BOIMUSIC_PLAYLISTS', imported.musicPlaylists);
+            renderGames(); renderCategories(); document.getElementById("customDialog").classList.remove("show");
+            showAlert("All data imported successfully! Reloading..."); setTimeout(() => location.reload(), 1200);
         } catch (e) { showAlert("Invalid backup data"); }
     }
 };
-
 document.getElementById("customDialogCopy").onclick = () => {
-    const textarea = document.getElementById("customDialogTextarea");
-    textarea.select();
-    document.execCommand("copy");
-    showAlert("Copied to clipboard!");
+    const textarea = document.getElementById("customDialogTextarea"); textarea.select();
+    document.execCommand("copy"); showAlert("Copied to clipboard!");
 };
-
-// ===========================
-// Export / Import
-// ===========================
-document.getElementById("exportBtn").onclick = () => {
-    const encoded = btoa(JSON.stringify(appData));
-    document.getElementById("customDialogMessage").textContent = "Your Backup Data (Copy and save this)";
-    document.getElementById("customDialogInput").style.display   = "none";
+document.getElementById("exportBtn").onclick = async () => {
+    // Bundle games data + BOITube favs + Shorts favs + Music into one export
+    const fullBackup = {
+        appData: appData,
+        boitubeFavs: await loadData('bw_favorites', []),
+        shortsFavs: await loadData('favshorts', []),
+        musicQueue: await loadData('BOIMUSIC_QUEUE', []),
+        musicPlaylists: await loadData('BOIMUSIC_PLAYLISTS', {}),
+    };
+    const encoded = btoa(JSON.stringify(fullBackup));
+    document.getElementById("customDialogMessage").textContent = "Your Full Backup (includes Games, BOITube favs, Shorts favs, Music)";
+    document.getElementById("customDialogInput").style.display = "none";
     document.getElementById("customDialogTextarea").style.display = "block";
-    document.getElementById("customDialogTextarea").value         = encoded;
-    document.getElementById("customDialogCopy").style.display     = "block";
-    document.getElementById("customDialogOk").style.display       = "none";
+    document.getElementById("customDialogTextarea").value = encoded;
+    document.getElementById("customDialogCopy").style.display = "block";
+    document.getElementById("customDialogOk").style.display = "none";
     document.getElementById("customDialog").classList.add("show");
 };
-
 document.getElementById("importBtn").onclick = () => {
     document.getElementById("customDialogMessage").textContent = "Paste Your Backup Data";
-    document.getElementById("customDialogInput").style.display   = "none";
+    document.getElementById("customDialogInput").style.display = "none";
     document.getElementById("customDialogTextarea").style.display = "block";
-    document.getElementById("customDialogTextarea").value         = "";
-    document.getElementById("customDialogCopy").style.display     = "none";
-    document.getElementById("customDialogOk").style.display       = "block";
+    document.getElementById("customDialogTextarea").value = "";
+    document.getElementById("customDialogCopy").style.display = "none";
+    document.getElementById("customDialogOk").style.display = "block";
     document.getElementById("customDialog").classList.add("show");
 };
-
-// Cache of all games from all repos (for cross-repo search)
 let allGamesCache = {};
-
-// ===========================
-// Fetch Games from JSON
-// ===========================
 async function fetchGames() {
     document.getElementById("gamesGrid").innerHTML = '<div class="loading">Loading games...</div>';
-    allGames = [];
-    currentFilter = null;
-
+    allGames = []; currentFilter = null;
     try {
         if (currentRepo === "gnmath") {
-            const res  = await fetch(ZONES_JSON);
-            const data = await res.json();
-            allGames = data
-                .filter(game => game.id >= 0)
-                .map(game => ({
-                    id: game.id.toString(),
-                    name: game.name,
-                    url: game.url,
-                    category: categorizeGame(game.name),
-                    repo: "gnmath"
-                }));
+            const res = await fetch(REPOS.gnmath.gamesJsonUrl); const data = await res.json();
+            allGames = data.filter(game => game.id >= 0).map(game => ({ id: game.id.toString(), name: game.name, url: game.url, category: categorizeGame(game.name), repo: "gnmath" }));
         } else if (currentRepo === "untitled") {
-            const res  = await fetch(REPOS.untitled.gamesJsonUrl);
-            const data = await res.json();
+            const res = await fetch(REPOS.untitled.gamesJsonUrl); const data = await res.json();
             const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name }));
-            allGames = entries.map(entry => ({
-                id: entry.id.toString(),
-                name: entry.name,
-                url: null,
-                category: categorizeGame(entry.name),
-                repo: "untitled"
-            }));
+            allGames = entries.map(entry => ({ id: entry.id.toString(), name: entry.name, url: null, category: categorizeGame(entry.name), repo: "untitled" }));
         } else if (currentRepo === "custom") {
-            const res  = await fetch(CUSTOM_ZONES_JSON);
-            const data = await res.json();
-            const entries = Array.isArray(data)
-                ? data
-                : Object.entries(data).map(([id, name]) => ({ id, name }));
-            allGames = entries
-                .filter(entry => entry.id !== undefined && entry.name)
-                .map(entry => ({
-                    id: (entry.id !== undefined ? entry.id : entry.name).toString(),
-                    name: entry.name,
-                    url: entry.url || null,
-                    category: categorizeGame(entry.name),
-                    repo: "custom"
-                }));
+            const res = await fetch(REPOS.custom.gamesJsonUrl); const data = await res.json();
+            const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name }));
+            allGames = entries.filter(entry => entry.id !== undefined && entry.name).map(entry => ({ id: (entry.id !== undefined ? entry.id : entry.name).toString(), name: entry.name, url: entry.url || null, category: categorizeGame(entry.name), repo: "custom" }));
         }
-
-        // Cache this repo's games
         allGamesCache[currentRepo] = allGames;
-
-        // Preload other repos in background for cross-repo search
-        preloadOtherRepos();
-
-        renderCategories();
-        renderRecommendations();
-        renderGames();
+        preloadOtherRepos(); renderCategories(); renderRecommendations(); renderGames();
     } catch (err) {
-        console.error("Failed to fetch games:", err);
         document.getElementById("gamesGrid").innerHTML = '<div class="no-games">Failed to load games. Check your connection and refresh.</div>';
     }
 }
-
 async function preloadOtherRepos() {
     const repoList = ["gnmath", "untitled", "custom"];
     for (const repo of repoList) {
         if (repo === currentRepo || allGamesCache[repo]) continue;
         try {
-            if (repo === "gnmath") {
-                const res = await fetch(ZONES_JSON);
-                const data = await res.json();
-                allGamesCache[repo] = data
-                    .filter(g => g.id >= 0)
-                    .map(g => ({ id: g.id.toString(), name: g.name, url: g.url, category: categorizeGame(g.name), repo: "gnmath" }));
-            } else if (repo === "untitled") {
-                const res = await fetch(REPOS.untitled.gamesJsonUrl);
-                const data = await res.json();
-                const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name }));
-                allGamesCache[repo] = entries.map(e => ({ id: e.id.toString(), name: e.name, url: null, category: categorizeGame(e.name), repo: "untitled" }));
-            } else if (repo === "custom") {
-                const res = await fetch(CUSTOM_ZONES_JSON);
-                const data = await res.json();
-                const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name }));
-                allGamesCache[repo] = entries
-                    .filter(e => e.id !== undefined && e.name)
-                    .map(e => ({ id: (e.id !== undefined ? e.id : e.name).toString(), name: e.name, url: e.url || null, category: categorizeGame(e.name), repo: "custom" }));
-            }
-        } catch(e) { /* silent — cross-repo search just won't include this repo */ }
+            if (repo === "gnmath") { const res = await fetch(REPOS.gnmath.gamesJsonUrl); const data = await res.json(); allGamesCache[repo] = data.filter(g => g.id >= 0).map(g => ({ id: g.id.toString(), name: g.name, url: g.url, category: categorizeGame(g.name), repo: "gnmath" })); }
+            else if (repo === "untitled") { const res = await fetch(REPOS.untitled.gamesJsonUrl); const data = await res.json(); const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name })); allGamesCache[repo] = entries.map(e => ({ id: e.id.toString(), name: e.name, url: null, category: categorizeGame(e.name), repo: "untitled" })); }
+            else if (repo === "custom") { const res = await fetch(REPOS.custom.gamesJsonUrl); const data = await res.json(); const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name })); allGamesCache[repo] = entries.filter(e => e.id !== undefined && e.name).map(e => ({ id: (e.id !== undefined ? e.id : e.name).toString(), name: e.name, url: e.url || null, category: categorizeGame(e.name), repo: "custom" })); }
+        } catch(e) {}
     }
 }
-
-// ===========================
-// Recommendations
-// ===========================
 function renderRecommendations() {
     const container = document.getElementById("recommendedGames");
     if (appData.recentGames.length === 0) { container.innerHTML = "Play more games to find out!"; return; }
-
     const categoryCounts = {};
-    appData.recentGames.forEach(id => {
-        const game = allGames.find(g => g.id === parseInt(id));
-        if (game) categoryCounts[game.category] = (categoryCounts[game.category] || 0) + 1;
-    });
-
+    appData.recentGames.forEach(id => { const game = allGames.find(g => g.id === parseInt(id)); if (game) categoryCounts[game.category] = (categoryCounts[game.category] || 0) + 1; });
     const topCategory = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
     if (!topCategory) { container.innerHTML = "Play more games to find out!"; return; }
-
-    const recommendations = allGames
-        .filter(g => g.category === topCategory && !appData.recentGames.includes(g.id.toString()))
-        .slice(0, 5);
-
+    const recommendations = allGames.filter(g => g.category === topCategory && !appData.recentGames.includes(g.id.toString())).slice(0, 5);
     if (recommendations.length === 0) { container.innerHTML = "You've played all games in your favourite category!"; return; }
-
-    container.innerHTML = recommendations.map(game =>
-        `<div class="recommended-game" data-id="${game.id}">${game.name}</div>`
-    ).join('');
-
-    container.querySelectorAll(".recommended-game").forEach(item => {
-        item.onclick = () => loadGame(item.dataset.id);
-    });
+    container.innerHTML = recommendations.map(game => `<div class="recommended-game" data-id="${game.id}">${game.name}</div>`).join('');
+    container.querySelectorAll(".recommended-game").forEach(item => { item.onclick = () => loadGame(item.dataset.id); });
 }
-
-// ===========================
-// Categories
-// ===========================
 function renderCategories() {
     const categoryCounts = {};
     allGames.forEach(game => { categoryCounts[game.category] = (categoryCounts[game.category] || 0) + 1; });
     const sortedCategories = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
-    const favCount = appData.favorites.length;
-
+    const favCount = Object.keys(appData.repoFavorites).length;
     document.getElementById("categoryList").innerHTML = `
-        <div class="category-item ${currentFilter === 'favorites' ? 'active' : ''}" data-category="favorites">
-            <span>★ Favorites</span>
-            <span class="category-count">${favCount}</span>
-        </div>
-        <div class="category-item ${currentFilter === null ? 'active' : ''}" data-category="all">
-            <span>All Games</span>
-            <span class="category-count">${allGames.length}</span>
-        </div>
-        ${sortedCategories.map(([cat, count]) => `
-            <div class="category-item ${currentFilter === cat ? 'active' : ''}" data-category="${cat}">
-                <span>${cat}</span>
-                <span class="category-count">${count}</span>
-            </div>
-        `).join('')}
+        <div class="category-item ${currentFilter === 'favorites' ? 'active' : ''}" data-category="favorites"><span>★ Favorites</span><span class="category-count">${favCount}</span></div>
+        <div class="category-item ${currentFilter === null ? 'active' : ''}" data-category="all"><span>All Games</span><span class="category-count">${allGames.length}</span></div>
+        ${sortedCategories.map(([cat, count]) => `<div class="category-item ${currentFilter === cat ? 'active' : ''}" data-category="${cat}"><span>${cat}</span><span class="category-count">${count}</span></div>`).join('')}
     `;
-
-    document.querySelectorAll(".category-item").forEach(item => {
-        item.onclick = () => {
-            const cat = item.dataset.category;
-            currentFilter = cat === "all" ? null : cat;
-            renderCategories();
-            renderGames();
-        };
+    document.querySelectorAll("#page-games .category-item").forEach(item => {
+        item.onclick = () => { const cat = item.dataset.category; currentFilter = cat === "all" ? null : cat; renderCategories(); renderGames(); };
     });
 }
-
-// ===========================
-// Render Games Grid
-// ===========================
 function renderGames() {
     const searchTerm = document.getElementById("searchInput").value.toLowerCase().trim();
-
-    if (searchTerm && !appData.searchHistory.includes(searchTerm)) {
-        appData.searchHistory.unshift(searchTerm);
-        if (appData.searchHistory.length > 10) appData.searchHistory = appData.searchHistory.slice(0, 10);
-        saveAppData();
-    }
-
-    // When there's a search term, search across ALL cached repos
-    const isSearching = !!searchTerm;
-    const gamePool = isSearching
-        ? Object.values(allGamesCache).flat()
-        : allGames;
-
-    // Deduplicate by id+repo key when searching across repos
+    if (searchTerm && !appData.searchHistory.includes(searchTerm)) { appData.searchHistory.unshift(searchTerm); if (appData.searchHistory.length > 10) appData.searchHistory = appData.searchHistory.slice(0, 10); saveAppData(); }
+    const isSearching = !!searchTerm, isFavoritesView = currentFilter === 'favorites';
+    const gamePool = (isSearching || isFavoritesView) ? Object.values(allGamesCache).flat() : allGames;
     const seen = new Set();
-    const deduped = isSearching ? gamePool.filter(g => {
-        const key = g.repo + ":" + g.id;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-    }) : gamePool;
-
+    const deduped = (isSearching || isFavoritesView) ? gamePool.filter(g => { const key = g.repo + ":" + g.id; if (seen.has(key)) return false; seen.add(key); return true; }) : gamePool;
     let filtered = deduped.filter(game => {
-        if (currentFilter === 'favorites' && !appData.favorites.includes(game.id.toString())) return false;
+        const favKey = game.repo + ":" + game.id;
+        if (currentFilter === 'favorites' && !appData.repoFavorites[favKey]) return false;
         if (currentFilter && currentFilter !== 'favorites' && game.category !== currentFilter) return false;
         if (searchTerm && !game.name.toLowerCase().includes(searchTerm)) return false;
         return true;
     });
-
-    // Sort
-    if (currentSort === "name")        filtered.sort((a, b) => a.name.localeCompare(b.name));
+    if (currentSort === "name") filtered.sort((a, b) => a.name.localeCompare(b.name));
     else if (currentSort === "name-desc") filtered.sort((a, b) => b.name.localeCompare(a.name));
-    else if (currentSort === "recent") {
-        filtered.sort((a, b) => {
-            const ai = appData.recentGames.indexOf(a.id.toString()), bi = appData.recentGames.indexOf(b.id.toString());
-            if (ai === -1 && bi === -1) return 0;
-            if (ai === -1) return 1;
-            if (bi === -1) return -1;
-            return ai - bi;
-        });
-    }
-    else if (currentSort === "mostplayed") filtered.sort((a, b) => (appData.playCount[b.id]||0) - (appData.playCount[a.id]||0));
-    else if (currentSort === "longest")    filtered.sort((a, b) => (appData.longestSessions[b.id]||0) - (appData.longestSessions[a.id]||0));
-    else if (currentSort === "totaltime")  filtered.sort((a, b) => (appData.gameTimes[b.id]||0) - (appData.gameTimes[a.id]||0));
-
-    if (filtered.length === 0) {
-        document.getElementById("gamesGrid").innerHTML = '<div class="no-games">No games found</div>';
-        return;
-    }
-
+    else if (currentSort === "recent") filtered.sort((a, b) => { const ai = appData.recentGames.indexOf(a.id.toString()), bi = appData.recentGames.indexOf(b.id.toString()); if (ai === -1 && bi === -1) return 0; if (ai === -1) return 1; if (bi === -1) return -1; return ai - bi; });
+    if (filtered.length === 0) { document.getElementById("gamesGrid").innerHTML = '<div class="no-games">No games found</div>'; return; }
     document.getElementById("gamesGrid").innerHTML = filtered.map(game => {
-        const isFav = appData.favorites.includes(game.id.toString());
-        // Untitled Stash and Custom have no cover art — always use fallback
+        const favKey = game.repo + ":" + game.id;
+        const isFav = !!appData.repoFavorites[favKey];
         const thumbnailURL = (game.repo === "untitled" || game.repo === "custom") ? getFallbackThumbnailURL() : getThumbnailURL(game.id);
-        const repoTag = isSearching ? `<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">(${REPOS[game.repo]?.name || game.repo})</div>` : "";
-        return `
-            <div class="game-card" data-id="${game.id}" data-repo="${game.repo}">
-                <span class="star ${isFav ? '' : 'off'}" data-id="${game.id}">★</span>
-                <img src="${thumbnailURL}" alt="${game.name}" loading="lazy" onerror="this.src='${getFallbackThumbnailURL()}'">
-                <div class="game-card-info">
-                    <div class="game-card-title">${game.name}</div>
-                    ${repoTag}
-                </div>
-            </div>`;
+        const repoTag = (isSearching || isFavoritesView) ? `<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">(${REPOS[game.repo]?.name || game.repo})</div>` : "";
+        return `<div class="game-card" data-id="${game.id}" data-repo="${game.repo}"><span class="star ${isFav ? '' : 'off'}" data-id="${game.id}" data-repo="${game.repo}">★</span><img src="${thumbnailURL}" alt="${game.name}" loading="lazy" onerror="this.src='${getFallbackThumbnailURL()}'"><div class="game-card-info"><div class="game-card-title">${game.name}</div>${repoTag}</div></div>`;
     }).join('');
-
-    document.querySelectorAll(".game-card").forEach(card => {
+    document.querySelectorAll("#page-games .game-card").forEach(card => {
         card.onclick = (e) => {
             if (e.target.classList.contains("star")) return;
-            const cardRepo = card.dataset.repo;
-            const cardId = card.dataset.id;
-            // If this game is from a different repo, switch first
-            if (cardRepo && cardRepo !== currentRepo) {
-                currentRepo = cardRepo;
-                document.querySelectorAll(".repo-btn").forEach(b => b.classList.toggle("active", b.dataset.repo === currentRepo));
-                fetchGames().then(() => loadGame(cardId));
-            } else {
-                loadGame(cardId);
-            }
+            const cardRepo = card.dataset.repo, cardId = card.dataset.id;
+            if (cardRepo && cardRepo !== currentRepo) { currentRepo = cardRepo; document.querySelectorAll("#page-games .repo-btn").forEach(b => b.classList.toggle("active", b.dataset.repo === currentRepo)); fetchGames().then(() => loadGame(cardId)); }
+            else { loadGame(cardId); }
         };
     });
-
-    document.querySelectorAll(".star").forEach(star => {
+    document.querySelectorAll("#page-games .star").forEach(star => {
         star.onclick = (e) => {
-            e.stopPropagation();
-            const id = star.dataset.id;
-            if (appData.favorites.includes(id)) {
-                appData.favorites = appData.favorites.filter(f => f !== id);
-                star.classList.add("off");
-            } else {
-                appData.favorites.push(id);
-                star.classList.remove("off");
-            }
-            saveAppData();
-            renderCategories();
+            e.stopPropagation(); const id = star.dataset.id, repo = star.dataset.repo || currentRepo, favKey = repo + ":" + id;
+            if (appData.repoFavorites[favKey]) { delete appData.repoFavorites[favKey]; star.classList.add("off"); }
+            else { appData.repoFavorites[favKey] = true; star.classList.remove("off"); }
+            saveAppData(); renderCategories();
         };
+    });
+    document.querySelectorAll("#page-games .game-card").forEach(card => {
+        card.addEventListener("mousemove", (e) => {
+            const rect = card.getBoundingClientRect(), cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+            const dx = (e.clientX - cx) / (rect.width / 2), dy = (e.clientY - cy) / (rect.height / 2);
+            card.style.transform = `perspective(600px) rotateX(${-dy * 14}deg) rotateY(${dx * 14}deg) translateZ(8px) scale(1.04)`;
+            card.style.transition = "transform 0.05s ease-out, box-shadow 0.2s";
+        });
+        card.addEventListener("mouseleave", () => { card.style.transform = ""; card.style.transition = "transform 0.35s ease, box-shadow 0.35s"; });
     });
 }
-
-// ===========================
-// Search & Filter
-// ===========================
-// ===========================
-// Autocomplete / Search History
-// ===========================
 const searchInput = document.getElementById("searchInput");
 const autocompleteList = document.getElementById("autocompleteList");
 let acIndex = -1;
-
 function buildAutocomplete(val) {
-    const q = val.trim().toLowerCase();
-    autocompleteList.innerHTML = "";
-    acIndex = -1;
+    const q = val.trim().toLowerCase(); autocompleteList.innerHTML = ""; acIndex = -1;
     if (!q) { autocompleteList.classList.remove("open"); return; }
-
-    // History matches first, then game name matches from ALL repos
     const histMatches = appData.searchHistory.filter(h => h.includes(q)).slice(0, 3);
-
-    // Gather all games from all cached repos
     const allCachedGames = Object.values(allGamesCache).flat();
     const gameMatches = allCachedGames.filter(g => g.name.toLowerCase().includes(q)).slice(0, 6);
-
     const items = [];
     histMatches.forEach(h => items.push({ label: h, icon: "🕒", type: "history" }));
-    gameMatches.forEach(g => {
-        if (!histMatches.includes(g.name.toLowerCase())) {
-            const repoName = REPOS[g.repo]?.name || g.repo;
-            items.push({ label: g.name, icon: "🎮", type: "game", id: g.id, repo: g.repo, repoName });
-        }
-    });
-
+    gameMatches.forEach(g => { if (!histMatches.includes(g.name.toLowerCase())) { const repoName = REPOS[g.repo]?.name || g.repo; items.push({ label: g.name, icon: "🎮", type: "game", id: g.id, repo: g.repo, repoName }); } });
     if (items.length === 0) { autocompleteList.classList.remove("open"); return; }
-
-    items.forEach((item, i) => {
-        const el = document.createElement("div");
-        el.className = "autocomplete-item";
+    items.forEach(item => {
+        const el = document.createElement("div"); el.className = "autocomplete-item";
         const repoLabel = item.type === "game" && item.repoName ? ` <span style="font-size:10px;opacity:0.6">(${item.repoName})</span>` : "";
         el.innerHTML = `<span class="ac-icon">${item.icon}</span><span>${item.label}${repoLabel}</span>`;
         el.onmousedown = (e) => {
             e.preventDefault();
             if (item.type === "game" && item.repo && item.repo !== currentRepo) {
-                // Switch to repo then load game
-                searchInput.value = "";
-                autocompleteList.classList.remove("open");
-                currentRepo = item.repo;
-                document.querySelectorAll(".repo-btn").forEach(b => b.classList.toggle("active", b.dataset.repo === currentRepo));
-                fetchGames().then(() => {
-                    loadGame(item.id);
-                });
-            } else {
-                searchInput.value = item.label;
-                autocompleteList.classList.remove("open");
-                renderGames();
-            }
+                searchInput.value = ""; autocompleteList.classList.remove("open");
+                currentRepo = item.repo; document.querySelectorAll("#page-games .repo-btn").forEach(b => b.classList.toggle("active", b.dataset.repo === currentRepo));
+                fetchGames().then(() => { loadGame(item.id); });
+            } else { searchInput.value = item.label; autocompleteList.classList.remove("open"); renderGames(); }
         };
         autocompleteList.appendChild(el);
     });
     autocompleteList.classList.add("open");
 }
-
 searchInput.oninput = () => { renderGames(); buildAutocomplete(searchInput.value); };
 searchInput.onkeydown = (e) => {
     const items = autocompleteList.querySelectorAll(".autocomplete-item");
@@ -1691,56 +1433,26 @@ searchInput.onkeydown = (e) => {
     else if (e.key === "Escape") { autocompleteList.classList.remove("open"); }
 };
 searchInput.onblur = () => setTimeout(() => autocompleteList.classList.remove("open"), 150);
-
 document.getElementById("sortSelect").onchange = (e) => { currentSort = e.target.value; renderGames(); };
-
-// ===========================
-// Recently Played Button
-// ===========================
 document.getElementById("recentBtn").onclick = () => {
     if (appData.recentGames.length === 0) { showAlert("No recently played games yet!"); return; }
-    // Show recently played as a modal-style overlay
-    const names = appData.recentGames.slice(0, 10).map(id => {
-        const g = allGames.find(g => g.id.toString() === id.toString());
-        return g ? `<div class="recommended-game" data-id="${g.id}" style="cursor:pointer">${g.name}</div>` : "";
-    }).filter(Boolean).join("");
-    document.getElementById("customDialogMessage").innerHTML = "<strong>Recently Played</strong>";
+    const names = appData.recentGames.slice(0, 10).map(id => { const g = allGames.find(g => g.id.toString() === id.toString()); return g ? `<div class="recommended-game" data-id="${g.id}" style="cursor:pointer">${g.name}</div>` : ""; }).filter(Boolean).join("");
+    const msgEl = document.getElementById("customDialogMessage");
+    msgEl.innerHTML = `<strong style="color:var(--accent)">Recently Played</strong><div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px">${names}</div>`;
     document.getElementById("customDialogInput").style.display = "none";
     document.getElementById("customDialogTextarea").style.display = "none";
     document.getElementById("customDialogCopy").style.display = "none";
     document.getElementById("customDialogOk").style.display = "none";
-    // Temporarily repurpose dialog for recent list
-    const msgEl = document.getElementById("customDialogMessage");
-    msgEl.innerHTML = `<strong style="color:var(--accent)">Recently Played</strong><div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px">${names}</div>`;
     document.getElementById("customDialog").classList.add("show");
-    // Attach click handlers after DOM update
-    setTimeout(() => {
-        document.querySelectorAll("#customDialogMessage .recommended-game").forEach(el => {
-            el.onclick = () => { document.getElementById("customDialog").classList.remove("show"); loadGame(el.dataset.id); };
-        });
-    }, 0);
+    setTimeout(() => { document.querySelectorAll("#customDialogMessage .recommended-game").forEach(el => { el.onclick = () => { document.getElementById("customDialog").classList.remove("show"); loadGame(el.dataset.id); }; }); }, 0);
 };
-
-// ===========================
-// Quick Actions
-// ===========================
-document.getElementById("continueBtn").onclick = () => {
-    if (appData.recentGames.length > 0) loadGame(appData.recentGames[0]);
-    else showAlert("No recent games to continue");
-};
-document.getElementById("randomBtn").onclick = () => {
-    if (allGames.length === 0) return;
-    loadGame(allGames[Math.floor(Math.random() * allGames.length)].id);
-};
-
-// ===========================
-// Load Game
-// ===========================
+document.getElementById("continueBtn").onclick = () => { if (appData.recentGames.length > 0) loadGame(appData.recentGames[0]); else showAlert("No recent games to continue"); };
+document.getElementById("randomBtn").onclick = () => { if (allGames.length === 0) return; loadGame(allGames[Math.floor(Math.random() * allGames.length)].id); };
 
 async function loadGame(gameId) {
     gameId = gameId.toString();
     currentGame = gameId;
-    
+
     const game = allGames.find(g => g.id.toString() === gameId);
     if (!game) {
         showGameError("Game not found");
@@ -1768,7 +1480,7 @@ async function loadGame(gameId) {
         : game.repo === "untitled"
             ? REPOS.untitled.gameBaseUrl + game.id + ".html"
             : game.repo === "custom"
-                ? (game.url ? game.url.replace("{BASE_URL}", CUSTOM_BASE) : CUSTOM_BASE + game.id + ".html")
+                ? (game.url ? game.url.replace("{BASE_URL}", REPOS.custom.gameBaseUrl) : REPOS.custom.gameBaseUrl + game.id + ".html")
                 : game.url.replace("{HTML_URL}", HTML_URL);
 
     // ── Show game view immediately so user sees something happening ──
@@ -1795,22 +1507,19 @@ async function loadGame(gameId) {
 
     // ── Sanitize ──
 
-    // 1. Remove Google Analytics / gtag external script tag (any GA tracking ID)
+    // 1. Remove Google Analytics / gtag external script tag
     html = html.replace(/<script\b[^>]+src=["'][^"']*googletagmanager\.com[^"']*["'][^>]*>\s*<\/script>/gi, "");
 
-    // 2. Remove the inline gtag config block (window.dataLayer + gtag function + gtag calls)
+    // 2. Remove the inline gtag config block
     html = html.replace(/<script\b[^>]*>[\s\S]*?window\.dataLayer[\s\S]*?<\/script>/gi, "");
 
-    // 3. Remove any element with id="sidebar1" or id="sidebar2" (any tag)
-    html = html.replace(/<[a-z][^>]*\bid=["']sidebar[12]["'][^>]*>[\s\S]*?<\/[a-z]+>/gi, "");
-    // Also catch self-closing or short elements
-    html = html.replace(/<[a-z][^>]*\bid=["']sidebar[12]["'][^>]*\/?>/gi, "");
+    // 3. Remove any element with id="sidebar1", id="sidebar2", id="sidebarad1", or id="sidebarad2"
+    html = html.replace(/<[a-z][^>]*\bid=["']sidebar(?:ad)?[12]["'][^>]*>[\s\S]*?<\/[a-z]+>/gi, "");
+    html = html.replace(/<[a-z][^>]*\bid=["']sidebar(?:ad)?[12]["'][^>]*\/?>/gi, "");
 
     // 4. Remove ONLY the specific ad-injection obfuscated script.
-    //    Fingerprinted by its unique string array containing known ad domains/identifiers.
-    //    This avoids nuking Unity loader scripts which also contain _0x patterns.
+    //    Fingerprinted by its unique string array — avoids nuking Unity loader scripts.
     html = html.replace(/<script\b(?![^>]*\bsrc\s*=)[^>]*>([\s\S]*?)<\/script>/gi, (match, body) => {
-        // Must contain the specific obfuscated array fingerprint strings from the ad injector
         const isAdInjector = (
             body.includes('sidebarad1') ||
             body.includes('sidebarad2') ||
@@ -1872,68 +1581,27 @@ async function loadGame(gameId) {
     });
 }
 
-// Show game error
 function showGameError(realError) {
     if (zoneFrame) {
         const showRealError = appData.settings.developerMode;
         const displayMessage = showRealError ? realError : "Game failed";
-        
         const errorHTML = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body {
-                        margin: 0;
-                        padding: 0;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        min-height: 100vh;
-                        background: #0d0d1a;
-                        font-family: 'Segoe UI', sans-serif;
-                        color: white;
-                    }
-                    .error-container {
-                        text-align: center;
-                        padding: 40px;
-                        max-width: 600px;
-                    }
-                    h1 {
-                        color: #ff5a5a;
-                        font-size: 48px;
-                        margin: 0 0 20px 0;
-                    }
-                    .message {
-                        font-size: 18px;
-                        color: #aaa;
-                        margin-bottom: 30px;
-                        word-wrap: break-word;
-                    }
-                    .dev-message {
-                        margin-top: 30px;
-                        padding: 20px;
-                        background: #2b1414;
-                        border: 2px solid #ff5a5a;
-                        border-radius: 8px;
-                        text-align: left;
-                        word-wrap: break-word;
-                        font-family: monospace;
-                        font-size: 12px;
-                        color: #ff8888;
-                    }
-                </style>
-            </head>
-            <body>
+            <!DOCTYPE html><html><head><style>
+                body { margin:0; padding:0; display:flex; justify-content:center; align-items:center;
+                       min-height:100vh; background:#0d0d1a; font-family:'Segoe UI',sans-serif; color:white; }
+                .error-container { text-align:center; padding:40px; max-width:600px; }
+                h1 { color:#ff5a5a; font-size:48px; margin:0 0 20px 0; }
+                .message { font-size:18px; color:#aaa; margin-bottom:30px; word-wrap:break-word; }
+                .dev-message { margin-top:30px; padding:20px; background:#2b1414; border:2px solid #ff5a5a;
+                               border-radius:8px; text-align:left; word-wrap:break-word;
+                               font-family:monospace; font-size:12px; color:#ff8888; }
+            </style></head><body>
                 <div class="error-container">
                     <h1>⚠️</h1>
                     <div class="message">${showRealError ? '' : displayMessage}</div>
                     ${showRealError ? `<div class="dev-message">${displayMessage}</div>` : ''}
                 </div>
-            </body>
-            </html>
-        `;
-        
+            </body></html>`;
         zoneViewer.style.display = "block";
         zoneViewer.hidden = false;
         zoneFrame.contentDocument.open();
@@ -1942,12 +1610,8 @@ function showGameError(realError) {
     }
 }
 
-// ===========================
-// Focus Detection & Pause
-// ===========================
 function setupFocusDetection(iframe) {
     const overlay = document.getElementById("focusOverlay");
-
     const showOverlay = () => { overlay.classList.add("active"); isActive = false; };
     const hideOverlay = () => {
         overlay.classList.remove("active");
@@ -1955,7 +1619,6 @@ function setupFocusDetection(iframe) {
         iframe.focus();
         isActive = true;
     };
-
     try {
         if (iframe.contentWindow) {
             iframe.contentWindow.addEventListener("blur", () => {
@@ -1967,26 +1630,16 @@ function setupFocusDetection(iframe) {
             });
         }
     } catch(e) { /* cross-origin — overlay will still work on click */ }
-
     overlay.onclick = (e) => { e.stopPropagation(); hideOverlay(); };
 }
 
-
-// ===========================
-// Game Controls
-// ===========================
 document.getElementById("backBtn").onclick = () => backToHomepage();
-
-document.getElementById("reloadBtn").onclick = () => {
-    if (currentGame) { loadGame(currentGame); }
-};
+document.getElementById("reloadBtn").onclick = () => { if (currentGame) { loadGame(currentGame); } };
 
 function backToHomepage() {
     currentGame = null;
-
     zoneViewer.hidden = false;
     zoneViewer.style.display = "none";
-
     // Replace iframe with a fresh blank one to stop all game execution and audio
     const container = zoneFrame.parentNode;
     if (container) {
@@ -1999,7 +1652,6 @@ function backToHomepage() {
         container.replaceChild(freshFrame, zoneFrame);
         zoneFrame = freshFrame;
     }
-
     document.getElementById("gameView").classList.remove("active");
     document.getElementById("categorySidebar").classList.remove("hidden");
     document.getElementById("topBar").classList.remove("hidden");
@@ -2007,9 +1659,6 @@ function backToHomepage() {
     renderRecommendations();
 }
 
-// ===========================
-// Fullscreen
-// ===========================
 document.getElementById("fullscreenBtn").onclick = () => {
     if (!document.fullscreenElement) {
         zoneFrame.requestFullscreen().catch(err => showAlert("Fullscreen not available: " + err.message));
@@ -2022,181 +1671,540 @@ document.addEventListener("fullscreenchange", () => {
     const btn = document.getElementById("fullscreenBtn");
     if (document.fullscreenElement) {
         btn.textContent = "✕ Exit Fullscreen";
-        // After entering fullscreen, request pointer lock on the iframe so Unity
-        // and other games that need it get it automatically without an extra click.
-        // Must be done here (inside the fullscreenchange event) because
-        // requestPointerLock requires a fresh user-gesture context.
-        try {
-            zoneFrame.contentDocument?.documentElement?.requestPointerLock?.();
-        } catch(e) {}
+        // Request pointer lock for Unity games (must be inside fullscreenchange event)
+        try { zoneFrame.contentDocument?.documentElement?.requestPointerLock?.(); } catch(e) {}
     } else {
         btn.textContent = "⛶ Fullscreen";
         try { document.exitPointerLock?.(); } catch(e) {}
     }
 });
 
-// ===========================
-// Repo Switcher
-// ===========================
-document.querySelectorAll(".repo-btn").forEach(btn => {
+document.querySelectorAll("#page-games .repo-btn").forEach(btn => {
     btn.onclick = () => {
         const repo = btn.dataset.repo;
         if (repo === currentRepo) return;
         currentRepo = repo;
-        document.querySelectorAll(".repo-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll("#page-games .repo-btn").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        // Reset filter + reload games from new repo
         currentFilter = null;
         fetchGames();
     };
 });
 
-// ===========================
-// Network Status
-// ===========================
-function updateNetworkStatus() {
-    // Network status tracked internally only
-}
-window.addEventListener("online",  updateNetworkStatus);
-window.addEventListener("offline", updateNetworkStatus);
+// ALT+1 shortcut removed — text hint kept in nav bar
 
-// ===========================
-// Instant Switch (ALT+1)
-// ===========================
-document.addEventListener("keydown", (e) => {
-    if (e.altKey && e.key === "1") { e.preventDefault(); window.location.href = URL_CLASSROOM; }
-});
-
-// ===========================
-// Clock & Period Display
-// ===========================
 const PERIODS = [
-    { name: "Period 1",  start: "7:39",  end: "8:25"  },
-    { name: "Period 2",  start: "8:28",  end: "9:14"  },
-    { name: "Period 3",  start: "9:17",  end: "10:03" },
-    { name: "Period 4",  start: "10:06", end: "10:52" },
-    { name: "Plus",      start: "10:55", end: "11:17" },
-    { name: "Lunch",     start: "11:19", end: "11:44" },
-    { name: "Period 6",  start: "11:47", end: "12:33" },
-    { name: "Period 7",  start: "12:36", end: "1:22"  },
-    { name: "Period 8",  start: "1:25",  end: "2:11"  },
+    { name:"Period 1", start:"7:39", end:"8:25" }, { name:"Period 2", start:"8:28", end:"9:14" },
+    { name:"Period 3", start:"9:17", end:"10:03" }, { name:"Period 4", start:"10:06", end:"10:52" },
+    { name:"Plus", start:"10:55", end:"11:17" }, { name:"Lunch", start:"11:19", end:"11:44" },
+    { name:"Period 6", start:"11:47", end:"12:33" }, { name:"Period 7", start:"12:36", end:"1:22" },
+    { name:"Period 8", start:"1:25", end:"2:11" },
 ];
-
-function parseTime(str) {
-    const [h, m] = str.split(":").map(Number);
-    return h * 60 + m;
-}
-
-function getCurrentPeriod() {
-    const now = new Date();
-    const total = now.getHours() * 60 + now.getMinutes();
-    for (const p of PERIODS) {
-        if (total >= parseTime(p.start) && total <= parseTime(p.end)) return p.name;
-    }
-    return null;
-}
-
+function parseTime(str) { const [h, m] = str.split(":").map(Number); return h * 60 + m; }
+function getCurrentPeriod() { const now = new Date(); const total = now.getHours() * 60 + now.getMinutes(); for (const p of PERIODS) { if (total >= parseTime(p.start) && total <= parseTime(p.end)) return p.name; } return null; }
 function tickClock() {
-    const now = new Date();
-    const precision = appData.settings.clockPrecision || "ms";
-    const clockEl = document.getElementById("clockTime");
-    const sidebarClock = document.querySelector(".sidebar-clock");
-
-    if (precision === "off") {
-        if (sidebarClock) sidebarClock.style.display = "none";
-    } else {
-        if (sidebarClock) sidebarClock.style.display = "";
-        let h = now.getHours();
-        const m  = String(now.getMinutes()).padStart(2, "0");
-        const s  = String(now.getSeconds()).padStart(2, "0");
-        const ms = String(now.getMilliseconds()).padStart(3, "0");
+    const now = new Date(), precision = appData.settings.clockPrecision || "ms";
+    const clockEl = document.getElementById("nav-clock-time");
+    if (precision === "off") { clockEl.textContent = ""; }
+    else {
+        let h = now.getHours(); const m = String(now.getMinutes()).padStart(2,"0"), s = String(now.getSeconds()).padStart(2,"0"), ms = String(now.getMilliseconds()).padStart(3,"0");
         let timeStr;
-        if (appData.settings.use24Hour) {
-            const hh = String(h).padStart(2, "0");
-            timeStr = precision === "ms" ? `${hh}:${m}:${s}.${ms}` : `${hh}:${m}:${s}`;
-        } else {
-            const ampm = h >= 12 ? "PM" : "AM";
-            h = h % 12 || 12;
-            timeStr = precision === "ms" ? `${h}:${m}:${s}.${ms} ${ampm}` : `${h}:${m}:${s} ${ampm}`;
-        }
+        if (appData.settings.use24Hour) { const hh = String(h).padStart(2,"0"); timeStr = precision === "ms" ? `${hh}:${m}:${s}.${ms}` : `${hh}:${m}:${s}`; }
+        else { const ampm = h >= 12 ? "PM" : "AM"; h = h % 12 || 12; timeStr = precision === "ms" ? `${h}:${m}:${s}.${ms} ${ampm}` : `${h}:${m}:${s} ${ampm}`; }
         clockEl.textContent = timeStr;
     }
-
-    const period = getCurrentPeriod();
-    document.getElementById("clockPeriod").textContent = period || "";
+    const period = getCurrentPeriod(); document.getElementById("nav-clock-period").textContent = period || "";
     tickCountdown(now);
 }
-
 function tickCountdown(now) {
-    const totalNow = now.getHours() * 60 + now.getMinutes();
-    const secNow   = totalNow * 60 + now.getSeconds();
-    const labelEl  = document.getElementById("countdownLabel");
-    const valueEl  = document.getElementById("countdownValue");
-
-    // Find current period end or next period start
+    const totalNow = now.getHours() * 60 + now.getMinutes(), secNow = totalNow * 60 + now.getSeconds();
+    const labelEl = document.getElementById("nav-countdown-label"), valueEl = document.getElementById("nav-countdown-value");
     let label = "", secs = null, urgent = false;
-
     for (const p of PERIODS) {
-        const start = parseTime(p.start) * 60;
-        const end   = parseTime(p.end) * 60 + 59;
-        if (secNow >= start && secNow <= end) {
-            // Inside a period — count down to end
-            secs  = end - secNow;
-            label = p.name + " ends";
-            urgent = secs <= 120;
-            break;
-        }
+        const start = parseTime(p.start) * 60, end = parseTime(p.end) * 60 + 59;
+        if (secNow >= start && secNow <= end) { secs = end - secNow; label = p.name + " ends"; urgent = secs <= 120; break; }
     }
-
-    if (secs === null) {
-        // Between periods — find next one
-        for (const p of PERIODS) {
-            const start = parseTime(p.start) * 60;
-            if (start > secNow) {
-                secs  = start - secNow;
-                label = p.name + " starts";
-                break;
-            }
-        }
-    }
-
-    if (secs === null || secs < 0) {
-        labelEl.textContent = "After School";
-        valueEl.textContent  = "--";
-        valueEl.classList.remove("urgent");
-        return;
-    }
-
-    const mm = String(Math.floor(secs / 60)).padStart(2, "0");
-    const ss = String(secs % 60).padStart(2, "0");
-    labelEl.textContent  = label;
-    valueEl.textContent  = `${mm}:${ss}`;
-    valueEl.classList.toggle("urgent", urgent);
+    if (secs === null) { for (const p of PERIODS) { const start = parseTime(p.start) * 60; if (start > secNow) { secs = start - secNow; label = p.name + " starts"; break; } } }
+    if (secs === null || secs < 0) { labelEl.textContent = "After School"; valueEl.textContent = "--"; valueEl.classList.remove("urgent"); return; }
+    const mm = String(Math.floor(secs / 60)).padStart(2,"0"), ss = String(secs % 60).padStart(2,"0");
+    labelEl.textContent = label; valueEl.textContent = `${mm}:${ss}`; valueEl.classList.toggle("urgent", urgent);
 }
+setInterval(tickClock, 10); tickClock();
 
-setInterval(tickClock, 10);
-tickClock();
-
-// ===========================
-// Init
-// ===========================
 async function initApp() {
-    await initDB();
-    await loadAppData();
-    applyTheme(appData.settings.theme);
-    document.getElementById("themeSelect").value = appData.settings.theme;
-    document.getElementById("bgSelect").value    = appData.settings.thumbnail;
+    await initDB(); await loadAppData();
+    const savedTheme = localStorage.getItem('daboi_theme') || appData.settings.theme || 'purple';
+    applyGlobalTheme(savedTheme);
+    document.getElementById("themeSelect").value = savedTheme;
+    document.getElementById("bgSelect").value = appData.settings.thumbnail;
     document.getElementById("overrideThumbnails").checked = appData.settings.overrideThumbnails;
     document.getElementById("developerMode").checked = appData.settings.developerMode;
     document.getElementById("use24Hour").checked = appData.settings.use24Hour || false;
     document.getElementById("clockPrecision").value = appData.settings.clockPrecision || "ms";
-    updateNetworkStatus();
     document.getElementById("homepageView").style.display = "block";
     await fetchGames();
 }
 
-initApp();
 
+/* ═══════════════════════════════════════════
+   MUSIC SCRIPT (from boimusic-themed.html)
+═══════════════════════════════════════════ */
+let queue = [], currentIndex = -1, isPlaying = false;
+let repeatMode = 0, shuffleMode = false;
+const repeatIcons = ["🔁","🔂","⏹"];
+let playlists = {};  // will be loaded async via loadData
+let selectedPlaylist = null, playlistRepeat = false;
+let retryCount = {}, pausedAt = 0, playTimer = null, endTimeout = null;
+const MAX_RETRIES = 5, RETRY_DELAY_MS = 1200;
+// Async-load playlists from localStorage/IDB on startup
+(async () => { playlists = await loadData('BOIMUSIC_PLAYLISTS', {}); updatePlaylistsSidebar(); renderSelectedPlaylist(); })();
+
+const musicDialog = document.getElementById('musicCustomDialog');
+const musicMessageEl = document.getElementById('musicDialogMessage');
+const musicInputEl = document.getElementById('musicDialogInput');
+const musicOkBtn = document.getElementById('musicDialogOk');
+const musicCancelBtn = document.getElementById('musicDialogCancel');
+
+function musicCustomAlert(msg, callback) {
+    musicMessageEl.textContent = msg; musicInputEl.style.display = 'none'; musicCancelBtn.style.display = 'none'; musicDialog.style.display = 'flex';
+    musicOkBtn.onclick = () => { musicDialog.style.display = 'none'; if (callback) callback(); };
+}
+function musicCustomConfirm(msg, callback) {
+    musicMessageEl.textContent = msg; musicInputEl.style.display = 'none'; musicCancelBtn.style.display = 'inline-block'; musicDialog.style.display = 'flex';
+    musicOkBtn.onclick = () => { musicDialog.style.display = 'none'; callback(true); };
+    musicCancelBtn.onclick = () => { musicDialog.style.display = 'none'; callback(false); };
+}
+function musicCustomPrompt(msg, callback) {
+    musicMessageEl.textContent = msg; musicInputEl.style.display = 'block'; musicInputEl.value = ''; musicCancelBtn.style.display = 'inline-block'; musicDialog.style.display = 'flex';
+    setTimeout(() => musicInputEl.focus(), 50);
+    musicOkBtn.onclick = () => { musicDialog.style.display = 'none'; callback(musicInputEl.value.trim()); };
+    musicCancelBtn.onclick = () => { musicDialog.style.display = 'none'; callback(null); };
+    musicInputEl.onkeydown = (e) => { if (e.key === 'Enter') musicOkBtn.click(); };
+}
+
+const ytFrame = document.getElementById('yt-player');
+
+function startTimer(durationSeconds) {
+    stopTimer(); playTimer = setInterval(() => { pausedAt++; }, 1000);
+    if (durationSeconds && durationSeconds > pausedAt) {
+        const remaining = (durationSeconds - pausedAt + 4) * 1000;
+        endTimeout = setTimeout(() => { stopTimer(); pausedAt = 0; nextTrack(); }, remaining);
+    }
+}
+function stopTimer() {
+    if (playTimer) { clearInterval(playTimer); playTimer = null; }
+    if (endTimeout) { clearTimeout(endTimeout); endTimeout = null; }
+}
+window.addEventListener('message', (e) => {
+    try {
+        const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+        if (!data) return;
+        const isWidget = data.channel === 'widget', isDirect = typeof data.event === 'string';
+        if (!isWidget && !isDirect) return;
+        const state = data?.info?.playerState ?? data?.playerState ?? null;
+        if (state === 0) { stopTimer(); pausedAt = 0; nextTrack(); }
+    } catch(err) {}
+});
+function buildEmbedUrl(videoId, startSeconds = 0) {
+    const start = startSeconds > 2 ? `&start=${Math.floor(startSeconds)}` : '';
+    return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1${start}`;
+}
+function safeLoadVideo(videoId, startSeconds = 0, durationSeconds = 0) {
+    pausedAt = startSeconds; ytFrame.src = buildEmbedUrl(videoId, startSeconds);
+    ytFrame.onload = () => {
+        ytFrame.contentWindow.postMessage(JSON.stringify({ event:'listening', id:1 }), '*');
+        ytFrame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'addEventListener', args:['onStateChange'], id:1 }), '*');
+    };
+    startTimer(durationSeconds);
+}
+async function fetchDuration(videoId) {
+    try {
+        const r = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
+        if (!r.ok) return 300;
+        const d = await r.json();
+        return (typeof d.duration === 'number' && d.duration > 0) ? d.duration : 300;
+    } catch(e) { return 300; }
+}
+async function searchSongs(q) {
+    const res = await fetch(`https://boi6741purpleturtle.hexorod0.workers.dev/?q=${encodeURIComponent(q)}`);
+    const data = await res.json(); const ids = data.items || [];
+    const results = await Promise.all(ids.map(async id => {
+        try {
+            const r = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
+            if (!r.ok) return null;
+            const info = await r.json(); if (!info.title) return null;
+            const duration = await fetchDuration(id);
+            return { videoId: id, title: info.title, channel: info.author_name, thumb: info.thumbnail_url, duration };
+        } catch(e) { return null; }
+    }));
+    return results.filter(Boolean);
+}
+document.getElementById('searchBtn').addEventListener('click', async () => {
+    const q = document.getElementById('musicSearchInput').value.trim(); if (!q) return;
+    document.getElementById('results').innerHTML = '<div class="muted small" style="padding:10px">Searching…</div>';
+    try {
+        const results = await searchSongs(q); const c = document.getElementById('results'); c.innerHTML = '';
+        if (!results.length) { c.innerHTML = '<div class="muted small" style="padding:10px">No results found.</div>'; return; }
+        results.forEach(item => {
+            const row = document.createElement('div'); row.className = 'track-row';
+            row.innerHTML = `<img class="track-thumb" src="${item.thumb}" onerror="this.style.display='none'"><div class="track-meta"><div class="track-title">${item.title}</div><div class="track-sub">${item.channel}</div></div><div style="color:var(--accent-hover);font-size:18px;padding:0 6px">+</div>`;
+            row.addEventListener('click', () => addToQueue(item)); c.appendChild(row);
+        });
+    } catch(e) { document.getElementById('results').innerHTML = '<div class="muted small" style="padding:10px">Search failed.</div>'; }
+});
+document.getElementById('musicSearchInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('searchBtn').click(); });
+
+function addToQueue(item) { queue.push(item); updateQueueUI(); saveQueueToLocal(); if (currentIndex === -1) playIndex(0); }
+function updateQueueUI() {
+    const container = document.getElementById('queueList'); container.innerHTML = '';
+    queue.forEach((item, i) => {
+        const row = document.createElement('div'); row.className = 'track-row'; if (i === currentIndex) row.classList.add('highlight');
+        row.innerHTML = `<div style="flex:0 0 28px;text-align:center;color:var(--muted);font-size:12px;font-weight:600">${i+1}</div><img src="${item.thumb||''}" style="width:36px;height:36px;border-radius:4px;object-fit:cover;flex:0 0 36px" onerror="this.style.display='none'"><div class="track-meta"><div class="track-title" style="font-size:13px">${item.title}</div><div class="track-sub">${item.channel||''}</div></div><button class="btn" style="font-size:11px;padding:4px 8px;flex-shrink:0" data-del="${i}">✕</button>`;
+        row.querySelector('[data-del]').addEventListener('click', (e) => { e.stopPropagation(); removeFromQueue(parseInt(e.target.dataset.del)); });
+        row.addEventListener('click', (e) => { if (!e.target.dataset.del) playIndex(i); });
+        container.appendChild(row);
+    });
+    document.getElementById('queueCount').textContent = queue.length;
+}
+function removeFromQueue(idx) {
+    const wasPlaying = idx === currentIndex; queue.splice(idx, 1);
+    if (wasPlaying) {
+        if (queue.length === 0) { currentIndex = -1; isPlaying = false; ytFrame.src = ''; document.getElementById('playerTitle').textContent = 'Not playing'; document.getElementById('playerArtist').textContent = '—'; document.getElementById('playerThumb').src = ''; updatePlayPauseBtn(); }
+        else { currentIndex = Math.min(idx, queue.length - 1); playIndex(currentIndex); }
+    } else if (idx < currentIndex) { currentIndex--; }
+    updateQueueUI(); saveQueueToLocal();
+}
+document.getElementById('clearQueueBtn').addEventListener('click', () => {
+    musicCustomConfirm('Clear the entire queue?', (result) => {
+        if (!result) return; stopTimer(); pausedAt = 0; queue = []; currentIndex = -1; isPlaying = false; ytFrame.src = ''; updateQueueUI(); saveQueueToLocal();
+    });
+});
+function playIndex(idx) {
+    if (queue.length === 0) return; currentIndex = idx; const item = queue[idx];
+    stopTimer(); pausedAt = 0;
+    if (item && item.videoId) safeLoadVideo(item.videoId, 0, item.duration || 0);
+    document.getElementById('playerTitle').textContent = item.title || 'Loading…';
+    document.getElementById('playerArtist').textContent = item.channel || '—';
+    document.getElementById('playerThumb').src = item.thumb || '';
+    isPlaying = true; updatePlayPauseBtn(); updateQueueUI();
+}
+function prevTrack() { if (queue.length === 0) return; if (currentIndex > 0) playIndex(currentIndex - 1); else if (repeatMode === 1) playIndex(queue.length - 1); else playIndex(0); }
+function nextTrack() {
+    if (queue.length === 0) return; if (repeatMode === 2) { playIndex(currentIndex); return; }
+    if (shuffleMode && queue.length > 1) { let rand; do { rand = Math.floor(Math.random() * queue.length); } while (rand === currentIndex); playIndex(rand); return; }
+    if (currentIndex + 1 < queue.length) { playIndex(currentIndex + 1); return; }
+    if (repeatMode === 1) { playIndex(0); return; }
+    stopTimer(); pausedAt = 0; currentIndex = -1; isPlaying = false; updatePlayPauseBtn();
+    document.getElementById('playerTitle').textContent = 'Not playing'; document.getElementById('playerArtist').textContent = '—'; document.getElementById('playerThumb').src = ''; ytFrame.src = ''; updateQueueUI();
+}
+function updatePlayPauseBtn() { document.getElementById('playPauseBtn').textContent = isPlaying ? '⏸' : '▶️'; }
+document.getElementById('playPauseBtn').addEventListener('click', () => {
+    if (currentIndex === -1 && queue.length > 0) { playIndex(0); return; } if (currentIndex === -1) return;
+    if (isPlaying) { stopTimer(); const vid = queue[currentIndex].videoId; const t = Math.floor(pausedAt); ytFrame.src = `https://www.youtube-nocookie.com/embed/${vid}?autoplay=0&rel=0&modestbranding=1&enablejsapi=1&start=${t}`; isPlaying = false; }
+    else { const t = Math.floor(pausedAt); const dur = queue[currentIndex].duration || 0; ytFrame.src = buildEmbedUrl(queue[currentIndex].videoId, t); startTimer(dur); isPlaying = true; }
+    updatePlayPauseBtn();
+});
+document.getElementById('nextBtn').addEventListener('click', nextTrack);
+document.getElementById('prevBtn').addEventListener('click', prevTrack);
+const repeatBtn = document.getElementById('repeatBtn');
+repeatBtn.addEventListener('click', () => { repeatMode = (repeatMode + 1) % 3; repeatBtn.textContent = repeatIcons[repeatMode]; });
+const shuffleBtn = document.getElementById('shuffleBtn');
+shuffleBtn.addEventListener('click', () => { shuffleMode = !shuffleMode; shuffleBtn.style.color = shuffleMode ? 'var(--accent)' : ''; shuffleBtn.style.borderColor = shuffleMode ? 'var(--accent)' : ''; });
+function saveQueueToLocal() { saveData('BOIMUSIC_QUEUE', queue.map(t => t.videoId)); }
+async function loadQueueFromLocal() {
+    const saved = await loadData('BOIMUSIC_QUEUE', []);
+    if (saved.length) {
+        saved.forEach(id => queue.push({ videoId: id, title: "Loading…", channel: "", thumb: "" }));
+        updateQueueUI();
+        saved.forEach((vid, i) => {
+            fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vid}&format=json`).then(r => r.json()).then(d => { if (queue[i]) { queue[i].title = d.title; queue[i].channel = d.author_name; queue[i].thumb = d.thumbnail_url; updateQueueUI(); } }).catch(() => {});
+        });
+    }
+}
+function savePlaylistsToLocal() { saveData('BOIMUSIC_PLAYLISTS', playlists); }
+function updatePlaylistsSidebar() {
+    const c = document.getElementById('playlistsList'); c.innerHTML = '';
+    const names = Object.keys(playlists);
+    if (!names.length) { c.innerHTML = `<div class="muted small" style="padding:4px">No playlists — create one</div>`; return; }
+    names.forEach(name => { const el = document.createElement('div'); el.className = 'playlist-item'; el.textContent = name; el.addEventListener('click', () => openPlaylistDrawer(name)); c.appendChild(el); });
+}
+const drawer = document.getElementById('playlistDrawer'), fade = document.getElementById('fadeOverlay');
+function openPlaylistDrawer(name) {
+    selectedPlaylist = name || selectedPlaylist; document.getElementById('selectedPlaylistName').textContent = selectedPlaylist || 'None';
+    renderPlaylistSelectOptions(); renderSelectedPlaylist(); drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false');
+    fade.classList.add('visible'); document.querySelector('#page-music .left-main').style.flex = '0 0 50%';
+}
+function closePlaylistDrawer() { drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); fade.classList.remove('visible'); document.querySelector('#page-music .left-main').style.flex = '1'; }
+document.getElementById('closeDrawerBtn').addEventListener('click', closePlaylistDrawer);
+document.getElementById('closeDrawerBtnFooter').addEventListener('click', closePlaylistDrawer);
+fade.addEventListener('click', closePlaylistDrawer);
+function renderPlaylistSelectOptions() {
+    const sel = document.getElementById('playlistAddSelect'); sel.innerHTML = '';
+    const names = Object.keys(playlists);
+    if (!names.length) { const opt = document.createElement('option'); opt.value = ''; opt.textContent = '(no playlists)'; sel.appendChild(opt); sel.disabled = true; return; }
+    sel.disabled = false; names.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o); }); if (selectedPlaylist) sel.value = selectedPlaylist;
+}
+function renderSelectedPlaylist() {
+    const box = document.getElementById('playlistSongs'); box.innerHTML = '';
+    if (!selectedPlaylist || !playlists[selectedPlaylist]) { box.innerHTML = `<div class="muted small" style="padding:10px">No playlist selected</div>`; return; }
+    const songs = playlists[selectedPlaylist];
+    if (!songs.length) { box.innerHTML = `<div class="muted small" style="padding:10px">Playlist is empty</div>`; return; }
+    songs.forEach((track, idx) => {
+        const row = document.createElement('div'); row.className = 'playlist-song';
+        row.innerHTML = `<div style="display:flex;align-items:center;flex:1;min-width:0"><img src="${track.thumb||''}" style="width:44px;height:44px;border-radius:6px;object-fit:cover;flex:0 0 44px;border:1px solid var(--border)" onerror="this.style.display='none'"><div class="song-meta"><div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${track.title}</div><div class="muted small">${track.channel||''}</div></div></div>`;
+        const actions = document.createElement('div'); actions.className = 'song-actions';
+        const playBtn = document.createElement('button'); playBtn.className = 'btn'; playBtn.textContent = '▶'; playBtn.style.cssText = 'font-size:13px;padding:5px 8px';
+        playBtn.addEventListener('click', (e) => { e.stopPropagation(); addToQueue(track); playIndex(queue.length - 1); });
+        const delBtn = document.createElement('button'); delBtn.className = 'btn'; delBtn.textContent = '✕'; delBtn.style.cssText = 'font-size:13px;padding:5px 8px';
+        delBtn.addEventListener('click', (e) => { e.stopPropagation(); musicCustomConfirm(`Remove "${track.title}" from "${selectedPlaylist}"?`, (result) => { if (!result) return; playlists[selectedPlaylist].splice(idx, 1); savePlaylistsToLocal(); renderSelectedPlaylist(); }); });
+        actions.appendChild(playBtn); actions.appendChild(delBtn); row.appendChild(actions); box.appendChild(row);
+    });
+}
+document.getElementById('newPlaylistBtn').addEventListener('click', () => { musicCustomPrompt('Enter a new playlist name:', (name) => { if (!name) return; if (playlists[name]) return musicCustomAlert('A playlist with that name already exists.'); playlists[name] = []; savePlaylistsToLocal(); updatePlaylistsSidebar(); openPlaylistDrawer(name); }); });
+document.getElementById('deletePlaylistBtn').addEventListener('click', () => { musicCustomPrompt('Type the exact playlist name to delete:', (name) => { if (!name) return; if (!playlists[name]) return musicCustomAlert('Playlist not found!'); musicCustomConfirm(`Delete "${name}"?`, (result) => { if (!result) return; delete playlists[name]; savePlaylistsToLocal(); if (selectedPlaylist === name) { selectedPlaylist = null; document.getElementById('selectedPlaylistName').textContent = 'None'; } updatePlaylistsSidebar(); renderSelectedPlaylist(); if (drawer.classList.contains('open')) renderPlaylistSelectOptions(); }); }); });
+document.getElementById('addCurrentToSelectedBtn').addEventListener('click', () => {
+    if (currentIndex === -1) return musicCustomAlert('No song is currently playing.');
+    const sel = document.getElementById('playlistAddSelect'); if (sel.disabled) return musicCustomAlert('Create a playlist first.');
+    const chosen = sel.value; if (!chosen) return musicCustomAlert('Select a playlist.');
+    const playing = queue[currentIndex];
+    if (playlists[chosen].some(t => t.videoId === playing.videoId)) return musicCustomAlert(`"${playing.title}" is already in "${chosen}".`);
+    playlists[chosen].push({ videoId: playing.videoId, title: playing.title, channel: playing.channel, thumb: playing.thumb });
+    savePlaylistsToLocal(); if (selectedPlaylist === chosen) renderSelectedPlaylist(); musicCustomAlert(`Added "${playing.title}" to "${chosen}"`);
+});
+document.getElementById('createPlaylistFromDrawerBtn').addEventListener('click', () => { musicCustomPrompt('Enter a name for the new playlist:', (name) => { if (!name) return; if (playlists[name]) return musicCustomAlert('Already exists.'); playlists[name] = []; savePlaylistsToLocal(); updatePlaylistsSidebar(); renderPlaylistSelectOptions(); openPlaylistDrawer(name); }); });
+document.getElementById('playPlaylistBtn').addEventListener('click', () => {
+    if (!selectedPlaylist) return musicCustomAlert('Select a playlist from the left first.');
+    const list = playlists[selectedPlaylist] || []; if (!list.length) return musicCustomAlert('Playlist is empty.');
+    queue = list.map(t => ({ videoId: t.videoId, title: t.title, channel: t.channel, thumb: t.thumb }));
+    saveQueueToLocal(); updateQueueUI(); playIndex(0);
+    repeatMode = playlistRepeat ? 1 : 0; repeatBtn.textContent = repeatIcons[repeatMode]; closePlaylistDrawer();
+});
+document.getElementById('togglePlaylistRepeatBtn').addEventListener('click', () => { playlistRepeat = !playlistRepeat; document.getElementById('playlistRepeatState').textContent = playlistRepeat ? 'On' : 'Off'; });
+document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if (currentIndex === -1) return musicCustomAlert('No song is currently playing.'); if (!drawer.classList.contains('open')) { const names = Object.keys(playlists); openPlaylistDrawer(names.length ? names[0] : null); } });
+
+
+/* ═══════════════════════════════════════════
+   WATCH SCRIPT (from watch-themed.html)
+═══════════════════════════════════════════ */
+(async function() {
+    let watchSearchResults = [];
+    let watchFavorites = await loadData('bw_favorites', []);
+    let watchCurrentVideo = null;
+
+    const watchSearchInput = document.getElementById('watchSearchInput');
+    const watchResultsArea = document.getElementById('resultsArea');
+    const watchPlayerFrame = document.getElementById('watchPlayerFrame');
+    const watchNowPlayingTitle = document.getElementById('nowPlayingTitle');
+    const watchNowPlayingChannel = document.getElementById('nowPlayingChannel');
+    const watchPlayerFavBtn = document.getElementById('playerFavBtn');
+    const watchTabResults = document.getElementById('tabResults');
+    const watchTabFavorites = document.getElementById('tabFavorites');
+
+    function saveFavs() { saveData('bw_favorites', watchFavorites); }
+    function isFav(videoId) { return watchFavorites.some(f => f.videoId === videoId); }
+    function toggleFav(video) {
+        if (isFav(video.videoId)) { watchFavorites = watchFavorites.filter(f => f.videoId !== video.videoId); }
+        else { watchFavorites.push({ videoId: video.videoId, title: video.title, channel: video.channel, thumb: video.thumb }); }
+        saveFavs();
+    }
+    function buildEmbed(id) { const p = new URLSearchParams({ rel:'0', autoplay:'1', modestbranding:'1' }); return `https://www.youtube-nocookie.com/embed/${id}?${p}`; }
+    function extractVideoId(str) {
+        try { const url = new URL(str); if (url.hostname.includes('youtu.be')) return url.pathname.slice(1).split('?')[0]; if (url.hostname.includes('youtube')) { const v = url.searchParams.get('v'); if (v) return v; const m = url.pathname.match(/(?:shorts|embed)\/([a-zA-Z0-9_-]{11})/); if (m) return m[1]; } } catch(_) {}
+        if (/^[a-zA-Z0-9_-]{11}$/.test(str.trim())) return str.trim(); return null;
+    }
+    async function doSearch(q) {
+        watchResultsArea.innerHTML = '<div class="search-loading"><div class="spinner"></div></div>';
+        const directId = extractVideoId(q);
+        if (directId) { try { const r = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${directId}&format=json`); if (r.ok) { const info = await r.json(); const video = { videoId: directId, title: info.title, channel: info.author_name, thumb: info.thumbnail_url }; playVideo(video); return; } } catch(_) {} }
+        try {
+            const res = await fetch(`https://boi6741purpleturtle.hexorod0.workers.dev/?q=${encodeURIComponent(q)}`);
+            const data = await res.json(); const ids = data.items || [];
+            const videos = await Promise.all(ids.map(async id => { try { const r = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`); if (!r.ok) return null; const info = await r.json(); if (!info.title) return null; return { videoId: id, title: info.title, channel: info.author_name, thumb: info.thumbnail_url }; } catch(_) { return null; } }));
+            watchSearchResults = videos.filter(Boolean); renderWatchResults();
+        } catch(e) { watchResultsArea.innerHTML = '<div class="empty-state"><div class="big-label">SEARCH FAILED</div></div>'; }
+    }
+    function renderWatchResults() {
+        watchResultsArea.innerHTML = '';
+        if (!watchSearchResults.length) { watchResultsArea.innerHTML = '<div class="empty-state"><div class="big-label">NO RESULTS</div></div>'; return; }
+        const label = document.createElement('div'); label.className = 'section-label'; label.textContent = `${watchSearchResults.length} RESULTS`; watchResultsArea.appendChild(label);
+        watchSearchResults.forEach(video => { watchResultsArea.appendChild(makeResultCard(video)); });
+    }
+    function makeResultCard(video) {
+        const card = document.createElement('div'); card.className = 'result-card';
+        const faved = isFav(video.videoId);
+        card.innerHTML = `<img class="result-thumb" src="${video.thumb}" alt="" loading="lazy" onerror="this.style.display='none'"><div class="result-info"><div class="result-title">${video.title}</div><div class="result-channel">${video.channel}</div></div><button class="result-fav ${faved ? 'faved' : ''}" title="Fav">${faved ? '♥' : '♡'}</button>`;
+        card.addEventListener('click', (e) => { if (e.target.classList.contains('result-fav')) return; playVideo(video); });
+        card.querySelector('.result-fav').addEventListener('click', (e) => { e.stopPropagation(); toggleFav(video); const btn = e.currentTarget; const f = isFav(video.videoId); btn.textContent = f ? '♥' : '♡'; btn.classList.toggle('faved', f); renderSidebarFavs(); updateWatchPlayerFavBtn(); });
+        return card;
+    }
+    function playVideo(video) {
+        watchCurrentVideo = video; watchPlayerFrame.src = buildEmbed(video.videoId);
+        watchNowPlayingTitle.textContent = video.title; watchNowPlayingChannel.textContent = video.channel || '';
+        updateWatchPlayerFavBtn(); renderSidebarResults(); renderSidebarFavs(); showWatchPage('player');
+    }
+    function updateWatchPlayerFavBtn() { if (!watchCurrentVideo) return; const f = isFav(watchCurrentVideo.videoId); watchPlayerFavBtn.textContent = f ? '♥' : '♡'; watchPlayerFavBtn.classList.toggle('faved', f); }
+    function renderSidebarResults() {
+        watchTabResults.innerHTML = '';
+        if (!watchSearchResults.length) { watchTabResults.innerHTML = '<div class="empty-panel">NO RESULTS<br>GO BACK TO SEARCH</div>'; return; }
+        watchSearchResults.forEach(video => { watchTabResults.appendChild(makeSidebarRow(video, video.videoId === watchCurrentVideo?.videoId)); });
+    }
+    function renderSidebarFavs() {
+        watchTabFavorites.innerHTML = '';
+        if (!watchFavorites.length) { watchTabFavorites.innerHTML = '<div class="empty-panel">NO FAVORITES YET<br>♡ A VIDEO TO SAVE IT</div>'; return; }
+        watchFavorites.forEach(video => { watchTabFavorites.appendChild(makeSidebarRow(video, video.videoId === watchCurrentVideo?.videoId)); });
+    }
+    function makeSidebarRow(video, isPlaying) {
+        const row = document.createElement('div'); row.className = 'video-row' + (isPlaying ? ' playing' : '');
+        const faved = isFav(video.videoId);
+        row.innerHTML = `<img class="video-row-thumb" src="${video.thumb}" alt="" loading="lazy" onerror="this.style.display='none'"><div class="video-row-meta"><div class="video-row-title">${video.title}</div><div class="video-row-channel">${video.channel || ''}</div></div><button class="video-row-fav ${faved ? 'faved' : ''}" title="Favorite">${faved ? '♥' : '♡'}</button>`;
+        row.addEventListener('click', (e) => { if (e.target.classList.contains('video-row-fav')) return; playVideo(video); });
+        row.querySelector('.video-row-fav').addEventListener('click', (e) => { e.stopPropagation(); toggleFav(video); renderSidebarResults(); renderSidebarFavs(); updateWatchPlayerFavBtn(); if (document.getElementById('searchPage').classList.contains('active')) renderWatchResults(); });
+        return row;
+    }
+    function showFavsOnSearch() {
+        watchResultsArea.innerHTML = '';
+        if (!watchFavorites.length) { watchResultsArea.innerHTML = '<div class="empty-state"><div class="big-label">NO FAVORITES</div></div>'; return; }
+        const label = document.createElement('div'); label.className = 'section-label'; label.textContent = `${watchFavorites.length} FAVORITES`; watchResultsArea.appendChild(label);
+        watchFavorites.forEach(video => watchResultsArea.appendChild(makeResultCard(video)));
+    }
+    function showWatchPage(name) {
+        document.getElementById('searchPage').classList.toggle('active', name === 'search');
+        document.getElementById('playerPage').classList.toggle('active', name === 'player');
+    }
+    document.querySelectorAll('#page-watch .tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('#page-watch .tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#page-watch .tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.panel).classList.add('active');
+        });
+    });
+    document.getElementById('watchSearchBtn').addEventListener('click', () => { const q = watchSearchInput.value.trim(); if (!q) return; doSearch(q); });
+    watchSearchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('watchSearchBtn').click(); });
+    document.getElementById('backToSearchBtn').addEventListener('click', () => { watchPlayerFrame.src = ''; showWatchPage('search'); });
+    document.getElementById('goToFavsBtn').addEventListener('click', () => { showFavsOnSearch(); });
+    watchPlayerFavBtn.addEventListener('click', () => { if (!watchCurrentVideo) return; toggleFav(watchCurrentVideo); updateWatchPlayerFavBtn(); renderSidebarFavs(); renderSidebarResults(); });
+})();
+
+
+/* ═══════════════════════════════════════════
+   SHORTS SCRIPT (from shorts-themed.html)
+═══════════════════════════════════════════ */
+(async function() {
+    let sFeed = [], sFeedIdx = 0;
+    let sFavorites = await loadData('favshorts', []);
+    let sFavsIdx = 0;
+
+    const sFeedFrame = document.getElementById('feedFrame');
+    const sFeedLoading = document.getElementById('feedLoading');
+    const sFeedPlayerWrap = document.getElementById('feedPlayerWrap');
+    const sFeedUpBtn = document.getElementById('feedUpBtn');
+    const sFeedDownBtn = document.getElementById('feedDownBtn');
+    const sFeedFavBtn = document.getElementById('feedFavBtn');
+    const sFeedCurNum = document.getElementById('feedCurNum');
+    const sFeedTotalNum = document.getElementById('feedTotalNum');
+    const sFavsFrame = document.getElementById('favsFrame');
+    const sFavsLoading = document.getElementById('favsLoading');
+    const sFavsPlayerWrap = document.getElementById('favsPlayerWrap');
+    const sFavsUpBtn = document.getElementById('favsUpBtn');
+    const sFavsDownBtn = document.getElementById('favsDownBtn');
+    const sFavsFavBtn = document.getElementById('favsFavBtn');
+    const sFavsCurNum = document.getElementById('favsCurNum');
+    const sFavsTotalNum = document.getElementById('favsTotalNum');
+    const sFeedPage = document.getElementById('feedPage');
+    const sFavsGridPage = document.getElementById('favsGridPage');
+    const sFavsFeedPage = document.getElementById('favsFeedPage');
+
+    function shuffleArray(a) { const arr = [...a]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    function saveFavs() { saveData('favshorts', sFavorites); }
+    function buildEmbed(id) { const p = new URLSearchParams({ rel:'0', autoplay:'1', mute:'0', enablejsapi:'1', playsinline:'1', modestbranding:'1' }); return `https://www.youtube-nocookie.com/embed/${id}?${p}`; }
+    function thumbUrl(id) { return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`; }
+    function sActivePage() {
+        if (sFeedPage.classList.contains('active')) return 'feed';
+        if (sFavsGridPage.classList.contains('active')) return 'favsGrid';
+        if (sFavsFeedPage.classList.contains('active')) return 'favsFeed';
+    }
+    function sShowPage(name) {
+        sFeedPage.classList.remove('active'); sFavsGridPage.classList.remove('active'); sFavsFeedPage.classList.remove('active');
+        if (name === 'feed') sFeedPage.classList.add('active');
+        if (name === 'favsGrid') sFavsGridPage.classList.add('active');
+        if (name === 'favsFeed') sFavsFeedPage.classList.add('active');
+    }
+    function sLoadIntoFrame(frame, wrap, loadingEl, id, direction) {
+        if (!id) return; loadingEl.classList.remove('hidden'); wrap.classList.remove('slide-up', 'slide-down'); void wrap.offsetWidth;
+        wrap.classList.add(direction === 'up' ? 'slide-down' : 'slide-up'); frame.src = buildEmbed(id);
+        frame.onload = () => { loadingEl.classList.add('hidden'); frame.contentWindow?.postMessage(JSON.stringify({ event:'listening', id:1 }), '*'); };
+    }
+    function pauseFrame(frame) { frame.contentWindow?.postMessage(JSON.stringify({ event:'command', func:'pauseVideo', args:[], id:1 }), '*'); }
+    function updateFeedUI() {
+        sFeedUpBtn.disabled = sFeedIdx <= 0; sFeedDownBtn.disabled = sFeedIdx >= sFeed.length - 1;
+        sFeedCurNum.textContent = sFeed.length ? sFeedIdx + 1 : '—'; sFeedTotalNum.textContent = sFeed.length || '—';
+        const id = sFeed[sFeedIdx]; const isFav = id && sFavorites.includes(id);
+        sFeedFavBtn.textContent = isFav ? '♥' : '♡'; sFeedFavBtn.classList.toggle('faved', !!isFav);
+    }
+    function feedGoNext() { if (sFeedIdx >= sFeed.length - 1) return; sFeedIdx++; sLoadIntoFrame(sFeedFrame, sFeedPlayerWrap, sFeedLoading, sFeed[sFeedIdx], 'down'); updateFeedUI(); }
+    function feedGoPrev() { if (sFeedIdx <= 0) return; sFeedIdx--; sLoadIntoFrame(sFeedFrame, sFeedPlayerWrap, sFeedLoading, sFeed[sFeedIdx], 'up'); updateFeedUI(); }
+    sFeedUpBtn.addEventListener('click', feedGoPrev); sFeedDownBtn.addEventListener('click', feedGoNext);
+    sFeedFavBtn.addEventListener('click', () => { const id = sFeed[sFeedIdx]; if (!id) return; if (sFavorites.includes(id)) sFavorites = sFavorites.filter(x => x !== id); else sFavorites.push(id); saveFavs(); updateFeedUI(); });
+    document.getElementById('openFavsGridBtn').addEventListener('click', () => { pauseFrame(sFeedFrame); renderFavGrid(); sShowPage('favsGrid'); });
+    function renderFavGrid() {
+        const grid = document.getElementById('favGrid'), sub = document.getElementById('favSubtitle');
+        grid.innerHTML = ''; sub.textContent = sFavorites.length ? `${sFavorites.length} saved` : '';
+        if (!sFavorites.length) { grid.innerHTML = '<div class="empty-favs">NO FAVORITES YET<br><span style="font-size:10px;opacity:.5">Heart a short to save it here</span></div>'; return; }
+        sFavorites.forEach((id, i) => {
+            const card = document.createElement('div'); card.className = 'fav-card';
+            card.innerHTML = `<img class="fav-thumb" src="${thumbUrl(id)}" alt="Short ${i+1}" loading="lazy"><div class="fav-label">#${i+1}</div><button class="fav-remove" title="Remove">✕</button>`;
+            card.addEventListener('click', (e) => { if (e.target.classList.contains('fav-remove')) return; sFavsIdx = i; openFavsFeed(); });
+            card.querySelector('.fav-remove').addEventListener('click', (e) => { e.stopPropagation(); sFavorites = sFavorites.filter(x => x !== id); saveFavs(); updateFeedUI(); renderFavGrid(); });
+            grid.appendChild(card);
+        });
+    }
+    document.getElementById('favsGridBackBtn').addEventListener('click', () => { sShowPage('feed'); sFeedFrame.contentWindow?.postMessage(JSON.stringify({ event:'command', func:'playVideo', args:[], id:1 }), '*'); });
+    function updateFavsPlayerUI() {
+        sFavsUpBtn.disabled = sFavsIdx <= 0; sFavsDownBtn.disabled = sFavsIdx >= sFavorites.length - 1;
+        sFavsCurNum.textContent = sFavorites.length ? sFavsIdx + 1 : '—'; sFavsTotalNum.textContent = sFavorites.length || '—';
+        sFavsFavBtn.textContent = '♥'; sFavsFavBtn.classList.add('faved');
+    }
+    function openFavsFeed() { sLoadIntoFrame(sFavsFrame, sFavsPlayerWrap, sFavsLoading, sFavorites[sFavsIdx], 'down'); updateFavsPlayerUI(); sShowPage('favsFeed'); }
+    function favsGoNext() { if (sFavsIdx >= sFavorites.length - 1) return; sFavsIdx++; sLoadIntoFrame(sFavsFrame, sFavsPlayerWrap, sFavsLoading, sFavorites[sFavsIdx], 'down'); updateFavsPlayerUI(); }
+    function favsGoPrev() { if (sFavsIdx <= 0) return; sFavsIdx--; sLoadIntoFrame(sFavsFrame, sFavsPlayerWrap, sFavsLoading, sFavorites[sFavsIdx], 'up'); updateFavsPlayerUI(); }
+    sFavsUpBtn.addEventListener('click', favsGoPrev); sFavsDownBtn.addEventListener('click', favsGoNext);
+    sFavsFavBtn.addEventListener('click', () => {
+        const id = sFavorites[sFavsIdx]; if (!id) return;
+        sFavorites = sFavorites.filter(x => x !== id); saveFavs(); updateFeedUI();
+        if (!sFavorites.length) { sFavsFrame.src = ''; renderFavGrid(); sShowPage('favsGrid'); return; }
+        sFavsIdx = Math.min(sFavsIdx, sFavorites.length - 1); sLoadIntoFrame(sFavsFrame, sFavsPlayerWrap, sFavsLoading, sFavorites[sFavsIdx], 'down'); updateFavsPlayerUI();
+    });
+    document.getElementById('favsFeedBackBtn').addEventListener('click', () => { pauseFrame(sFavsFrame); renderFavGrid(); sShowPage('favsGrid'); });
+
+    let wheelCooldown = false;
+    window.addEventListener('wheel', (e) => {
+        if (!document.getElementById('page-shorts').classList.contains('active')) return;
+        const p = sActivePage(); if (p === 'favsGrid') return; if (wheelCooldown) return;
+        wheelCooldown = true; setTimeout(() => { wheelCooldown = false; }, 600);
+        if (p === 'feed') { if (e.deltaY > 40) feedGoNext(); else if (e.deltaY < -40) feedGoPrev(); }
+        if (p === 'favsFeed') { if (e.deltaY > 40) favsGoNext(); else if (e.deltaY < -40) favsGoPrev(); }
+    }, { passive: true });
+    let touchStartY = 0;
+    window.addEventListener('touchstart', (e) => { if (!document.getElementById('page-shorts').classList.contains('active')) return; touchStartY = e.touches[0].clientY; }, { passive: true });
+    window.addEventListener('touchend', (e) => {
+        if (!document.getElementById('page-shorts').classList.contains('active')) return;
+        const p = sActivePage(); if (p === 'favsGrid') return;
+        const diff = touchStartY - e.changedTouches[0].clientY; if (Math.abs(diff) < 50) return;
+        if (p === 'feed') { if (diff > 0) feedGoNext(); else feedGoPrev(); }
+        if (p === 'favsFeed') { if (diff > 0) favsGoNext(); else favsGoPrev(); }
+    }, { passive: true });
+
+    window.loadFeed = async function() {
+        try {
+            const r = await fetch('https://raw.githubusercontent.com/Hexorod/youtubeshorts/refs/heads/main/feed.json', { cache:'no-store' });
+            if (!r.ok) throw new Error('fetch failed'); const data = await r.json();
+            if (!Array.isArray(data) || data.length === 0) throw new Error('empty');
+            sFeed = shuffleArray(data); sFeedIdx = 0; sFeedTotalNum.textContent = sFeed.length;
+            sLoadIntoFrame(sFeedFrame, sFeedPlayerWrap, sFeedLoading, sFeed[0], 'down'); updateFeedUI();
+        } catch(e) { sFeedLoading.innerHTML = `<div style="color:var(--accent);font-family:'Segoe UI',sans-serif;font-size:12px;text-align:center;padding:20px">NO FEED<br><span style="color:var(--text-muted);font-size:10px">Could not load feed.json</span></div>`; }
+    };
+})();
 </script>
 </body>
 </html>
