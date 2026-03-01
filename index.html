@@ -166,27 +166,21 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
 }
 
 /* ═══════════════════════════════════════════
-   PAGE SYSTEM - uses visibility so display doesn't conflict with flex/block
+   PAGE SYSTEM
 ═══════════════════════════════════════════ */
 .app-page {
     position: fixed;
     top: 62px; left: 0; right: 0; bottom: 0;
+    display: none;
     overflow: hidden;
-    visibility: hidden;
-    pointer-events: none;
-    z-index: 1;
 }
-.app-page.active {
-    visibility: visible;
-    pointer-events: auto;
-    z-index: 2;
-}
+.app-page.active { display: block; }
+#page-home.active { display: flex; }
 
 /* ═══════════════════════════════════════════
    HOME PAGE
 ═══════════════════════════════════════════ */
 #page-home {
-    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -303,8 +297,6 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
 /* ═══════════════════════════════════════════
    ── GAMES PAGE (index) ──
 ═══════════════════════════════════════════ */
-#page-games { display: block; }
-
 #page-games .app-container { display:flex; height:calc(100vh - 62px); }
 #page-games .category-sidebar {
     width:180px; background:var(--bg-secondary); border-right:2px solid var(--border);
@@ -375,40 +367,40 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
 #page-games #focusOverlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index:100; cursor:pointer; backdrop-filter:blur(5px); }
 #page-games #focusOverlay.active { display:flex; }
 #page-games #focusOverlay h2 { color:white; font-size:28px; pointer-events:none; user-select:none; text-shadow:0 2px 8px black; }
-#page-games .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; display:flex; justify-content:center; align-items:center; opacity:0; pointer-events:none; transition:opacity 0.2s; backdrop-filter:blur(5px); }
-#page-games .modal-overlay.open { opacity:1; pointer-events:auto; }
-#page-games .modal-box { background:var(--bg-tertiary); width:450px; max-width:90%; max-height:80vh; padding:25px; border-radius:12px; box-shadow:0 5px 20px rgba(0,0,0,0.5); border:2px solid var(--accent); position:relative; overflow-y:auto; }
-#page-games .modal-box h2 { margin:0 0 20px 0; font-size:22px; border-bottom:2px solid var(--border); padding-bottom:12px; color:var(--accent); }
-#page-games .close-modal { position:absolute; top:15px; right:20px; cursor:pointer; color:var(--text-secondary); font-size:28px; transition:color 0.2s; }
-#page-games .close-modal:hover { color:var(--text-primary); }
-#page-games .setting-item { margin-bottom:18px; }
-#page-games .setting-item label { display:block; margin-bottom:6px; font-size:14px; color:var(--text-secondary); }
-#page-games .setting-item select { width:100%; padding:10px; border-radius:6px; border:none; background:var(--bg-card); color:var(--text-primary); cursor:pointer; }
-#page-games .setting-item input[type="file"] { display:none; }
-#page-games .setting-item button { width:100%; padding:10px; border-radius:6px; border:none; background:var(--accent); color:white; cursor:pointer; transition:background 0.2s; }
-#page-games .setting-item button:hover { background:var(--accent-hover); }
-#page-games .toggle-switch { position:relative; display:inline-block; width:50px; height:24px; }
-#page-games .toggle-switch input { opacity:0; width:0; height:0; }
-#page-games .toggle-slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#555; transition:0.3s; border-radius:24px; }
-#page-games .toggle-slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:0.3s; border-radius:50%; }
-#page-games input:checked + .toggle-slider { background-color:var(--accent); }
-#page-games input:checked + .toggle-slider:before { transform:translateX(26px); }
-#page-games .toggle-label { display:flex; justify-content:space-between; align-items:center; }
-#page-games #customAlert { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--bg-tertiary); border:2px solid var(--accent); border-radius:12px; padding:25px; z-index:9999; color:var(--text-primary); display:none; min-width:280px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.5); }
-#page-games #customAlert button { margin-top:15px; padding:8px 20px; border:none; border-radius:6px; background:var(--accent); color:white; cursor:pointer; transition:background 0.2s; }
-#page-games #customAlert button:hover { background:var(--accent-hover); }
-#page-games #customDialog { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:9999; opacity:0; pointer-events:none; transition:opacity 0.2s ease; backdrop-filter:blur(5px); }
-#page-games #customDialog.show { opacity:1; pointer-events:auto; }
-#page-games .custom-dialog-box { background:var(--bg-tertiary); padding:25px; border-radius:12px; border:2px solid var(--accent); width:400px; max-width:90%; }
-#page-games #customDialogMessage { font-size:16px; margin-bottom:15px; color:var(--text-primary); }
-#page-games #customDialogInput { width:100%; padding:10px; border-radius:6px; border:none; background:var(--bg-card); color:var(--text-primary); margin-bottom:15px; }
-#page-games #customDialogTextarea { width:100%; padding:10px; border-radius:6px; border:none; background:var(--bg-card); color:var(--text-primary); margin-bottom:15px; min-height:100px; font-family:monospace; font-size:12px; resize:vertical; }
-#page-games .custom-dialog-buttons { display:flex; gap:10px; }
-#page-games .custom-dialog-buttons button { flex:1; padding:10px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; transition:background 0.2s; }
-#page-games #customDialogCancel { background:#555; color:white; }
-#page-games #customDialogCancel:hover { background:#777; }
-#page-games #customDialogOk, #page-games #customDialogCopy { background:var(--accent); color:white; }
-#page-games #customDialogOk:hover, #page-games #customDialogCopy:hover { background:var(--accent-hover); }
+.modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; display:flex; justify-content:center; align-items:center; opacity:0; pointer-events:none; transition:opacity 0.2s; backdrop-filter:blur(5px); }
+.modal-overlay.open { opacity:1; pointer-events:auto; }
+.modal-box { background:var(--bg-tertiary); width:450px; max-width:90%; max-height:80vh; padding:25px; border-radius:12px; box-shadow:0 5px 20px rgba(0,0,0,0.5); border:2px solid var(--accent); position:relative; overflow-y:auto; }
+.modal-box h2 { margin:0 0 20px 0; font-size:22px; border-bottom:2px solid var(--border); padding-bottom:12px; color:var(--accent); }
+.close-modal { position:absolute; top:15px; right:20px; cursor:pointer; color:var(--text-secondary); font-size:28px; transition:color 0.2s; }
+.close-modal:hover { color:var(--text-primary); }
+.setting-item { margin-bottom:18px; }
+.setting-item label { display:block; margin-bottom:6px; font-size:14px; color:var(--text-secondary); }
+.setting-item select { width:100%; padding:10px; border-radius:6px; border:none; background:var(--bg-card); color:var(--text-primary); cursor:pointer; }
+.setting-item input[type="file"] { display:none; }
+.setting-item button { width:100%; padding:10px; border-radius:6px; border:none; background:var(--accent); color:white; cursor:pointer; transition:background 0.2s; }
+.setting-item button:hover { background:var(--accent-hover); }
+.toggle-switch { position:relative; display:inline-block; width:50px; height:24px; }
+.toggle-switch input { opacity:0; width:0; height:0; }
+.toggle-slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#555; transition:0.3s; border-radius:24px; }
+.toggle-slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:0.3s; border-radius:50%; }
+.toggle-switch input:checked + .toggle-slider { background-color:var(--accent); }
+.toggle-switch input:checked + .toggle-slider:before { transform:translateX(26px); }
+.toggle-label { display:flex; justify-content:space-between; align-items:center; }
+#customAlert { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--bg-tertiary); border:2px solid var(--accent); border-radius:12px; padding:25px; z-index:9999; color:var(--text-primary); display:none; min-width:280px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.5); }
+#customAlert button { margin-top:15px; padding:8px 20px; border:none; border-radius:6px; background:var(--accent); color:white; cursor:pointer; transition:background 0.2s; }
+#customAlert button:hover { background:var(--accent-hover); }
+#customDialog { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:9999; opacity:0; pointer-events:none; transition:opacity 0.2s ease; backdrop-filter:blur(5px); }
+#customDialog.show { opacity:1; pointer-events:auto; }
+.custom-dialog-box { background:var(--bg-tertiary); padding:25px; border-radius:12px; border:2px solid var(--accent); width:400px; max-width:90%; }
+#customDialogMessage { font-size:16px; margin-bottom:15px; color:var(--text-primary); }
+#customDialogInput { width:100%; padding:10px; border-radius:6px; border:none; background:var(--bg-card); color:var(--text-primary); margin-bottom:15px; }
+#customDialogTextarea { width:100%; padding:10px; border-radius:6px; border:none; background:var(--bg-card); color:var(--text-primary); margin-bottom:15px; min-height:100px; font-family:monospace; font-size:12px; resize:vertical; }
+.custom-dialog-buttons { display:flex; gap:10px; }
+.custom-dialog-buttons button { flex:1; padding:10px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; transition:background 0.2s; }
+#customDialogCancel { background:#555; color:white; }
+#customDialogCancel:hover { background:#777; }
+#customDialogOk, #customDialogCopy { background:var(--accent); color:white; }
+#customDialogOk:hover, #customDialogCopy:hover { background:var(--accent-hover); }
 #page-games .no-games { text-align:center; padding:60px 20px; color:var(--text-muted); font-size:18px; }
 #page-games .loading { text-align:center; padding:40px; color:var(--text-secondary); }
 #page-games .search-wrapper { flex:1; min-width:200px; position:relative; }
@@ -722,6 +714,9 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
         </div>
     </div>
 </div>
+</div><!-- end page-games -->
+
+<!-- Global modals — outside all pages so they work from any tab -->
 <div class="modal-overlay" id="settingsModal">
     <div class="modal-box">
         <span class="close-modal" id="closeSettings">×</span>
@@ -787,7 +782,6 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
     </div>
 </div>
 <div id="customAlert"><p id="alertMessage"></p><button onclick="closeAlert()">OK</button></div>
-</div><!-- end page-games -->
 
 
 <!-- ═══════════════════════════════════════════
@@ -1039,8 +1033,7 @@ function showAppPage(name) {
     // Lazy-init music
     if (name === 'music' && !window._musicInited) {
         window._musicInited = true;
-        loadQueueFromLocal(); // async, fire-and-forget
-        // playlists already loaded on page load via async IIFE
+        loadQueueFromLocal();
     }
 }
 
@@ -1167,7 +1160,9 @@ function applyTheme(theme) {
     appData.settings.theme = theme;
     saveAppData();
 }
-document.getElementById("settingsBtn").onclick = () => document.getElementById("settingsModal").classList.add("open");
+document.getElementById("settingsBtn").onclick = () => {
+    document.getElementById("settingsModal").classList.add("open");
+};
 document.getElementById("closeSettings").onclick = () => document.getElementById("settingsModal").classList.remove("open");
 document.getElementById("settingsModal").onclick = (e) => { if (e.target.id === "settingsModal") document.getElementById("settingsModal").classList.remove("open"); };
 document.getElementById("themeSelect").onchange = (e) => applyTheme(e.target.value);
