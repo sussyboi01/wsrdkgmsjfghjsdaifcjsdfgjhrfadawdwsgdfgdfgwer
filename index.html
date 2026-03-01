@@ -913,34 +913,6 @@ input:checked + .toggle-slider:before {
     <p id="alertMessage"></p>
     <button onclick="closeAlert()">OK</button>
 </div>
-
-<script>
-// Must be inside an iframe AND that iframe must be on the same origin.
-// If opened directly as a top-level tab — close it.
-// If embedded on a foreign origin — blank and close.
-(function() {
-    // Case 1: opened as a top-level tab
-    if (window.self === window.top) {
-        document.documentElement.innerHTML = "";
-        window.close();
-        return;
-    }
-    // Case 2: embedded on a different origin
-    // Accessing window.top.location.href throws a SecurityError if cross-origin,
-    // which is exactly what we want to detect.
-    try {
-        const parentOrigin = window.top.location.origin;
-        if (parentOrigin !== window.location.origin) {
-            document.documentElement.innerHTML = "";
-            window.close();
-        }
-    } catch (e) {
-        // SecurityError = cross-origin parent = not allowed
-        document.documentElement.innerHTML = "";
-        window.close();
-    }
-})();
-</script>
 <script>
 // ===========================
 // IndexedDB Setup
