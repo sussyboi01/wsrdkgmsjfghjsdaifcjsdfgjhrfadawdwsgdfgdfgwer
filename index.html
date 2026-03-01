@@ -733,6 +733,7 @@ input:checked + .toggle-slider:before {
             <div class="repo-switcher-label">Game Repo</div>
             <div class="repo-btn active" id="repoGnMath" data-repo="gnmath">GN-MATH</div>
             <div class="repo-btn" id="repoUntitled" data-repo="untitled">Untitled Stash</div>
+            <div class="repo-btn" id="repoCustom" data-repo="custom">Custom</div>
         </div>
 
         <div class="sidebar-clock">
@@ -983,33 +984,49 @@ async function loadData(key, defaultValue = null) {
 }
 
 // ===========================
+// ===========================
 // Global Variables & Constants
 // ===========================
-const FOLDER_CDN = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/";
-const SINGLE_CDN = "https://cdn.jsdelivr.net/gh/sussyboi01/assetssinglefile/";
-const COVERS_CDN = "https://cdn.jsdelivr.net/gh/gn-math/covers/";
-const ZONES_JSON = "https://cdn.jsdelivr.net/gh/gn-math/assets/zones.json";
-const HTML_URL   = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
+
+// All external URLs decoded once here — never call atob() inline elsewhere
+const FOLDER_CDN  = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2duLW1hdGgvYXNzZXRzQG1haW4v");
+const SINGLE_CDN  = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL3N1c3N5Ym9pMDEvYXNzZXRzc2luZ2xlZmlsZS8=");
+const COVERS_CDN  = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2duLW1hdGgvY292ZXJzLw==");
+const ZONES_JSON  = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2duLW1hdGgvYXNzZXRzL3pvbmVzLmpzb24=");
+const HTML_URL    = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2duLW1hdGgvaHRtbEBtYWlu");
+const UNTITLED_JSON = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2hleG9yb2QvYWRhc2RndGVyZ3NjdmJmcjVldHlyYXdkYXNkZmVnZXJ0YXdkQUByZWZzL2hlYWRzL21haW4vZmlsZXMuanNvbg==");
+const UNTITLED_BASE = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2hleG9yb2QvYWRhc2RndGVyZ3NjdmJmcjVldHlyYXdkYXNkZmVnZXJ0YXdkQUByZWZzL2hlYWRzL21haW4v");
+const IMG_KAI     = atob("aHR0cHM6Ly9wYnMudHdpbWcuY29tL21lZGlhL0dnajcwV1BYY0FBVjFMOS5qcGc6c21hbGw=");
+const IMG_MANGO   = atob("aHR0cHM6Ly9lbmNyeXB0ZWQtdGJuMC5nc3RhdGljLmNvbS9pbWFnZXM/cT10Ym46QU5kOUdjVHBSTkVZeExjODRXSU5PSXozd09NeGtjMHNnODVReTNxV2V3JnM=");
+const IMG_BOI     = atob("aHR0cHM6Ly9wcmV2aWV3LnJlZGQuaXQvaW1wLW1pbWlja2luZy10aGUtc3BvbmdlYm9iLWJvaS1tZW1lLW1hZGUtYnktbWUtdjAtMzk1bWtsMzVkb204MS5qcGc/d2lkdGg9NjQwJmNyb3A9c21hcnQmYXV0bz13ZWJwJnM9MDM0Njk4ODhlODBhNWYzZTYxYjg1YTg2NmI3ZTMxYzlkYTM2MzhlMw==");
+const URL_CLASSROOM = atob("aHR0cHM6Ly9jbGFzc3Jvb20uZ29vZ2xlLmNvbQ==");
+
+const CUSTOM_ZONES_JSON = "https://cdn.jsdelivr.net/gh/sussyboi01/games@main/zones.json";
+const CUSTOM_BASE = "https://cdn.jsdelivr.net/gh/sussyboi01/games@main/";
 
 const REPOS = {
     gnmath: {
         name: "GN-MATH",
         gamesJsonUrl: ZONES_JSON,
-        // games loaded from zones.json which already has url field
     },
     untitled: {
         name: "Untitled Stash",
-        gamesJsonUrl: "https://cdn.jsdelivr.net/gh/hexorod/adasdgtergscvbfr5etyrawdasdfegertawdA@refs/heads/main/files.json",
-        gameBaseUrl:  "https://cdn.jsdelivr.net/gh/hexorod/adasdgtergscvbfr5etyrawdasdfegertawdA@refs/heads/main/",
+        gamesJsonUrl: UNTITLED_JSON,
+        gameBaseUrl:  UNTITLED_BASE,
+    },
+    custom: {
+        name: "Custom",
+        gamesJsonUrl: CUSTOM_ZONES_JSON,
+        gameBaseUrl:  CUSTOM_BASE,
     }
 };
 
 let currentRepo = "gnmath";
 
 const placeholderImages = {
-    kai: "https://pbs.twimg.com/media/Ggj70WPXcAAV1L9.jpg:small",
-    mango: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpRNEYxLc84WINOIz3wOMxkc0sg85Qy3qWew&s",
-    boi: "https://preview.redd.it/imp-mimicking-the-spongebob-boi-meme-made-by-me-v0-395mkl35dom81.jpg?width=640&crop=smart&auto=webp&s=03469888e80a5f3e61b85a866b7e31c9da3638e3",
+    kai:   IMG_KAI,
+    mango: IMG_MANGO,
+    boi:   IMG_BOI,
 };
 
 const categoryKeywords = {
@@ -1134,7 +1151,7 @@ function applyTheme(theme) {
 // Browser Functions
 // ===========================
 // EDIT THIS URL TO YOUR DESIRED LINK
-const BROWSER_URL = "https://sussyboi01.github.io/daboizbrowwow/";
+const BROWSER_URL = atob("aHR0cHM6Ly9zdXNzeWJvaTAxLmdpdGh1Yi5pby9kYWJvaXpicm93d293Lw==");
 
 document.getElementById("browserBtn").onclick = () => {
     openBrowser(BROWSER_URL);
@@ -1337,6 +1354,9 @@ document.getElementById("importBtn").onclick = () => {
     document.getElementById("customDialog").classList.add("show");
 };
 
+// Cache of all games from all repos (for cross-repo search)
+let allGamesCache = {};
+
 // ===========================
 // Fetch Games from JSON
 // ===========================
@@ -1361,16 +1381,36 @@ async function fetchGames() {
         } else if (currentRepo === "untitled") {
             const res  = await fetch(REPOS.untitled.gamesJsonUrl);
             const data = await res.json();
-            // files.json format: [{id, name}] or similar — handle both array and object
             const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name }));
             allGames = entries.map(entry => ({
                 id: entry.id.toString(),
                 name: entry.name,
-                url: null, // built dynamically in loadGame
+                url: null,
                 category: categorizeGame(entry.name),
                 repo: "untitled"
             }));
+        } else if (currentRepo === "custom") {
+            const res  = await fetch(CUSTOM_ZONES_JSON);
+            const data = await res.json();
+            const entries = Array.isArray(data)
+                ? data
+                : Object.entries(data).map(([id, name]) => ({ id, name }));
+            allGames = entries
+                .filter(entry => entry.id !== undefined && entry.name)
+                .map(entry => ({
+                    id: (entry.id !== undefined ? entry.id : entry.name).toString(),
+                    name: entry.name,
+                    url: entry.url || null,
+                    category: categorizeGame(entry.name),
+                    repo: "custom"
+                }));
         }
+
+        // Cache this repo's games
+        allGamesCache[currentRepo] = allGames;
+
+        // Preload other repos in background for cross-repo search
+        preloadOtherRepos();
 
         renderCategories();
         renderRecommendations();
@@ -1378,6 +1418,34 @@ async function fetchGames() {
     } catch (err) {
         console.error("Failed to fetch games:", err);
         document.getElementById("gamesGrid").innerHTML = '<div class="no-games">Failed to load games. Check your connection and refresh.</div>';
+    }
+}
+
+async function preloadOtherRepos() {
+    const repoList = ["gnmath", "untitled", "custom"];
+    for (const repo of repoList) {
+        if (repo === currentRepo || allGamesCache[repo]) continue;
+        try {
+            if (repo === "gnmath") {
+                const res = await fetch(ZONES_JSON);
+                const data = await res.json();
+                allGamesCache[repo] = data
+                    .filter(g => g.id >= 0)
+                    .map(g => ({ id: g.id.toString(), name: g.name, url: g.url, category: categorizeGame(g.name), repo: "gnmath" }));
+            } else if (repo === "untitled") {
+                const res = await fetch(REPOS.untitled.gamesJsonUrl);
+                const data = await res.json();
+                const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name }));
+                allGamesCache[repo] = entries.map(e => ({ id: e.id.toString(), name: e.name, url: null, category: categorizeGame(e.name), repo: "untitled" }));
+            } else if (repo === "custom") {
+                const res = await fetch(CUSTOM_ZONES_JSON);
+                const data = await res.json();
+                const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name }));
+                allGamesCache[repo] = entries
+                    .filter(e => e.id !== undefined && e.name)
+                    .map(e => ({ id: (e.id !== undefined ? e.id : e.name).toString(), name: e.name, url: e.url || null, category: categorizeGame(e.name), repo: "custom" }));
+            }
+        } catch(e) { /* silent — cross-repo search just won't include this repo */ }
     }
 }
 
@@ -1452,7 +1520,7 @@ function renderCategories() {
 // Render Games Grid
 // ===========================
 function renderGames() {
-    const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+    const searchTerm = document.getElementById("searchInput").value.toLowerCase().trim();
 
     if (searchTerm && !appData.searchHistory.includes(searchTerm)) {
         appData.searchHistory.unshift(searchTerm);
@@ -1460,7 +1528,22 @@ function renderGames() {
         saveAppData();
     }
 
-    let filtered = allGames.filter(game => {
+    // When there's a search term, search across ALL cached repos
+    const isSearching = !!searchTerm;
+    const gamePool = isSearching
+        ? Object.values(allGamesCache).flat()
+        : allGames;
+
+    // Deduplicate by id+repo key when searching across repos
+    const seen = new Set();
+    const deduped = isSearching ? gamePool.filter(g => {
+        const key = g.repo + ":" + g.id;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    }) : gamePool;
+
+    let filtered = deduped.filter(game => {
         if (currentFilter === 'favorites' && !appData.favorites.includes(game.id.toString())) return false;
         if (currentFilter && currentFilter !== 'favorites' && game.category !== currentFilter) return false;
         if (searchTerm && !game.name.toLowerCase().includes(searchTerm)) return false;
@@ -1490,20 +1573,34 @@ function renderGames() {
 
     document.getElementById("gamesGrid").innerHTML = filtered.map(game => {
         const isFav = appData.favorites.includes(game.id.toString());
-        // Untitled Stash has no cover art — always use fallback
-        const thumbnailURL = (game.repo === "untitled") ? getFallbackThumbnailURL() : getThumbnailURL(game.id);
+        // Untitled Stash and Custom have no cover art — always use fallback
+        const thumbnailURL = (game.repo === "untitled" || game.repo === "custom") ? getFallbackThumbnailURL() : getThumbnailURL(game.id);
+        const repoTag = isSearching ? `<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">(${REPOS[game.repo]?.name || game.repo})</div>` : "";
         return `
-            <div class="game-card" data-id="${game.id}">
+            <div class="game-card" data-id="${game.id}" data-repo="${game.repo}">
                 <span class="star ${isFav ? '' : 'off'}" data-id="${game.id}">★</span>
                 <img src="${thumbnailURL}" alt="${game.name}" loading="lazy" onerror="this.src='${getFallbackThumbnailURL()}'">
                 <div class="game-card-info">
                     <div class="game-card-title">${game.name}</div>
+                    ${repoTag}
                 </div>
             </div>`;
     }).join('');
 
     document.querySelectorAll(".game-card").forEach(card => {
-        card.onclick = (e) => { if (!e.target.classList.contains("star")) loadGame(card.dataset.id); };
+        card.onclick = (e) => {
+            if (e.target.classList.contains("star")) return;
+            const cardRepo = card.dataset.repo;
+            const cardId = card.dataset.id;
+            // If this game is from a different repo, switch first
+            if (cardRepo && cardRepo !== currentRepo) {
+                currentRepo = cardRepo;
+                document.querySelectorAll(".repo-btn").forEach(b => b.classList.toggle("active", b.dataset.repo === currentRepo));
+                fetchGames().then(() => loadGame(cardId));
+            } else {
+                loadGame(cardId);
+            }
+        };
     });
 
     document.querySelectorAll(".star").forEach(star => {
@@ -1539,15 +1636,20 @@ function buildAutocomplete(val) {
     acIndex = -1;
     if (!q) { autocompleteList.classList.remove("open"); return; }
 
-    // History matches first, then game name matches
+    // History matches first, then game name matches from ALL repos
     const histMatches = appData.searchHistory.filter(h => h.includes(q)).slice(0, 3);
-    const gameMatches = allGames.filter(g => g.name.toLowerCase().includes(q)).slice(0, 6);
+
+    // Gather all games from all cached repos
+    const allCachedGames = Object.values(allGamesCache).flat();
+    const gameMatches = allCachedGames.filter(g => g.name.toLowerCase().includes(q)).slice(0, 6);
 
     const items = [];
     histMatches.forEach(h => items.push({ label: h, icon: "🕒", type: "history" }));
     gameMatches.forEach(g => {
-        if (!histMatches.includes(g.name.toLowerCase()))
-            items.push({ label: g.name, icon: "🎮", type: "game", id: g.id });
+        if (!histMatches.includes(g.name.toLowerCase())) {
+            const repoName = REPOS[g.repo]?.name || g.repo;
+            items.push({ label: g.name, icon: "🎮", type: "game", id: g.id, repo: g.repo, repoName });
+        }
     });
 
     if (items.length === 0) { autocompleteList.classList.remove("open"); return; }
@@ -1555,12 +1657,24 @@ function buildAutocomplete(val) {
     items.forEach((item, i) => {
         const el = document.createElement("div");
         el.className = "autocomplete-item";
-        el.innerHTML = `<span class="ac-icon">${item.icon}</span><span>${item.label}</span>`;
+        const repoLabel = item.type === "game" && item.repoName ? ` <span style="font-size:10px;opacity:0.6">(${item.repoName})</span>` : "";
+        el.innerHTML = `<span class="ac-icon">${item.icon}</span><span>${item.label}${repoLabel}</span>`;
         el.onmousedown = (e) => {
             e.preventDefault();
-            searchInput.value = item.label;
-            autocompleteList.classList.remove("open");
-            renderGames();
+            if (item.type === "game" && item.repo && item.repo !== currentRepo) {
+                // Switch to repo then load game
+                searchInput.value = "";
+                autocompleteList.classList.remove("open");
+                currentRepo = item.repo;
+                document.querySelectorAll(".repo-btn").forEach(b => b.classList.toggle("active", b.dataset.repo === currentRepo));
+                fetchGames().then(() => {
+                    loadGame(item.id);
+                });
+            } else {
+                searchInput.value = item.label;
+                autocompleteList.classList.remove("open");
+                renderGames();
+            }
         };
         autocompleteList.appendChild(el);
     });
@@ -1653,12 +1767,18 @@ async function loadGame(gameId) {
         ? game.url
         : game.repo === "untitled"
             ? REPOS.untitled.gameBaseUrl + game.id + ".html"
-            : game.url.replace("{HTML_URL}", HTML_URL);
+            : game.repo === "custom"
+                ? (game.url ? game.url.replace("{BASE_URL}", CUSTOM_BASE) : CUSTOM_BASE + game.id + ".html")
+                : game.url.replace("{HTML_URL}", HTML_URL);
 
-    // ── Fetch + sanitize + write directly into frame ──
+    // ── Show game view immediately so user sees something happening ──
+    zoneViewer.style.display = "block";
+    zoneViewer.hidden = false;
+
+    // ── Fetch HTML ──
     let html;
     try {
-        const res = await fetch(gameURL + "?t=" + Date.now());
+        const res = await fetch(gameURL);
         if (!res.ok) throw new Error("HTTP " + res.status);
         html = await res.text();
     } catch (err) {
@@ -1667,72 +1787,79 @@ async function loadGame(gameId) {
         return;
     }
 
-    // 1. Get base URL from game's <base href> or derive from fetch URL
+    // ── Derive base URL ──
     const baseMatch = html.match(/<base\s[^>]*href=["']([^"']+)["']/i);
     const base = baseMatch
         ? baseMatch[1]
         : gameURL.substring(0, gameURL.lastIndexOf('/') + 1);
 
-    // 2. Sanitize: strip ads, tracking, sidebars, and obfuscated JS
+    // ── Sanitize ──
 
-    // Strip ad/tracking scripts by known src URLs
-    html = html.replace(/<script[^>]+src="[^"]*(?:googlesyndication|googletagmanager|fundingchoicesmessages|doubleclick|adnxs|outbrain|taboola)[^"]*"[^>]*>\s*<\/script>/gi, "");
-    html = html.replace(/<ins\b[^>]*class="adsbygoogle"[^>]*>[\s\S]*?<\/ins>/gi, "");
+    // 1. Remove Google Analytics / gtag external script tag (any GA tracking ID)
+    html = html.replace(/<script\b[^>]+src=["'][^"']*googletagmanager\.com[^"']*["'][^>]*>\s*<\/script>/gi, "");
 
-    // Strip gtag / Google Analytics inline scripts
-    html = html.replace(/<script[^>]*>\s*(?:window\.dataLayer\s*=|function\s+gtag\s*\()[\s\S]*?<\/script>/gi, "");
-    html = html.replace(/<script[^>]+src="[^"]*(?:gtag\/js|analytics\.js|ga\.js)[^"]*"[^>]*>\s*<\/script>/gi, "");
+    // 2. Remove the inline gtag config block (window.dataLayer + gtag function + gtag calls)
+    html = html.replace(/<script\b[^>]*>[\s\S]*?window\.dataLayer[\s\S]*?<\/script>/gi, "");
 
-    // Strip sidebar elements by id/class name
-    html = html.replace(/<(?:div|aside|section|nav)([^>]+)(?:id|class)=["'][^"']*\bsidebar\d*\b[^"']*["'][^>]*>[\s\S]*?<\/(?:div|aside|section|nav)>/gi, "");
+    // 3. Remove any element with id="sidebar1" or id="sidebar2" (any tag)
+    //    BUT only if sidebar1 is actually present — if it's not there, leave the HTML untouched
+    if (/id=["']sidebar1["']/i.test(html)) {
+        html = html.replace(/<[a-z][^>]*\bid=["']sidebar[12]["'][^>]*>[\s\S]*?<\/[a-z]+>/gi, "");
+        // Also catch self-closing or short elements
+        html = html.replace(/<[a-z][^>]*\bid=["']sidebar[12]["'][^>]*\/?>/gi, "");
+    }
 
-    // Strip clearly obfuscated scripts — large single-expression eval/fromCharCode blobs
-    // Use a tight match: the script body must be almost entirely the obfuscated expression
-    // (avoids false-positives on Unity/game scripts that legitimately use atob for small tasks)
-    html = html.replace(/<script\b(?![^>]*\bsrc\s*=)[^>]*>\s*(?:eval\s*\(|(?:var|let|const)\s+\w+\s*=\s*(?:atob|unescape)\s*\()[^;]{200,};\s*<\/script>/gi, "");
+    // 4. Remove hex-obfuscated scripts: anything matching _0x pattern
+    html = html.replace(/<script\b(?![^>]*\bsrc\s*=)[^>]*>[\s\S]*?_0x[0-9a-fA-F]+[\s\S]*?<\/script>/gi, "");
 
-    // Fix Unity hostname check that breaks when not on original domain
-    html = html.replace(/new URL\(url, location\.origin\)\.hostname/g, '""');
+    // ── Fix relative URLs so assets load from CDN ──
 
-    // 3. Rewrite ALL tag attribute URLs to absolute — including <script src="...">
-    //    Only skip purely inline scripts (no src= attr) to avoid mangling JS string literals
-    //    Critical for Unity: <script src="Build/game.loader.js"> must become absolute
-    //    so document.currentScript.src resolves to the CDN, not your origin
+    // Rewrite src/href attributes (skip absolute URLs, data:, blob:, javascript:, #)
     const parts = html.split(/(<script[\s\S]*?<\/script>)/gi);
     html = parts.map(part => {
-        // Skip inline scripts only — external scripts with src= must get rewritten
-        if (/^<script\b(?![^>]*\bsrc\s*=)/i.test(part)) return part;
+        if (/^<script\b(?![^>]*\bsrc\s*=)/i.test(part)) return part; // skip inline scripts
         return part.replace(
             /\b(href|src)=(["'])(?!https?:|\/\/|data:|blob:|javascript:|#)([^"']*)\2/gi,
-            (_, attr, q, relUrl) => `${attr}=${q}${base}${relUrl}${q}`
+            (_, attr, q, rel) => `${attr}=${q}${base}${rel}${q}`
         );
     }).join('');
 
-    // 4. Rewrite JS asset path variable assignments to absolute
-    //    Unity games do: const buildUrl = "Build" — dynamic script.src then uses it
+    // Rewrite Unity build path variables
     html = html.replace(
         /((?:buildUrl|loaderUrl|streamingAssetsUrl|dataUrl|frameworkUrl|codeUrl|unityBuildUrl)\s*=\s*)(["'])(?!https?:|\/\/|data:|blob:)([^"']+)\2/g,
         (_, pre, q, val) => `${pre}${q}${base}${val}${q}`
     );
 
-    // 5. Ensure <base href> is present as fallback for anything we missed
+    // Fix Unity hostname check
+    html = html.replace(/new URL\(url, location\.origin\)\.hostname/g, '""');
+
+    // Ensure <base href> as fallback
     if (!/<base\b[^>]*href/i.test(html)) {
         html = html.replace(/(<head[^>]*>)/i, `$1<base href="${base}">`);
     }
 
-    // 6. Write directly into the frame document
-    zoneViewer.style.display = "block";
-    zoneViewer.hidden = false;
-    zoneFrame.src = "about:blank";
-    zoneFrame.onload = () => {
-        zoneFrame.onload = () => {
-            try { zoneFrame.contentWindow.focus(); } catch(e) {}
-            setupFocusDetection(zoneFrame);
-        };
-        zoneFrame.contentDocument.open();
-        zoneFrame.contentDocument.write(html);
-        zoneFrame.contentDocument.close();
-    };
+    // ── Write into iframe ──
+    // Always replace the iframe element fresh to avoid any stale state
+    const container = zoneFrame.parentNode;
+    const newFrame = document.createElement("iframe");
+    newFrame.id = "zoneFrame";
+    newFrame.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;border:none;";
+    newFrame.tabIndex = 0;
+    newFrame.setAttribute("sandbox", "allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms");
+    newFrame.setAttribute("allow", "fullscreen; autoplay; clipboard-write");
+    container.replaceChild(newFrame, zoneFrame);
+    zoneFrame = newFrame;
+
+    // Write HTML directly — no src round-trip so no lag
+    zoneFrame.contentDocument.open();
+    zoneFrame.contentDocument.write(html);
+    zoneFrame.contentDocument.close();
+
+    // Focus and setup overlay after doc is ready
+    requestAnimationFrame(() => {
+        try { zoneFrame.contentWindow.focus(); } catch(e) {}
+        setupFocusDetection(zoneFrame);
+    });
 }
 
 // Show game error
@@ -1849,9 +1976,19 @@ function backToHomepage() {
 
     zoneViewer.hidden = false;
     zoneViewer.style.display = "none";
-    // Clear srcdoc to stop game execution
-    zoneFrame.srcdoc = "";
-    zoneFrame.src = "about:blank";
+
+    // Replace iframe with a fresh blank one to stop all game execution and audio
+    const container = zoneFrame.parentNode;
+    if (container) {
+        const freshFrame = document.createElement("iframe");
+        freshFrame.id = "zoneFrame";
+        freshFrame.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;border:none;";
+        freshFrame.tabIndex = 0;
+        freshFrame.setAttribute("sandbox", "allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms");
+        freshFrame.setAttribute("allow", "fullscreen; autoplay; clipboard-write");
+        container.replaceChild(freshFrame, zoneFrame);
+        zoneFrame = freshFrame;
+    }
 
     document.getElementById("gameView").classList.remove("active");
     document.getElementById("categorySidebar").classList.remove("hidden");
@@ -1917,7 +2054,7 @@ window.addEventListener("offline", updateNetworkStatus);
 // Instant Switch (ALT+1)
 // ===========================
 document.addEventListener("keydown", (e) => {
-    if (e.altKey && e.key === "1") { e.preventDefault(); window.location.href = "https://classroom.google.com"; }
+    if (e.altKey && e.key === "1") { e.preventDefault(); window.location.href = URL_CLASSROOM; }
 });
 
 // ===========================
