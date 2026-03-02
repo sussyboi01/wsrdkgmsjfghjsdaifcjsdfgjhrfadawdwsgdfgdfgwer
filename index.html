@@ -10,17 +10,19 @@
 ═══════════════════════════════════════════ */
 * { box-sizing: border-box; }
 :root {
-    --bg-primary: #0d0d1a;
-    --bg-secondary: #14142b;
-    --bg-tertiary: #1b1b38;
-    --bg-card: #262650;
+    --bg-primary: #08081a;
+    --bg-secondary: #0e0e25;
+    --bg-tertiary: #141430;
+    --bg-card: #1c1c42;
     --accent: #5a5aff;
     --accent-hover: #7878ff;
-    --border: #252550;
+    --border: #1e1e45;
     --text-primary: #ffffff;
     --text-secondary: #aaa;
-    --text-muted: #666;
+    --text-muted: #555;
     --danger: #ff5a5a;
+    --neon1: #5a5aff;
+    --neon2: #9d4dff;
     /* aliases */
     --bg: var(--bg-primary);
     --panel: var(--bg-secondary);
@@ -33,29 +35,146 @@
     --accent2: var(--accent-hover);
 }
 [data-theme="blue"] {
-    --bg-primary: #0a1929; --bg-secondary: #0d2137; --bg-tertiary: #1a2744;
-    --bg-card: #1e3a5f; --accent: #3ea6ff; --accent-hover: #5eb8ff; --border: #1e3a5f;
+    --bg-primary: #060f1a; --bg-secondary: #091a2c; --bg-tertiary: #0f2438;
+    --bg-card: #132e4e; --accent: #3ea6ff; --accent-hover: #5eb8ff; --border: #132e4e;
+    --neon1: #3ea6ff; --neon2: #0066cc;
     --glass: rgba(62,166,255,0.06);
 }
 [data-theme="red"] {
-    --bg-primary: #1a0d0d; --bg-secondary: #2b1414; --bg-tertiary: #381b1b;
-    --bg-card: #502626; --accent: #ff5a5a; --accent-hover: #ff7878; --border: #502626;
-    --glass: rgba(255,90,90,0.06);
+    --bg-primary: #140808; --bg-secondary: #200e0e; --bg-tertiary: #2c1414;
+    --bg-card: #3e1e1e; --accent: #ff4444; --accent-hover: #ff6666; --border: #3e1e1e;
+    --neon1: #ff4444; --neon2: #cc0000;
+    --glass: rgba(255,68,68,0.06);
 }
 [data-theme="green"] {
-    --bg-primary: #0d1a0d; --bg-secondary: #142b14; --bg-tertiary: #1b381b;
-    --bg-card: #265026; --accent: #5aff5a; --accent-hover: #78ff78; --border: #265026;
-    --glass: rgba(90,255,90,0.06);
+    --bg-primary: #081408; --bg-secondary: #0e200e; --bg-tertiary: #142c14;
+    --bg-card: #1e3e1e; --accent: #44ff44; --accent-hover: #66ff66; --border: #1e3e1e;
+    --neon1: #44ff44; --neon2: #00aa00;
+    --glass: rgba(68,255,68,0.06);
 }
 [data-theme="ocean"] {
-    --bg-primary: #0d1a1a; --bg-secondary: #142b2b; --bg-tertiary: #1b3838;
-    --bg-card: #265050; --accent: #5affff; --accent-hover: #78ffff; --border: #265050;
-    --glass: rgba(90,255,255,0.06);
+    --bg-primary: #081414; --bg-secondary: #0e2020; --bg-tertiary: #142c2c;
+    --bg-card: #1e3e3e; --accent: #44ffee; --accent-hover: #66ffee; --border: #1e3e3e;
+    --neon1: #44ffee; --neon2: #0088aa;
+    --glass: rgba(68,255,238,0.06);
 }
 [data-theme="sunset"] {
-    --bg-primary: #1a100d; --bg-secondary: #2b1814; --bg-tertiary: #38221b;
-    --bg-card: #503826; --accent: #ff8a5a; --accent-hover: #ffa078; --border: #503826;
-    --glass: rgba(255,138,90,0.06);
+    --bg-primary: #140a06; --bg-secondary: #201208; --bg-tertiary: #2c1a10;
+    --bg-card: #3e2a18; --accent: #ff7a3a; --accent-hover: #ff9a5a; --border: #3e2a18;
+    --neon1: #ff7a3a; --neon2: #cc4400;
+    --glass: rgba(255,122,58,0.06);
+}
+[data-theme="pink"] {
+    --bg-primary: #140814; --bg-secondary: #200e20; --bg-tertiary: #2c142c;
+    --bg-card: #3e1e3e; --accent: #ff44cc; --accent-hover: #ff66dd; --border: #3e1e3e;
+    --neon1: #ff44cc; --neon2: #aa0088;
+    --glass: rgba(255,68,204,0.06);
+}
+[data-theme="gold"] {
+    --bg-primary: #141008; --bg-secondary: #20180a; --bg-tertiary: #2c2210;
+    --bg-card: #3e3018; --accent: #ffcc22; --accent-hover: #ffdd55; --border: #3e3018;
+    --neon1: #ffcc22; --neon2: #cc8800;
+    --glass: rgba(255,204,34,0.06);
+}
+[data-theme="ice"] {
+    --bg-primary: #080e14; --bg-secondary: #0a1520; --bg-tertiary: #0e1e2c;
+    --bg-card: #142636; --accent: #88ccff; --accent-hover: #aadfff; --border: #142636;
+    --neon1: #88ccff; --neon2: #4488cc;
+    --glass: rgba(136,204,255,0.06);
+}
+[data-theme="custom"] {
+    --bg-primary: #080812; --bg-secondary: #0e0e1c; --bg-tertiary: #141424;
+    --bg-card: #1a1a30; --accent: #ff00ff; --accent-hover: #ff44ff; --border: #1a1a30;
+    --neon1: #ff00ff; --neon2: #8800ff;
+    --glass: rgba(255,0,255,0.06);
+}
+
+/* ═══════════════════════════════════════════
+   NEON ANIMATED BACKGROUND
+═══════════════════════════════════════════ */
+@keyframes neonOrb1 {
+    0%   { transform: translate(0%, 0%) scale(1); }
+    33%  { transform: translate(30%, -20%) scale(1.2); }
+    66%  { transform: translate(-20%, 30%) scale(0.9); }
+    100% { transform: translate(0%, 0%) scale(1); }
+}
+@keyframes neonOrb2 {
+    0%   { transform: translate(0%, 0%) scale(1); }
+    33%  { transform: translate(-25%, 20%) scale(1.1); }
+    66%  { transform: translate(20%, -25%) scale(1.3); }
+    100% { transform: translate(0%, 0%) scale(1); }
+}
+@keyframes neonOrb3 {
+    0%   { transform: translate(0%, 0%) scale(1); }
+    50%  { transform: translate(15%, 15%) scale(1.2); }
+    100% { transform: translate(0%, 0%) scale(1); }
+}
+#neon-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+#neon-bg .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.18;
+}
+#neon-bg .orb1 {
+    width: 60vw; height: 60vw;
+    top: -20vw; left: -10vw;
+    background: var(--neon1, #5a5aff);
+    animation: neonOrb1 18s ease-in-out infinite;
+}
+#neon-bg .orb2 {
+    width: 50vw; height: 50vw;
+    bottom: -15vw; right: -10vw;
+    background: var(--neon2, #9d4dff);
+    animation: neonOrb2 22s ease-in-out infinite;
+}
+#neon-bg .orb3 {
+    width: 40vw; height: 40vw;
+    top: 30%; left: 40%;
+    background: var(--neon1, #5a5aff);
+    opacity: 0.10;
+    animation: neonOrb3 15s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════
+   CUSTOM SMOOTH CURSOR
+═══════════════════════════════════════════ */
+body { cursor: none !important; }
+body * { cursor: none !important; }
+body.cursor-default { cursor: default !important; }
+body.cursor-default * { cursor: default !important; }
+
+#cursor-dot {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999999;
+    width: 12px; height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.15s, height 0.15s, background 0.2s, box-shadow 0.2s, opacity 0.2s;
+    box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+    will-change: left, top;
+}
+
+/* Custom image cursor replaces dot */
+#cursor-img {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999999;
+    width: 40px; height: 40px;
+    transform: translate(-4px, -4px);
+    display: none;
+    image-rendering: auto;
+    filter: drop-shadow(0 0 6px var(--accent));
+    will-change: left, top;
+    transition: opacity 0.2s;
 }
 
 /* ═══════════════════════════════════════════
@@ -63,119 +182,244 @@
 ═══════════════════════════════════════════ */
 html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:var(--bg-primary); color:var(--text-primary); height:100%; overflow:hidden; transition:background 0.3s, color 0.3s; }
 
-#global-nav {
+/* ═══════════════════════════════════════════
+   EXPANDABLE NAV — pill → full bar
+═══════════════════════════════════════════ */
+#nav-trigger { display: none; }
+#nav-handle   { display: none; }
+#nav-handle-icon { display: none; }
+
+/* Wrapper: sits top-left, expands to full width */
+#nav-wrapper {
     position: fixed;
     top: 0; left: 0; right: 0;
-    height: 62px;
-    background: var(--bg-secondary);
-    border-bottom: 2px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    z-index: 9999;
-    transition: background 0.3s, border-color 0.3s;
+    z-index: 10001;
+    height: 0;          /* just a positioning context */
+    pointer-events: none;
 }
-#global-nav .nav-row {
+
+/* ── PILL (collapsed) → FULL BAR (expanded) ── */
+#global-nav {
+    pointer-events: auto;
+    position: absolute;
+    top: 0; left: 0;
+    width: 88px;
+    height: 40px;
+    border-radius: 0 0 18px 0;
+    background: rgba(8,8,22,0.92);
+    backdrop-filter: blur(20px) saturate(1.8);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    border: 1px solid rgba(255,255,255,0.13);
+    box-shadow:
+        0 4px 24px rgba(0,0,0,0.55),
+        0 0 22px color-mix(in srgb, var(--accent) 35%, transparent),
+        0 1px 0 rgba(255,255,255,0.07) inset;
     display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 6px;
-    padding: 0 12px;
-    height: 31px;
-    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    gap: 0;
+    overflow: hidden;
+    transition:
+        width   0.4s  cubic-bezier(0.4,0,0.2,1),
+        height  0.4s  cubic-bezier(0.4,0,0.2,1),
+        top     0.4s  cubic-bezier(0.4,0,0.2,1),
+        left    0.4s  cubic-bezier(0.4,0,0.2,1),
+        border-radius 0.4s cubic-bezier(0.4,0,0.2,1),
+        padding  0.4s  cubic-bezier(0.4,0,0.2,1),
+        gap      0.3s  cubic-bezier(0.4,0,0.2,1),
+        box-shadow 0.28s;
 }
-#global-nav .nav-row:last-child { border-bottom: none; }
+
+/* Expanded state — full bar */
+#global-nav.expanded {
+    top: 0; left: 0;
+    width: 100%;
+    height: 62px;
+    border-radius: 0 0 16px 16px;
+    padding: 0 20px;
+    gap: 8px;
+    box-shadow:
+        0 6px 40px rgba(0,0,0,0.65),
+        0 0 60px color-mix(in srgb, var(--accent) 18%, transparent),
+        0 1px 0 rgba(255,255,255,0.05) inset;
+}
+
+/* hide when game is playing */
+body.nav-game-active #nav-wrapper { display: none; }
+
+/* ── Logo — always visible ── */
 #global-nav .nav-logo {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 900;
     color: var(--accent);
-    letter-spacing: 1px;
-    margin-right: 4px;
-    cursor: pointer;
+    letter-spacing: 2px;
+    cursor: none;
     text-decoration: none;
-    transition: color 0.2s;
+    text-shadow: 0 0 12px var(--accent);
     white-space: nowrap;
+    flex-shrink: 0;
+    transition: font-size 0.3s, letter-spacing 0.3s, text-shadow 0.2s, color 0.2s;
+    min-width: 48px;
 }
-#global-nav .nav-logo:hover { color: var(--accent-hover); }
-#global-nav .nav-sep { color: var(--border); font-size: 14px; }
-.nav-btn {
-    background: var(--bg-card);
-    border: none;
-    padding: 3px 9px;
-    border-radius: 5px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 600;
-    transition: background 0.2s, color 0.2s;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-    height: 22px;
-    line-height: 22px;
-    display: flex; align-items: center;
+#global-nav.expanded .nav-logo {
+    font-size: 18px;
+    letter-spacing: 4px;
+    text-shadow: 0 0 18px var(--accent), 0 0 40px var(--accent);
 }
-.nav-btn:hover { background: var(--accent); color: white; }
-.nav-btn.active { background: var(--accent); color: white; }
-#global-nav .spacer { flex: 1; }
-#global-nav label { font-size: 10px; color: var(--text-secondary); white-space: nowrap; }
-#theme-bar-select {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-    padding: 2px 6px;
-    border-radius: 5px;
-    font-size: 11px;
-    cursor: pointer;
-    height: 22px;
+#global-nav .nav-logo:hover { color: var(--accent-hover); text-shadow: 0 0 24px var(--accent-hover); }
+
+#global-nav .nav-sep { color: rgba(255,255,255,0.1); font-size: 16px; flex-shrink: 0; }
+#nav-logo-strip { display: contents; }
+#nav-logo-strip .spacer, #nav-buttons-strip .spacer { flex: 1; }
+
+/* All buttons/extras hidden when collapsed, fade in after expand */
+#global-nav .nav-sep,
+#nav-buttons-strip {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease 0s;
+    flex-shrink: 0;
 }
-/* Clock area in nav */
-#nav-clock-area {
+#global-nav.expanded .nav-sep,
+#global-nav.expanded #nav-buttons-strip {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.2s ease 0.2s;
+}
+#nav-buttons-strip {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 11px;
-    color: var(--text-secondary);
-    white-space: nowrap;
-}
-#nav-clock-time {
-    font-family: monospace;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 0.5px;
-    font-variant-numeric: tabular-nums;
-}
-#nav-clock-period {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-#nav-countdown {
-    font-size: 11px;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 3px;
-}
-#nav-countdown-label { font-size: 10px; opacity: 0.7; }
-#nav-countdown-value { font-family: monospace; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
-#nav-countdown-value.urgent { color: #ff5a5a; animation: urgentPulse 1s ease-in-out infinite; }
-#nav-alt-hint {
-    font-size: 10px;
-    color: var(--text-muted);
-    opacity: 0.7;
+    flex: 1;
     white-space: nowrap;
 }
 
+/* ── UNIVERSAL 3D GLOW BUTTON ── */
+.nav-btn {
+    background: linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 0 14px;
+    border-radius: 10px;
+    color: rgba(255,255,255,0.75);
+    cursor: none;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+    height: 32px;
+    display: flex; align-items: center; gap: 5px;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.06) inset;
+}
+.nav-btn::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    opacity: 0;
+    transition: opacity 0.18s;
+    z-index: -1;
+    filter: blur(6px);
+}
+.nav-btn:hover {
+    background: linear-gradient(145deg, var(--accent), var(--accent-hover));
+    color: white;
+    border-color: var(--accent-hover);
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4), 0 0 20px var(--accent), 0 1px 0 rgba(255,255,255,0.15) inset;
+}
+.nav-btn:hover::before { opacity: 0.5; }
+.nav-btn:active { transform: translateY(1px) scale(0.97); box-shadow: 0 2px 6px rgba(0,0,0,0.5), 0 0 12px var(--accent); }
+.nav-btn.active {
+    background: linear-gradient(145deg, var(--accent), var(--accent-hover));
+    color: white;
+    border-color: var(--accent-hover);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4), 0 0 24px var(--accent), 0 1px 0 rgba(255,255,255,0.2) inset;
+}
+
+/* ── Nav info strip ── */
+#nav-info-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 0 10px;
+    height: 28px;
+}
+#theme-bar-select {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-primary);
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 11px;
+    cursor: none;
+    height: 28px;
+}
+#nav-clock-area { display: flex; align-items: center; gap: 6px; }
+#nav-clock-time { font-family: monospace; font-size: 12px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+#nav-clock-period { font-size: 11px; font-weight: 600; color: var(--text-primary); }
+#nav-countdown { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 3px; }
+#nav-countdown-label { font-size: 10px; opacity: 0.7; }
+#nav-countdown-value { font-family: monospace; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+#nav-countdown-value.urgent { color: #ff5a5a; animation: urgentPulse 1s ease-in-out infinite; }
+#nav-alt-hint { font-size: 10px; color: var(--text-muted); opacity: 0.7; white-space: nowrap; }
+#nav-info-sep { color: rgba(255,255,255,0.15); }
+
 /* ═══════════════════════════════════════════
-   PAGE SYSTEM
+   PAGE SYSTEM — full screen, pill corner floats
 ═══════════════════════════════════════════ */
 .app-page {
     position: fixed;
-    top: 62px; left: 0; right: 0; bottom: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     display: none;
     overflow: hidden;
+    z-index: 1;
+    transition: top 0.38s cubic-bezier(0.4,0,0.2,1);
 }
+/* Full bar expanded → push all pages down */
+body.nav-expanded .app-page { top: 62px; }
+body.nav-game-active .app-page { top: 0; }
 .app-page.active { display: block; }
 #page-home.active { display: flex; }
+
+/* ── Small corner on every tab ──
+   A bg-colored corner piece exactly matching the pill footprint.
+   Zero padding on any container — only the first item inside the
+   leftmost column gets a margin-top to clear the pill. */
+.app-page::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 90px; height: 42px;
+    background: var(--bg-primary);
+    border-radius: 0 0 18px 0;
+    border-right: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    z-index: 12;
+    pointer-events: none;
+    transition: opacity 0.35s;
+}
+body.nav-expanded .app-page::before { opacity: 0; }
+body.nav-game-active .app-page::before { display: none; }
+
+/* ── Displace ONLY first item in left column — no padding on containers ── */
+#page-games .category-sidebar > *:first-child { margin-top: 44px; transition: margin-top 0.38s; }
+#page-music .sidebar > *:first-child         { margin-top: 44px; transition: margin-top 0.38s; }
+#page-watch .topbar                          { padding-left: 94px; transition: padding-left 0.38s; }
+body.nav-expanded #page-games .category-sidebar > *:first-child,
+body.nav-expanded #page-music .sidebar > *:first-child { margin-top: 0; }
+body.nav-expanded #page-watch .topbar { padding-left: 0; }
 
 /* ═══════════════════════════════════════════
    HOME PAGE
@@ -297,7 +541,7 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
 /* ═══════════════════════════════════════════
    ── GAMES PAGE (index) ──
 ═══════════════════════════════════════════ */
-#page-games .app-container { display:flex; height:calc(100vh - 62px); }
+#page-games .app-container { display:flex; height:100vh; }
 #page-games .category-sidebar {
     width:180px; background:var(--bg-secondary); border-right:2px solid var(--border);
     overflow-y:auto; padding:15px 10px; flex-shrink:0; transition:transform 0.3s;
@@ -357,9 +601,9 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
 #page-games .game-card .star { position:absolute; top:8px; right:8px; font-size:20px; cursor:pointer; color:gold; text-shadow:0 2px 4px rgba(0,0,0,0.5); z-index:2; transition:transform 0.2s; }
 #page-games .game-card .star.off { color:#555; }
 #page-games .game-card .star:hover { transform:scale(1.2); }
-#page-games .game-view { display:none; position:fixed; top:62px; left:0; width:100%; height:calc(100% - 62px); z-index:50; background:var(--bg-primary); }
+#page-games .game-view { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:50; background:var(--bg-primary); }
 #page-games .game-view.active { display:flex; }
-#page-games .game-controls-bar { position:fixed; top:62px; left:0; right:0; z-index:110; background:var(--bg-secondary); border-bottom:2px solid var(--border); padding:8px 16px; display:flex; gap:10px; align-items:center; }
+#page-games .game-controls-bar { position:fixed; top:0; left:0; right:0; z-index:110; background:var(--bg-secondary); border-bottom:2px solid var(--border); padding:8px 16px; display:flex; gap:10px; align-items:center; }
 #page-games .game-controls-bar button { background:var(--accent); border:none; padding:8px 16px; border-radius:8px; color:white; cursor:pointer; font-size:14px; transition:background 0.2s; }
 #page-games .game-controls-bar button:hover { background:var(--accent-hover); }
 #page-games .game-iframe-container { flex:1; position:relative; margin-top:46px; }
@@ -421,8 +665,8 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
    ── MUSIC PAGE ──
 ═══════════════════════════════════════════ */
 #page-music { overflow: hidden; }
-#page-music .app { display:grid; grid-template-columns:260px 1fr; gap:14px; height:calc(100vh - 62px); padding:14px; position:relative; z-index:1; }
-#page-music .sidebar { background:var(--bg-secondary); border:1px solid var(--border); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:12px; height:calc(100vh - 90px); overflow:auto; box-shadow:0 2px 8px rgba(0,0,0,0.4); }
+#page-music .app { display:grid; grid-template-columns:260px 1fr; gap:14px; height:100vh; padding:14px; position:relative; z-index:1; }
+#page-music .sidebar { background:var(--bg-secondary); border:1px solid var(--border); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:12px; height:calc(100vh - 28px); overflow:auto; box-shadow:0 2px 8px rgba(0,0,0,0.4); }
 #page-music .logo { font-weight:900; font-size:16px; color:var(--accent); letter-spacing:1px; padding:8px 4px; border-bottom:1px solid var(--border); padding-bottom:14px; }
 #page-music .side-section { margin-top:4px; }
 #page-music .card { background:var(--bg-secondary); border:1px solid var(--border); border-radius:10px; padding:12px; }
@@ -433,7 +677,7 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
 #page-music .btn-primary:hover { box-shadow:0 2px 12px rgba(0,0,0,0.4); color:white; }
 #page-music .playlist-item { display:flex; gap:10px; align-items:center; padding:8px 10px; border-radius:6px; cursor:pointer; font-size:14px; font-weight:500; color:var(--text-secondary); transition:all .2s; border:1px solid transparent; }
 #page-music .playlist-item:hover { background:var(--glass); border-color:var(--border); color:var(--accent); }
-#page-music .main { display:flex; flex-direction:column; gap:12px; min-height:0; overflow:hidden; height:calc(100vh - 90px); }
+#page-music .main { display:flex; flex-direction:column; gap:12px; min-height:0; overflow:hidden; height:calc(100vh - 28px); }
 #page-music .topbar { padding:10px 12px; }
 #page-music .search { display:flex; gap:10px; align-items:center; }
 #page-music .search input { flex:1; padding:10px 14px; border-radius:8px; border:1px solid var(--border); background:rgba(0,5,15,0.9); color:var(--text-primary); font-family:'Segoe UI',sans-serif; font-size:15px; outline:none; transition:all .2s; }
@@ -463,7 +707,7 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
 #page-music .muted { color:var(--text-muted); }
 #page-music .small { font-size:11px; }
 #page-music .highlight { background:rgba(0,207,255,0.08) !important; border-color:rgba(0,207,255,0.25) !important; }
-#page-music .playlist-drawer { position:fixed; right:-400px; top:62px; bottom:0; width:380px; background:var(--bg-secondary); border-left:1px solid var(--border); z-index:800; display:flex; flex-direction:column; transition:right 0.3s; }
+#page-music .playlist-drawer { position:fixed; right:-400px; top:0; bottom:0; width:380px; background:var(--bg-secondary); border-left:1px solid var(--border); z-index:800; display:flex; flex-direction:column; transition:right 0.3s; }
 #page-music .playlist-drawer.open { right:0; }
 #page-music .drawer-header { padding:14px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:8px; flex-shrink:0; }
 #page-music .drawer-title { font-size:14px; font-weight:700; color:var(--accent); }
@@ -597,41 +841,85 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
 #page-shorts .fav-card:hover .fav-remove { opacity:1; }
 #page-shorts .empty-favs { grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--text-muted); font-family:'Segoe UI',sans-serif; font-size:12px; letter-spacing:2px; line-height:2.2; }
 #page-shorts #favsFeedPage { gap:20px; }
+
+/* ═══════════════════════════════════════════
+   UNIVERSAL 3D GLOW BUTTONS (all pages)
+═══════════════════════════════════════════ */
+button, .repo-btn, .ctrl-btn, .home-btn, .quick-actions button,
+.game-controls-bar button, #page-music .btn, #page-watch .btn,
+#page-shorts .ctrl-btn, .modal-box button, #customAlert button,
+.custom-dialog-buttons button, .setting-item button, #uploadCursorBtn {
+    cursor: none !important;
+    transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1),
+                box-shadow 0.18s ease,
+                background 0.18s ease,
+                border-color 0.18s ease,
+                color 0.18s ease !important;
+    position: relative;
+}
+button:hover, .repo-btn:hover, .ctrl-btn:hover,
+.game-controls-bar button:hover, #page-music .btn:hover,
+#page-watch .btn:hover, #page-shorts .ctrl-btn:hover,
+.modal-box button:hover, #customAlert button:hover,
+.custom-dialog-buttons button:hover {
+    transform: translateY(-2px) scale(1.04) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 18px var(--accent) !important;
+}
+button:active, .repo-btn:active, .ctrl-btn:active,
+.game-controls-bar button:active, #page-music .btn:active,
+#page-watch .btn:active, #page-shorts .ctrl-btn:active {
+    transform: translateY(1px) scale(0.97) !important;
+}
+/* Inputs are not none cursor */
+input, select, textarea { cursor: none !important; }
 </style>
 </head>
 <body>
 
+<!-- NEON ANIMATED BACKGROUND -->
+<div id="neon-bg">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+</div>
+
+<!-- Custom cursor elements -->
+<div id="cursor-dot"></div>
+<img id="cursor-img" src="" alt="">
+
 <!-- ═══════════════════════════════════════════
-     GLOBAL NAV BAR
+     GLOBAL NAV BAR — pill → full bar
 ═══════════════════════════════════════════ -->
+<div id="nav-wrapper">
 <div id="global-nav">
-    <!-- Row 1: Logo + page navigation + theme -->
-    <div class="nav-row">
+    <div id="nav-logo-strip">
         <a class="nav-logo" onclick="showAppPage('home')" href="#">daboi</a>
-        <span class="nav-sep">|</span>
+    </div>
+    <span class="nav-sep">│</span>
+    <div id="nav-buttons-strip">
         <button class="nav-btn" id="nav-home" onclick="showAppPage('home')">🏠 Home</button>
         <button class="nav-btn" id="nav-games" onclick="showAppPage('games')">🎮 Games</button>
         <button class="nav-btn" id="nav-music" onclick="showAppPage('music')">🎵 BOI Music</button>
         <button class="nav-btn" id="nav-watch" onclick="showAppPage('watch')">📺 BOITube</button>
         <button class="nav-btn" id="nav-shorts" onclick="showAppPage('shorts')">▶ Shorts</button>
-    </div>
-    <!-- Row 2: Clock + countdown + ALT+1 hint + settings + export/import -->
-    <div class="nav-row">
-        <div id="nav-clock-area">
-            <span id="nav-clock-time">00:00:00.000</span>
-            <span id="nav-clock-period"></span>
-        </div>
-        <span class="nav-sep">|</span>
-        <div id="nav-countdown">
-            <span id="nav-countdown-label">Next Period</span>:&nbsp;<span id="nav-countdown-value">--:--</span>
-        </div>
-        <span class="nav-sep">|</span>
-        <span id="nav-alt-hint">ALT+1 → Google Classroom</span>
         <div class="spacer"></div>
+        <div id="nav-info-strip">
+            <div id="nav-clock-area">
+                <span id="nav-clock-time">00:00:00.000</span>
+                <span id="nav-clock-period"></span>
+            </div>
+            <span id="nav-info-sep">│</span>
+            <div id="nav-countdown">
+                <span id="nav-countdown-label">Next Period</span>:&nbsp;<span id="nav-countdown-value">--:--</span>
+            </div>
+            <span style="color:rgba(255,255,255,0.15)">│</span>
+            <span id="nav-alt-hint">ALT+1 → Classroom</span>
+        </div>
         <button class="nav-btn" id="exportBtn">📤 Export</button>
         <button class="nav-btn" id="importBtn">📥 Import</button>
         <button class="nav-btn" id="settingsBtn">⚙ Settings</button>
     </div>
+</div>
 </div>
 
 <!-- ═══════════════════════════════════════════
@@ -672,6 +960,7 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
             <div class="repo-switcher-label">Game Repo</div>
             <div class="repo-btn active" id="repoGnMath" data-repo="gnmath">GN-MATH</div>
             <div class="repo-btn" id="repoUntitled" data-repo="untitled">Untitled Stash</div>
+            <div class="repo-btn" id="repoTruffled" data-repo="truffled">Truffled.lol</div>
             <div class="repo-btn" id="repoCustom" data-repo="custom">Custom</div>
         </div>
     </div>
@@ -724,13 +1013,24 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
         <div class="setting-item">
             <label for="themeSelect">Theme</label>
             <select id="themeSelect">
-                <option value="purple">Purple (Default)</option>
-                <option value="blue">Ocean Blue</option>
-                <option value="red">Red Hot</option>
-                <option value="green">Forest Green</option>
-                <option value="ocean">Cyan Ocean</option>
-                <option value="sunset">Sunset Orange</option>
+                <option value="purple">🟣 Purple (Default)</option>
+                <option value="blue">🔵 Ocean Blue</option>
+                <option value="red">🔴 Red Hot</option>
+                <option value="green">🟢 Forest Green</option>
+                <option value="ocean">🩵 Cyan Ocean</option>
+                <option value="sunset">🟠 Sunset Orange</option>
+                <option value="pink">💗 Neon Pink</option>
+                <option value="gold">🟡 Gold Rush</option>
+                <option value="ice">🩶 Ice Blue</option>
+                <option value="custom">🎨 Custom Color...</option>
             </select>
+        </div>
+        <div class="setting-item" id="customColorSection" style="display:none;">
+            <label for="customColorPicker">Pick Accent Color</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="customColorPicker" value="#ff00ff" style="width:48px;height:32px;border:none;border-radius:6px;cursor:pointer;background:none;">
+                <div id="customColorPreview" style="flex:1;height:32px;border-radius:6px;background:var(--accent);transition:background 0.2s;border:1px solid rgba(255,255,255,0.1);"></div>
+            </div>
         </div>
         <div class="setting-item">
             <label class="toggle-label"><span>Override Thumbnails</span>
@@ -766,6 +1066,22 @@ html, body { margin:0; padding:0; font-family:"Segoe UI",sans-serif; background:
             <label>Upload Thumbnail</label>
             <input type="file" id="fileImageUpload" accept="image/*">
             <button onclick="document.getElementById('fileImageUpload').click()">Choose File</button>
+        </div>
+        <div class="setting-item">
+            <label for="cursorSelect">Cursor Style</label>
+            <select id="cursorSelect">
+                <option value="custom">✦ Custom Neon Circle</option>
+                <option value="default">↖ Default System</option>
+                <option value="image">🖼 Custom Image</option>
+            </select>
+        </div>
+        <div class="setting-item" id="cursorImageSection" style="display:none;">
+            <label>Upload Cursor Image</label>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <button id="uploadCursorBtn" style="background:var(--accent);color:white;border:none;padding:8px 14px;border-radius:8px;cursor:none;font-size:12px;font-weight:700;">Choose Image</button>
+                <span id="cursorImgName" style="font-size:11px;color:var(--text-muted);">No image selected</span>
+            </div>
+            <input type="file" id="cursorImageUpload" accept="image/*" style="display:none;">
         </div>
     </div>
 </div>
@@ -1007,13 +1323,46 @@ function pickRandomMessage() {
 }
 pickRandomMessage();
 
-function applyGlobalTheme(theme) {
+function applyGlobalTheme(theme, customColor) {
     document.documentElement.setAttribute('data-theme', theme === 'purple' ? '' : theme);
     document.body.setAttribute('data-theme', theme);
     localStorage.setItem('daboi_theme', theme);
+    // Apply custom color if provided
+    if (theme === 'custom' && customColor) {
+        const hex = customColor.replace('#','');
+        const r = parseInt(hex.substr(0,2),16), g = parseInt(hex.substr(2,2),16), b = parseInt(hex.substr(4,2),16);
+        // Darken for bg, use color for accent
+        document.documentElement.style.setProperty('--accent', customColor);
+        document.documentElement.style.setProperty('--accent-hover', lightenColor(customColor, 0.2));
+        document.documentElement.style.setProperty('--neon1', customColor);
+        document.documentElement.style.setProperty('--neon2', darkenColor(customColor, 0.4));
+        document.documentElement.style.setProperty('--border', darkenColor(customColor, 0.6));
+        document.documentElement.style.setProperty('--bg-card', `rgba(${r},${g},${b},0.12)`);
+        localStorage.setItem('daboi_custom_color', customColor);
+    } else {
+        // Clear custom CSS vars
+        ['--accent','--accent-hover','--neon1','--neon2','--border','--bg-card'].forEach(v => document.documentElement.style.removeProperty(v));
+    }
     // Sync the games settings select if it exists
     const ts = document.getElementById('themeSelect');
     if (ts) ts.value = theme;
+    // Show/hide custom color section
+    const ccs = document.getElementById('customColorSection');
+    if (ccs) ccs.style.display = theme === 'custom' ? 'flex' : 'none';
+}
+function lightenColor(hex, amt) {
+    const num = parseInt(hex.replace('#',''), 16);
+    const r = Math.min(255, (num >> 16) + Math.round(255 * amt));
+    const g = Math.min(255, ((num >> 8) & 0xff) + Math.round(255 * amt));
+    const b = Math.min(255, (num & 0xff) + Math.round(255 * amt));
+    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
+function darkenColor(hex, amt) {
+    const num = parseInt(hex.replace('#',''), 16);
+    const r = Math.max(0, (num >> 16) - Math.round(255 * amt));
+    const g = Math.max(0, ((num >> 8) & 0xff) - Math.round(255 * amt));
+    const b = Math.max(0, (num & 0xff) - Math.round(255 * amt));
+    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
 }
 
 function showAppPage(name) {
@@ -1027,6 +1376,12 @@ function showAppPage(name) {
     document.getElementById('page-' + name).classList.add('active');
     const nb = document.getElementById('nav-' + name);
     if (nb) nb.classList.add('active');
+    // Show/hide nav based on page (home = hide, others = show)
+    if (name === 'home') {
+        document.body.classList.remove('page-not-home');
+    } else {
+        document.body.classList.add('page-not-home');
+    }
     // Lazy-init games when first opened
     if (name === 'games' && !window._gamesInited) {
         window._gamesInited = true;
@@ -1047,7 +1402,223 @@ function showAppPage(name) {
 // Load saved theme
 (function() {
     const saved = localStorage.getItem('daboi_theme') || 'purple';
-    applyGlobalTheme(saved);
+    const savedColor = localStorage.getItem('daboi_custom_color') || '#ff00ff';
+    applyGlobalTheme(saved, savedColor);
+    if (saved === 'custom') {
+        const picker = document.getElementById('customColorPicker');
+        if (picker) picker.value = savedColor;
+    }
+})();
+
+// Nav pill → full bar on hover
+(function() {
+    const nav = document.getElementById('global-nav');
+    let timer = null;
+    window._navGameActive = false;
+
+    function expand() {
+        if (window._navGameActive) return;
+        clearTimeout(timer);
+        nav.classList.add('expanded');
+        document.body.classList.add('nav-expanded');
+    }
+    function scheduleCollapse() {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            nav.classList.remove('expanded');
+            document.body.classList.remove('nav-expanded');
+        }, 220);
+    }
+
+    nav.addEventListener('mouseenter', expand);
+    nav.addEventListener('mouseleave', scheduleCollapse);
+
+    window._hideNav = () => {
+        clearTimeout(timer);
+        nav.classList.remove('expanded');
+        document.body.classList.remove('nav-expanded');
+    };
+})();
+
+/* ═══════════════════════════════════════════
+   SMOOTH CUSTOM CURSOR SYSTEM
+═══════════════════════════════════════════ */
+(function() {
+    const dot = document.getElementById('cursor-dot');
+    const img = document.getElementById('cursor-img');
+
+    let mouseX = 0, mouseY = 0;
+    let cursorMode = localStorage.getItem('daboi_cursor') || 'custom';
+    let cursorImgData = localStorage.getItem('daboi_cursor_img') || '';
+    let rafId;
+
+    function applyMode(mode, immediate) {
+        cursorMode = mode;
+        localStorage.setItem('daboi_cursor', mode);
+
+        if (mode === 'default') {
+            document.body.classList.add('cursor-default');
+            dot.style.display = 'none';
+            img.style.display = 'none';
+            cancelAnimationFrame(rafId);
+        } else if (mode === 'image') {
+            // Only show image cursor if we already have an image saved
+            if (cursorImgData) {
+                document.body.classList.remove('cursor-default');
+                dot.style.display = 'none';
+                img.src = cursorImgData;
+                img.style.display = 'block';
+                startLoop();
+            } else {
+                // No image yet — stay on dot cursor visually, but remember the setting
+                document.body.classList.remove('cursor-default');
+                dot.style.display = 'block';
+                img.style.display = 'none';
+                startLoop();
+            }
+        } else {
+            // 'custom' dot
+            document.body.classList.remove('cursor-default');
+            dot.style.display = 'block';
+            img.style.display = 'none';
+            startLoop();
+        }
+
+        // Sync settings select
+        const sel = document.getElementById('cursorSelect');
+        if (sel) sel.value = mode;
+        const sec = document.getElementById('cursorImageSection');
+        if (sec) sec.style.display = mode === 'image' ? 'block' : 'none';
+    }
+
+    function startLoop() {
+        cancelAnimationFrame(rafId);
+        function loop() {
+            dot.style.left = mouseX + 'px';
+            dot.style.top = mouseY + 'px';
+            img.style.left = mouseX + 'px';
+            img.style.top = mouseY + 'px';
+            rafId = requestAnimationFrame(loop);
+        }
+        rafId = requestAnimationFrame(loop);
+    }
+
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    // Hide cursor when mouse leaves the window, restore when it returns
+    document.addEventListener('mouseleave', () => {
+        dot.style.opacity = '0';
+        img.style.opacity = '0';
+    });
+    document.addEventListener('mouseenter', () => {
+        if (cursorMode !== 'default') {
+            dot.style.opacity = '1';
+            img.style.opacity = '1';
+        }
+    });
+
+    // When mouse enters an iframe/embed/object: hide custom cursor, restore system cursor.
+    // When mouse returns to main document: bring custom cursor back.
+    let overIframe = false;
+
+    document.addEventListener('mousemove', () => {
+        if (overIframe) {
+            overIframe = false;
+            if (cursorMode !== 'default') {
+                document.body.classList.remove('cursor-default');
+                if (cursorMode === 'image' && cursorImgData) {
+                    img.style.display = 'block';
+                } else if (cursorMode === 'custom') {
+                    dot.style.display = 'block';
+                }
+                dot.style.opacity = '1';
+                img.style.opacity = '1';
+            }
+        }
+    });
+
+    // Detect mouse entering iframe by listening on blur of window (focus shifts to iframe)
+    window.addEventListener('blur', () => {
+        // Only treat as iframe if we're not switching tabs (document is still visible)
+        if (document.visibilityState === 'visible') {
+            overIframe = true;
+            // Hide custom cursor, show system cursor instead
+            dot.style.display = 'none';
+            img.style.display = 'none';
+            document.body.classList.add('cursor-default');
+        }
+    });
+
+    window.addEventListener('focus', () => {
+        if (overIframe) {
+            overIframe = false;
+        }
+        // Restore custom cursor when window regains focus
+        if (cursorMode !== 'default') {
+            document.body.classList.remove('cursor-default');
+            if (cursorMode === 'image' && cursorImgData) {
+                img.style.display = 'block';
+            } else if (cursorMode === 'custom') {
+                dot.style.display = 'block';
+            }
+        }
+    });
+
+    // Hover expand effect on dot
+    document.addEventListener('mouseover', (e) => {
+        const el = e.target;
+        const isClickable = el.matches('button, a, [onclick], select, input, .repo-btn, .game-card, .ctrl-btn, .home-btn, .heart-btn, .star, .fav-card, .result-card, .track-row, .category-item, .playlist-item, .nav-logo, .close-modal');
+        if (isClickable) {
+            dot.style.width = '20px';
+            dot.style.height = '20px';
+            dot.style.boxShadow = '0 0 20px var(--accent), 0 0 40px var(--accent)';
+        } else {
+            dot.style.width = '12px';
+            dot.style.height = '12px';
+            dot.style.boxShadow = '0 0 10px var(--accent), 0 0 20px var(--accent)';
+        }
+    });
+
+    // Cursor select — only switch mode (image won't show until file uploaded)
+    document.addEventListener('change', (e) => {
+        if (e.target.id === 'cursorSelect') {
+            applyMode(e.target.value);
+        }
+    });
+
+    // Cursor image upload — THIS is what actually switches to the image
+    document.getElementById('uploadCursorBtn').addEventListener('click', () => {
+        document.getElementById('cursorImageUpload').click();
+    });
+    document.getElementById('cursorImageUpload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            cursorImgData = ev.target.result;
+            localStorage.setItem('daboi_cursor_img', cursorImgData);
+            document.getElementById('cursorImgName').textContent = '✓ ' + file.name;
+            // Now actually apply the image cursor
+            img.src = cursorImgData;
+            img.style.display = 'block';
+            dot.style.display = 'none';
+            document.body.classList.remove('cursor-default');
+            cursorMode = 'image';
+            localStorage.setItem('daboi_cursor', 'image');
+            const sel = document.getElementById('cursorSelect');
+            if (sel) sel.value = 'image';
+            startLoop();
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Init on page load
+    applyMode(cursorMode);
+
+    window.cursorSystem = { applyMode };
 })();
 
 
@@ -1111,6 +1682,7 @@ const URL_CLASSROOM = "https://classroom.google.com";
 const REPOS = {
     gnmath: { name:"GN-MATH", gamesJsonUrl:ZONES_JSON, gameBaseUrl:"https://cdn.jsdelivr.net/gh/gn-math/html@main" },
     untitled: { name:"Untitled Stash", gamesJsonUrl:"https://cdn.jsdelivr.net/gh/hexorod/adasdgtergscvbfr5etyrawdasdfegertawdA@refs/heads/main/files.json", gameBaseUrl:"https://cdn.jsdelivr.net/gh/hexorod/adasdgtergscvbfr5etyrawdasdfegertawdA@refs/heads/main/" },
+    truffled: { name:"Truffled.lol", gamesJsonUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/truffledgames@main/name-id.json", gameBaseUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/truffledgames@main/html/", coverBaseUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/truffledgames@main/covers/" },
     custom: { name:"Custom", gamesJsonUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/games@main/zones.json", gameBaseUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/games@main/" }
 };
 let currentRepo = "gnmath";
@@ -1162,17 +1734,38 @@ async function loadAppData() {
     }
     updateStreak();
 }
-function applyTheme(theme) {
-    applyGlobalTheme(theme);
+function applyTheme(theme, customColor) {
+    applyGlobalTheme(theme, customColor || localStorage.getItem('daboi_custom_color'));
     appData.settings.theme = theme;
     saveAppData();
 }
 document.getElementById("settingsBtn").onclick = () => {
     document.getElementById("settingsModal").classList.add("open");
+    // Sync cursor select state
+    const savedCursor = localStorage.getItem('daboi_cursor') || 'custom';
+    const cursorSel = document.getElementById('cursorSelect');
+    if (cursorSel) cursorSel.value = savedCursor;
+    const cursorSec = document.getElementById('cursorImageSection');
+    if (cursorSec) cursorSec.style.display = savedCursor === 'image' ? 'block' : 'none';
+    const imgName = document.getElementById('cursorImgName');
+    if (imgName && localStorage.getItem('daboi_cursor_img')) imgName.textContent = 'Image loaded ✓';
 };
 document.getElementById("closeSettings").onclick = () => document.getElementById("settingsModal").classList.remove("open");
 document.getElementById("settingsModal").onclick = (e) => { if (e.target.id === "settingsModal") document.getElementById("settingsModal").classList.remove("open"); };
-document.getElementById("themeSelect").onchange = (e) => applyTheme(e.target.value);
+document.getElementById("themeSelect").onchange = (e) => {
+    const theme = e.target.value;
+    if (theme === 'custom') {
+        const color = document.getElementById('customColorPicker').value;
+        applyTheme(theme, color);
+    } else {
+        applyTheme(theme);
+    }
+};
+document.getElementById("customColorPicker").oninput = (e) => {
+    const color = e.target.value;
+    applyTheme('custom', color);
+    document.getElementById('customColorPreview').style.background = color;
+};
 document.getElementById("overrideThumbnails").onchange = (e) => { appData.settings.overrideThumbnails = e.target.checked; saveAppData(); renderGames(); };
 document.getElementById("developerMode").onchange = (e) => { appData.settings.developerMode = e.target.checked; saveAppData(); };
 document.getElementById("use24Hour").onchange = (e) => { appData.settings.use24Hour = e.target.checked; saveAppData(); };
@@ -1183,9 +1776,10 @@ function getFallbackThumbnailURL() {
     if (choice === "custom" && appData.settings.customURL) return appData.settings.customURL;
     return placeholderImages[choice] || placeholderImages.kai;
 }
-function getThumbnailURL(gameId) {
+function getThumbnailURL(game) {
     if (appData.settings.overrideThumbnails) return getFallbackThumbnailURL();
-    return `${COVERS_CDN}${gameId}.png`;
+    if (game.repo === "truffled") return `${REPOS.truffled.coverBaseUrl}${game.id}.png`;
+    return `${COVERS_CDN}${game.id}.png`;
 }
 document.getElementById("bgSelect").onchange = (e) => {
     const choice = e.target.value;
@@ -1297,6 +1891,9 @@ async function fetchGames() {
             const res = await fetch(REPOS.untitled.gamesJsonUrl); const data = await res.json();
             const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name }));
             allGames = entries.map(entry => ({ id: entry.id.toString(), name: entry.name, url: null, category: categorizeGame(entry.name), repo: "untitled" }));
+        } else if (currentRepo === "truffled") {
+            const res = await fetch(REPOS.truffled.gamesJsonUrl); const data = await res.json();
+            allGames = data.map(entry => ({ id: entry.id.toString(), name: entry.name, url: null, category: categorizeGame(entry.name), repo: "truffled" }));
         } else if (currentRepo === "custom") {
             const res = await fetch(REPOS.custom.gamesJsonUrl); const data = await res.json();
             const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name }));
@@ -1309,12 +1906,13 @@ async function fetchGames() {
     }
 }
 async function preloadOtherRepos() {
-    const repoList = ["gnmath", "untitled", "custom"];
+    const repoList = ["gnmath", "untitled", "truffled", "custom"];
     for (const repo of repoList) {
         if (repo === currentRepo || allGamesCache[repo]) continue;
         try {
             if (repo === "gnmath") { const res = await fetch(REPOS.gnmath.gamesJsonUrl); const data = await res.json(); allGamesCache[repo] = data.filter(g => g.id >= 0).map(g => ({ id: g.id.toString(), name: g.name, url: g.url, category: categorizeGame(g.name), repo: "gnmath" })); }
             else if (repo === "untitled") { const res = await fetch(REPOS.untitled.gamesJsonUrl); const data = await res.json(); const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name })); allGamesCache[repo] = entries.map(e => ({ id: e.id.toString(), name: e.name, url: null, category: categorizeGame(e.name), repo: "untitled" })); }
+            else if (repo === "truffled") { const res = await fetch(REPOS.truffled.gamesJsonUrl); const data = await res.json(); allGamesCache[repo] = data.map(e => ({ id: e.id.toString(), name: e.name, url: null, category: categorizeGame(e.name), repo: "truffled" })); }
             else if (repo === "custom") { const res = await fetch(REPOS.custom.gamesJsonUrl); const data = await res.json(); const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name })); allGamesCache[repo] = entries.filter(e => e.id !== undefined && e.name).map(e => ({ id: (e.id !== undefined ? e.id : e.name).toString(), name: e.name, url: e.url || null, category: categorizeGame(e.name), repo: "custom" })); }
         } catch(e) {}
     }
@@ -1366,7 +1964,7 @@ function renderGames() {
     document.getElementById("gamesGrid").innerHTML = filtered.map(game => {
         const favKey = game.repo + ":" + game.id;
         const isFav = !!appData.repoFavorites[favKey];
-        const thumbnailURL = (game.repo === "untitled" || game.repo === "custom") ? getFallbackThumbnailURL() : getThumbnailURL(game.id);
+        const thumbnailURL = (game.repo === "untitled" || game.repo === "custom") ? getFallbackThumbnailURL() : getThumbnailURL(game);
         const repoTag = (isSearching || isFavoritesView) ? `<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">(${REPOS[game.repo]?.name || game.repo})</div>` : "";
         return `<div class="game-card" data-id="${game.id}" data-repo="${game.repo}"><span class="star ${isFav ? '' : 'off'}" data-id="${game.id}" data-repo="${game.repo}">★</span><img src="${thumbnailURL}" alt="${game.name}" loading="lazy" onerror="this.src='${getFallbackThumbnailURL()}'"><div class="game-card-info"><div class="game-card-title">${game.name}</div>${repoTag}</div></div>`;
     }).join('');
@@ -1475,15 +2073,20 @@ async function loadGame(gameId) {
     document.getElementById("categorySidebar").classList.add("hidden");
     document.getElementById("topBar").classList.add("hidden");
     document.getElementById("gameView").classList.add("active");
+    window._navGameActive = true;
+    if (window._hideNav) window._hideNav();
+    document.body.classList.add('nav-game-active');
 
     // ── Build game URL ──
     const gameURL = game.url && game.url.startsWith("http")
         ? game.url
         : game.repo === "untitled"
             ? REPOS.untitled.gameBaseUrl + game.id + ".html"
-            : game.repo === "custom"
-                ? (game.url ? game.url.replace("{BASE_URL}", REPOS.custom.gameBaseUrl) : REPOS.custom.gameBaseUrl + game.id + ".html")
-                : game.url.replace("{HTML_URL}", HTML_URL);
+            : game.repo === "truffled"
+                ? REPOS.truffled.gameBaseUrl + game.id + ".html"
+                : game.repo === "custom"
+                    ? (game.url ? game.url.replace("{BASE_URL}", REPOS.custom.gameBaseUrl) : REPOS.custom.gameBaseUrl + game.id + ".html")
+                    : game.url.replace("{HTML_URL}", HTML_URL);
 
     // ── Show game view immediately so user sees something happening ──
     zoneViewer.style.display = "block";
@@ -1658,6 +2261,8 @@ function backToHomepage() {
     document.getElementById("categorySidebar").classList.remove("hidden");
     document.getElementById("topBar").classList.remove("hidden");
     document.getElementById("homepageView").style.display = "block";
+    window._navGameActive = false;
+    document.body.classList.remove('nav-game-active');
     renderRecommendations();
 }
 
