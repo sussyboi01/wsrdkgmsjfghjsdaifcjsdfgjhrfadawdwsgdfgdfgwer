@@ -613,9 +613,9 @@ body.nav-expanded #page-watch .topbar { transform: translateX(0); }
 #page-games .game-card img { width:100%; height:140px; object-fit:cover; background:#090914; image-rendering: pixelated; }
 #page-games .game-card-info { padding:12px; text-align:center; }
 #page-games .game-card-title { font-size:14px; margin-bottom:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-#page-games .game-card .star { position:absolute; top:8px; right:8px; cursor:pointer; color:gold; z-index:2; transition:transform 0.2s; display:flex; }
-#page-games .game-card .star.off { color:#555; }
-#page-games .game-card .star:hover { transform:scale(1.2); }
+#page-games .game-card .star { position:absolute; top:6px; right:8px; cursor:pointer; z-index:2; transition:transform 0.2s; display:flex; font-size:16px; line-height:1; user-select:none; }
+#page-games .game-card .star.off { opacity:0.3; filter:grayscale(1); }
+#page-games .game-card .star:hover { transform:scale(1.3); opacity:1; filter:none; }
 #page-games .game-view { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:50; background:var(--bg-primary); }
 #page-games .game-view.active { display:flex; }
 #page-games .game-controls-bar { position:fixed; top:0; left:0; right:0; z-index:110; background:var(--bg-secondary); border-bottom:2px solid var(--border); padding:8px 16px; display:flex; gap:10px; align-items:center; }
@@ -1014,6 +1014,8 @@ input, select, textarea { cursor: none !important; }
 }
 #music-mini-player.visible { display: flex; }
 body.nav-game-active #music-mini-player { display: none !important; }
+#page-music.active ~ #music-mini-player,
+body.on-music-page #music-mini-player { display: none !important; }
 #music-mini-player.dragging {
     box-shadow: 0 16px 48px rgba(0,0,0,0.8), 0 0 30px rgba(90,90,255,0.3);
     opacity: 0.92;
@@ -1080,6 +1082,9 @@ body.nav-game-active #music-mini-player { display: none !important; }
 .mini-btn:active { transform: scale(0.93); }
 #mini-play-btn { width: 34px; height: 34px; }
 #mini-prev-btn, #mini-next-btn { width: 28px; height: 28px; }
+#mini-shuffle-btn, #mini-repeat-btn { width: 24px; height: 24px; }
+.mini-btn.mini-active { color: var(--accent); border-color: var(--accent); background: rgba(90,90,255,0.15); }
+.mini-btn.mini-active:hover { background: var(--accent); color: #fff; }
 #mini-snap-indicator {
     position: absolute;
     inset: -4px;
@@ -1106,6 +1111,9 @@ body.nav-game-active #music-mini-player { display: none !important; }
         <div id="mini-song-name">Not playing</div>
     </div>
     <div id="mini-controls">
+        <button class="mini-btn" id="mini-shuffle-btn" title="Shuffle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+        </button>
         <button class="mini-btn" id="mini-prev-btn" title="Previous">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
         </button>
@@ -1114,6 +1122,9 @@ body.nav-game-active #music-mini-player { display: none !important; }
         </button>
         <button class="mini-btn" id="mini-next-btn" title="Next">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+        </button>
+        <button class="mini-btn" id="mini-repeat-btn" title="Repeat">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
         </button>
     </div>
 </div>
@@ -1608,6 +1619,7 @@ const HOME_MESSAGES = [
    "hotdog33 with tacos"
 ];
 
+
 function pickRandomMessage() {
     const el = document.getElementById('homeMessage');
     el.textContent = HOME_MESSAGES[Math.floor(Math.random() * HOME_MESSAGES.length)];
@@ -1680,6 +1692,8 @@ function showAppPage(name) {
     document.getElementById('page-' + name).classList.add('active');
     const nb = document.getElementById('nav-' + name);
     if (nb) nb.classList.add('active');
+    // Track music page for mini-player hiding
+    document.body.classList.toggle('on-music-page', name === 'music');
     // Show/hide nav based on page (home = hide, others = show)
     if (name === 'home') {
         document.body.classList.remove('page-not-home');
@@ -2442,7 +2456,7 @@ function renderGames() {
         const isFav = !!appData.repoFavorites[favKey];
         const thumbnailURL = (game.repo === "untitled" || game.repo === "custom") ? getFallbackThumbnailURL() : getThumbnailURL(game);
         const repoTag = (isSearching || isFavoritesView) ? `<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">(${REPOS[game.repo]?.name || game.repo})</div>` : "";
-        return `<div class="game-card" data-id="${game.id}" data-repo="${game.repo}"><span class="star ${isFav ? '' : 'off'}" data-id="${game.id}" data-repo="${game.repo}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span><img src="${thumbnailURL}" alt="${game.name}" loading="lazy" decoding="async" onerror="this.src='${getFallbackThumbnailURL()}'"><div class="game-card-info"><div class="game-card-title">${game.name}</div>${repoTag}</div></div>`;
+        return `<div class="game-card" data-id="${game.id}" data-repo="${game.repo}"><span class="star ${isFav ? '' : 'off'}" data-id="${game.id}" data-repo="${game.repo}">${isFav ? '⭐' : '🌑'}</span><img src="${thumbnailURL}" alt="${game.name}" loading="lazy" decoding="async" onerror="this.src='${getFallbackThumbnailURL()}'"><div class="game-card-info"><div class="game-card-title">${game.name}</div>${repoTag}</div></div>`;
     }).join('');
 }
 // card interactions wired once below
@@ -2454,10 +2468,11 @@ function attachCardInteractions() {
     if (!grid) return;
     grid.addEventListener("click", (e) => {
         const card = e.target.closest(".game-card"); if (!card) return;
-        if (e.target.classList.contains("star")) {
-            const id = e.target.dataset.id, repo = e.target.dataset.repo || currentRepo, favKey = repo + ":" + id;
-            if (appData.repoFavorites[favKey]) { delete appData.repoFavorites[favKey]; e.target.classList.add("off"); }
-            else { appData.repoFavorites[favKey] = true; e.target.classList.remove("off"); }
+        const starEl = e.target.closest(".star");
+        if (starEl) {
+            const id = starEl.dataset.id, repo = starEl.dataset.repo || currentRepo, favKey = repo + ":" + id;
+            if (appData.repoFavorites[favKey]) { delete appData.repoFavorites[favKey]; starEl.classList.add("off"); starEl.textContent = '🌑'; }
+            else { appData.repoFavorites[favKey] = true; starEl.classList.remove("off"); starEl.textContent = '⭐'; }
             saveAppData(); renderCategories(); return;
         }
         const cardRepo = card.dataset.repo, cardId = card.dataset.id;
@@ -3321,6 +3336,8 @@ document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if
     const miniPlayBtn = document.getElementById('mini-play-btn');
     const miniPrevBtn = document.getElementById('mini-prev-btn');
     const miniNextBtn = document.getElementById('mini-next-btn');
+    const miniShuffleBtn = document.getElementById('mini-shuffle-btn');
+    const miniRepeatBtn = document.getElementById('mini-repeat-btn');
     const handle = document.getElementById('mini-drag-handle');
 
     const SNAP_PAD = 16;
@@ -3444,7 +3461,7 @@ document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if
     }
 
     // Poll every 500ms for state changes
-    setInterval(updateMiniPlayer, 500);
+    setInterval(() => { updateMiniPlayer(); syncMiniToggleStates(); }, 500);
 
     // ── Button wiring — delegate to main music player ──
     miniPlayBtn.addEventListener('click', () => {
@@ -3459,6 +3476,35 @@ document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if
         document.getElementById('nextBtn')?.click();
         setTimeout(updateMiniPlayer, 80);
     });
+    miniShuffleBtn.addEventListener('click', () => {
+        document.getElementById('shuffleBtn')?.click();
+        setTimeout(syncMiniToggleStates, 80);
+    });
+
+    // Repeat cycles through 3 modes — mirror the main repeat button
+    const repeatSVGs = [
+        // off
+        `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>`,
+        // repeat all
+        `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>`,
+        // repeat one — show "1" badge
+        `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/><line x1="12" y1="8" x2="12" y2="16"/></svg>`,
+    ];
+    miniRepeatBtn.addEventListener('click', () => {
+        document.getElementById('repeatBtn')?.click();
+        setTimeout(syncMiniToggleStates, 80);
+    });
+
+    function syncMiniToggleStates() {
+        // Sync shuffle
+        const isShuffleOn = typeof shuffleMode !== 'undefined' && shuffleMode;
+        miniShuffleBtn.classList.toggle('mini-active', isShuffleOn);
+        // Sync repeat (repeatMode: 0=off, 1=all, 2=one)
+        const rm = typeof repeatMode !== 'undefined' ? repeatMode : 0;
+        miniRepeatBtn.classList.toggle('mini-active', rm > 0);
+        miniRepeatBtn.innerHTML = repeatSVGs[rm] || repeatSVGs[0];
+        miniRepeatBtn.title = ['Repeat: Off','Repeat: All','Repeat: One'][rm];
+    }
 })();
 
 
