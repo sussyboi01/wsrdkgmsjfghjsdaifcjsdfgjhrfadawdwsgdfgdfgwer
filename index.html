@@ -591,6 +591,19 @@ body.nav-expanded #page-watch .topbar { transform: translateX(0); }
     display:flex; gap:12px; align-items:center; flex-wrap:wrap;
 }
 #page-games .top-bar.hidden { display:none; }
+#searchRepoToggle {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    padding: 8px 12px; border-radius: 8px; color: var(--text-secondary);
+    cursor: pointer; font-size: 12px; font-weight: 600; white-space: nowrap;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+}
+#searchRepoToggle:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+#searchRepoToggle.active {
+    background: var(--accent); border-color: var(--accent-hover);
+    color: white; box-shadow: 0 0 10px var(--accent);
+}
 #page-games .top-bar input[type="text"] { flex:1; min-width:200px; padding:10px 15px; border-radius:8px; border:none; background:var(--bg-tertiary); color:var(--text-primary); outline:none; }
 #page-games .top-bar button, #page-games .top-bar select {
     background:var(--bg-card); border:none; padding:10px 16px; border-radius:8px;
@@ -621,6 +634,37 @@ body.nav-expanded #page-watch .topbar { transform: translateX(0); }
 #page-games .game-card .star { position:absolute; top:6px; right:8px; cursor:pointer; z-index:2; transition:transform 0.2s; display:flex; font-size:16px; line-height:1; user-select:none; }
 #page-games .game-card .star.off { opacity:0.3; filter:grayscale(1); }
 #page-games .game-card .star:hover { transform:scale(1.3); opacity:1; filter:none; }
+
+/* Special cards: Random Game & Continue */
+#page-games .game-card.special-card {
+    border: 2px solid var(--accent);
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+    cursor: pointer;
+}
+#page-games .game-card.special-card:hover {
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 2px var(--accent-hover), 0 0 24px var(--accent);
+    transform: translateY(-3px) scale(1.02);
+}
+#page-games .game-card.special-card .special-icon {
+    display: flex; align-items: center; justify-content: center;
+    height: 140px; font-size: 48px;
+    background: var(--glass);
+    transition: transform 0.3s;
+}
+#page-games .game-card.special-card:hover .special-icon { transform: scale(1.15); }
+#page-games .game-card.special-card .game-card-title {
+    color: var(--accent); font-weight: 900;
+}
+
+/* Repo tag in search — more prominent */
+#page-games .game-card .repo-tag {
+    display: inline-block;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    padding: 2px 7px; border-radius: 10px;
+    background: var(--accent); color: #fff;
+    margin-top: 4px; opacity: 0.9;
+    text-transform: uppercase;
+}
 #page-games .game-view { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:50; background:var(--bg-primary); }
 #page-games .game-view.active { display:flex; }
 #page-games .game-controls-bar { position:fixed; top:0; left:0; right:0; z-index:110; background:var(--bg-secondary); border-bottom:2px solid var(--border); padding:8px 16px; display:flex; gap:10px; align-items:center; }
@@ -628,6 +672,25 @@ body.nav-expanded #page-watch .topbar { transform: translateX(0); }
 #page-games .game-controls-bar button:hover { background:var(--accent-hover); }
 #page-games .game-iframe-container { flex:1; position:relative; margin-top:46px; }
 #page-games .game-iframe-container iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; display:block; }
+
+/* When the container itself is fullscreened, iframe must fill it */
+#zoneViewer:fullscreen,
+#zoneViewer:-webkit-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    margin: 0 !important;
+    background: #000;
+}
+#zoneViewer:fullscreen iframe,
+#zoneViewer:-webkit-full-screen iframe {
+    position: absolute !important;
+    top: 0 !important; left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+}
 #page-games #focusOverlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.88); display:none; justify-content:center; align-items:center; z-index:100; cursor:pointer; }
 #page-games #focusOverlay.active { display:flex; }
 #page-games #focusOverlay h2 { color:white; font-size:28px; pointer-events:none; user-select:none; text-shadow:0 2px 8px black; }
@@ -1102,198 +1165,8 @@ body.on-music-page #music-mini-player { display: none !important; }
 #music-mini-player.snapping #mini-snap-indicator { opacity: 0.6; }
 /* Gamepad icon color tinting — handled via CSS mask-image + var(--accent) */
 
-/* ===== APPS PAGE (from daboi v5) ===== */
-/* ===== APPS PAGE ===== */
-#page-apps { overflow: hidden; }
-#page-apps .apps-layout { display: flex; height: 100%; }
-#page-apps .apps-sidebar { width: 200px; background: var(--bg-secondary); border-right: 2px solid var(--border); padding: 16px 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
-#page-apps .apps-sidebar h3 { font-size: 12px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin: 0 0 12px 0; opacity: 0.7; }
-#page-apps .app-tab { padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 10px; transition: background 0.2s, color 0.2s; border: 1px solid transparent; }
-#page-apps .app-tab:hover { background: var(--bg-card); color: var(--text-primary); }
-#page-apps .app-tab.active { background: var(--accent); color: white; border-color: var(--accent-hover); }
-#page-apps .app-tab .tab-icon { font-size: 18px; flex-shrink: 0; }
-#page-apps .apps-content { flex: 1; overflow: hidden; position: relative; }
-#page-apps .app-panel { position: absolute; inset: 0; display: none; flex-direction: column; padding: 24px; overflow-y: auto; }
-#page-apps .app-panel.active { display: flex; }
-#page-apps .panel-title { font-size: 20px; font-weight: 900; color: var(--accent); margin-bottom: 20px; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
-#page-apps .panel-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-/* Calculator */
-#app-calc .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
-#app-calc .calc-display { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: right; margin-bottom: 4px; }
-#app-calc .calc-expr-mini { font-size: 12px; color: var(--text-muted); min-height: 16px; font-family: monospace; }
-#app-calc .calc-result-mini { font-size: 40px; font-weight: 300; color: var(--text-primary); font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.app-calc-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 10px; height: 52px; font-size: 18px; cursor: pointer; transition: background 0.12s, transform 0.1s; display: flex; align-items: center; justify-content: center; }
-.app-calc-btn:hover { background: rgba(255,255,255,0.18); transform: translateY(-1px); }
-.app-calc-btn:active { transform: scale(0.93); }
-.app-calc-btn.fn { background: rgba(180,180,200,0.22); font-size: 15px; }
-.app-calc-btn.op { background: rgba(90,90,255,0.2); color: var(--accent); }
-.app-calc-btn.op:hover, .app-calc-btn.op.active-op { background: var(--accent); color: #fff; }
-.app-calc-btn.eq { background: var(--accent); color: #fff; }
-.app-calc-btn.eq:hover { background: var(--accent-hover); }
-.app-calc-btn.span2 { grid-column: span 2; justify-content: flex-start; padding-left: 20px; }
-/* Notes */
-#app-notes .notes-area { width: 100%; min-height: 300px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); padding: 14px; font-family: 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; }
-#app-notes .notes-area:focus { border-color: var(--accent); }
-#app-notes .notes-meta { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
-#app-notes .notes-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-.app-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background 0.2s, border-color 0.2s; }
-.app-btn:hover { background: var(--accent); border-color: var(--accent); color: white; }
-.app-btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
-.app-btn.danger { background: rgba(255,90,90,0.15); border-color: rgba(255,90,90,0.4); color: #ff6060; }
-.app-btn.danger:hover { background: #ff5a5a; color: white; border-color: #ff5a5a; }
-/* Unit Converter */
-#app-converter .conv-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-#app-converter .conv-input { flex: 1; min-width: 120px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); font-size: 16px; outline: none; }
-#app-converter .conv-input:focus { border-color: var(--accent); }
-#app-converter .conv-select { padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); font-size: 14px; cursor: pointer; }
-#app-converter .conv-result { font-size: 28px; font-weight: 700; color: var(--accent); font-family: monospace; min-height: 40px; padding: 8px 0; }
-#app-converter .conv-category-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-#app-converter .conv-cat-btn { padding: 6px 14px; border-radius: 20px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
-#app-converter .conv-cat-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-/* Password Generator */
-#app-passgen .pass-display { font-family: monospace; font-size: 18px; word-break: break-all; color: var(--accent); background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; padding: 14px; min-height: 56px; display: flex; align-items: center; }
-#app-passgen .pass-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin: 16px 0; }
-#app-passgen .pass-option { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); cursor: pointer; }
-#app-passgen .pass-option input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
-#app-passgen .pass-length { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-#app-passgen .pass-length label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
-#app-passgen .pass-length input[type=range] { flex: 1; accent-color: var(--accent); }
-#app-passgen .pass-strength { height: 4px; border-radius: 4px; margin: 10px 0; transition: all 0.3s; }
-/* Timer / Stopwatch */
-#app-timer .timer-display { font-family: monospace; font-size: 56px; font-weight: 200; text-align: center; color: var(--text-primary); letter-spacing: 4px; padding: 20px 0; text-shadow: 0 0 30px var(--accent); }
-#app-timer .timer-controls { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
-#app-timer .timer-mode-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-#app-timer .timer-mode-btn { flex: 1; padding: 8px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700; letter-spacing: 1px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); transition: all 0.2s; }
-#app-timer .timer-mode-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-#app-timer .timer-inputs { display: flex; gap: 12px; justify-content: center; align-items: center; margin-bottom: 16px; }
-#app-timer .timer-input-box { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-#app-timer .timer-input-box input { width: 72px; text-align: center; padding: 10px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 24px; font-family: monospace; outline: none; }
-#app-timer .timer-input-box input:focus { border-color: var(--accent); }
-#app-timer .timer-input-box label { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
-/* Color Picker */
-#app-color .color-preview { width: 100%; height: 120px; border-radius: 12px; margin-bottom: 16px; border: 1px solid var(--border); transition: background 0.2s; }
-#app-color .color-inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-#app-color .color-field { display: flex; flex-direction: column; gap: 6px; }
-#app-color .color-field label { font-size: 11px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
-#app-color .color-field input { padding: 10px 12px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 14px; font-family: monospace; outline: none; width: 100%; }
-#app-color .color-field input:focus { border-color: var(--accent); }
-#app-color input[type=color] { width: 100%; height: 48px; padding: 4px; border-radius: 8px; cursor: pointer; background: var(--bg-primary); border: 1px solid var(--border); }
-#app-color .color-swatches { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-#app-color .color-swatch { width: 36px; height: 36px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s; flex-shrink: 0; }
-#app-color .color-swatch:hover { transform: scale(1.2); border-color: white; }
-/* Text Tools */
-#app-text .text-input { width: 100%; min-height: 120px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); padding: 14px; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; font-family: 'Segoe UI', sans-serif; }
-#app-text .text-input:focus { border-color: var(--accent); }
-#app-text .text-tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; margin-top: 12px; }
-#app-text .text-stats { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
-#app-text .text-stat { text-align: center; }
-#app-text .text-stat .stat-val { font-size: 24px; font-weight: 700; color: var(--accent); font-family: monospace; }
-#app-text .text-stat .stat-lbl { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
 
-/* ===== ZIPPER / UNZIPPER ===== */
-#panel-zipper .zip-dropzone, #panel-unzipper .unzip-dropzone {
-  border: 2px dashed var(--border); border-radius: 12px; padding: 30px;
-  text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
-  color: var(--text-muted); font-size: 14px; margin-bottom: 16px;
-}
-#panel-zipper .zip-dropzone:hover, #panel-zipper .zip-dropzone.drag-over,
-#panel-unzipper .unzip-dropzone:hover, #panel-unzipper .unzip-dropzone.drag-over {
-  border-color: var(--accent); background: var(--glass); color: var(--accent);
-}
-.zip-file-list { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; margin-bottom: 12px; }
-.zip-file-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px;
-  background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; }
-.zip-file-item .zfi-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.zip-file-item .zfi-size { color: var(--text-muted); font-size: 11px; flex-shrink: 0; }
-.zip-file-item .zfi-remove { cursor: pointer; color: #ff6060; font-size: 16px; flex-shrink: 0; }
-.zip-file-item .zfi-remove:hover { color: #ff3333; }
-.zip-zip-name { width: 100%; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border);
-  border-radius: 8px; color: var(--text-primary); font-size: 14px; outline: none; margin-bottom: 12px; }
-.zip-zip-name:focus { border-color: var(--accent); }
-.unzip-entry { display: flex; align-items: center; gap: 10px; padding: 8px 12px;
-  background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); font-size: 13px; margin-bottom: 6px; }
-.unzip-entry .ue-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.unzip-entry .ue-size { color: var(--text-muted); font-size: 11px; flex-shrink: 0; }
-.unzip-entry .ue-dl { cursor: pointer; color: var(--accent); font-size: 18px; flex-shrink: 0; }
-.unzip-entry .ue-dl:hover { color: var(--accent-hover); }
 
-/* ===== CODE EDITOR ===== */
-#panel-code .code-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
-#panel-code .code-lang-select { padding: 8px 14px; background: var(--bg-primary); border: 1px solid var(--border);
-  border-radius: 8px; color: var(--text-primary); font-size: 13px; cursor: pointer; }
-#panel-code .code-filename { flex: 1; min-width: 180px; padding: 8px 14px; background: var(--bg-primary);
-  border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 13px; outline: none; }
-#panel-code .code-filename:focus { border-color: var(--accent); }
-#code-editor-container { width: 100%; height: 420px; border-radius: 10px; overflow: hidden;
-  border: 1px solid var(--border); position: relative; }
-#code-editor-fallback { width: 100%; height: 420px; background: #0d1117; border: 1px solid var(--border);
-  border-radius: 10px; color: #c9d1d9; font-family: 'Consolas','Monaco',monospace; font-size: 13px;
-  padding: 16px; resize: none; outline: none; line-height: 1.6; tab-size: 2; }
-#code-editor-fallback:focus { border-color: var(--accent); }
-#code-status { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
-
-/* ===== FILE CONVERTER ===== */
-#panel-fileconv .fc-dropzone { border: 2px dashed var(--border); border-radius: 12px; padding: 30px;
-  text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
-  color: var(--text-muted); font-size: 14px; margin-bottom: 16px; }
-#panel-fileconv .fc-dropzone:hover, #panel-fileconv .fc-dropzone.drag-over { border-color: var(--accent); background: var(--glass); color: var(--accent); }
-.fc-file-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px;
-  background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); margin-bottom: 8px; }
-.fc-file-row .fc-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
-.fc-file-row select { padding: 6px 10px; background: var(--bg-primary); border: 1px solid var(--border);
-  border-radius: 6px; color: var(--text-primary); font-size: 12px; cursor: pointer; }
-.fc-file-row .fc-convert-btn { padding: 6px 14px; border-radius: 6px; background: var(--accent);
-  border: none; color: white; font-size: 12px; font-weight: 700; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
-.fc-file-row .fc-convert-btn:hover { background: var(--accent-hover); }
-.fc-file-row .fc-remove { cursor: pointer; color: #ff6060; font-size: 16px; flex-shrink: 0; }
-.fc-dl-area { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
-.fc-dl-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px;
-  background: rgba(90,255,90,0.07); border: 1px solid rgba(90,255,90,0.2); border-radius: 8px; font-size: 13px; }
-.fc-dl-item a { color: var(--accent); text-decoration: none; font-weight: 700; }
-.fc-dl-item a:hover { text-decoration: underline; }
-
-/* ===== RUFFLE ===== */
-#panel-ruffle .ruffle-drop { border: 2px dashed var(--border); border-radius: 12px; padding: 30px;
-  text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
-  color: var(--text-muted); font-size: 14px; margin-bottom: 16px; }
-#panel-ruffle .ruffle-drop:hover, #panel-ruffle .ruffle-drop.drag-over { border-color: var(--accent); background: var(--glass); color: var(--accent); }
-#ruffle-player-wrap { width: 100%; background: #000; border-radius: 10px; overflow: hidden;
-  border: 1px solid var(--border); aspect-ratio: 4/3; position: relative; display: none; }
-#ruffle-player-wrap ruffle-player { width: 100%; height: 100%; display: block; }
-
-/* ===== EMULATOR ===== */
-#panel-emulator .emu-system-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-.emu-sys-btn { padding: 7px 14px; border-radius: 20px; background: var(--bg-card); border: 1px solid var(--border);
-  color: var(--text-secondary); cursor: pointer; font-size: 12px; font-weight: 700; transition: all 0.2s; }
-.emu-sys-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-#panel-emulator .emu-drop { border: 2px dashed var(--border); border-radius: 12px; padding: 30px;
-  text-align: center; cursor: pointer; transition: border-color 0.2s; color: var(--text-muted); font-size: 14px; margin-bottom: 12px; }
-#panel-emulator .emu-drop:hover, #panel-emulator .emu-drop.drag-over { border-color: var(--accent); background: var(--glass); color: var(--accent); }
-#emu-container { width: 100%; border-radius: 10px; overflow: hidden; border: 1px solid var(--border);
-  background: #000; position: relative; display: none; aspect-ratio: 4/3; }
-#emu-container iframe { width: 100%; height: 100%; border: none; display: block; }
-
-/* ===== BASE64 LOCK ===== */
-.base64-locked { opacity: 0.5; pointer-events: none; }
-.base64-lock-notice { background: rgba(255,90,90,0.1); border: 1px solid rgba(255,90,90,0.4); border-radius: 8px;
-  padding: 12px 16px; font-size: 13px; color: #ff8080; margin-top: 8px; display: none; }
-.base64-unlock-btn { display: none; margin-top: 8px; }
-</style>
-<body>
-
-<!-- ═══════════════════════════════════════════
-     FLOATING MUSIC MINI-PLAYER
-═══════════════════════════════════════════ -->
-<div id="music-mini-player">
-    <div id="mini-snap-indicator"></div>
-    <div id="mini-drag-handle">
-        <div id="mini-drag-dots">
-            <span></span><span></span><span></span>
-        </div>
-        <div id="mini-song-name">Not playing</div>
-    </div>
-    <div id="mini-controls">
-        <button class="mini-btn" id="mini-shuffl
 /* ══════════════════════════════════════════
    GLOBAL RESPONSIVE SCALING
 ══════════════════════════════════════════ */
@@ -1412,7 +1285,22 @@ html, body {
 /* Make sure nothing overflows horizontally */
 * { box-sizing: border-box; }
 
-e-btn" title="Shuffle">
+</style>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     FLOATING MUSIC MINI-PLAYER
+═══════════════════════════════════════════ -->
+<div id="music-mini-player">
+    <div id="mini-snap-indicator"></div>
+    <div id="mini-drag-handle">
+        <div id="mini-drag-dots">
+            <span></span><span></span><span></span>
+        </div>
+        <div id="mini-song-name">Not playing</div>
+    </div>
+    <div id="mini-controls">
+        <button class="mini-btn" id="mini-shuffle-btn" title="Shuffle">
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
         </button>
         <button class="mini-btn" id="mini-prev-btn" title="Previous">
@@ -1458,7 +1346,7 @@ e-btn" title="Shuffle">
         <button class="nav-btn" id="nav-music" onclick="showAppPage('music')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><circle cx="9" cy="18" r="3"/><circle cx="18" cy="15" r="3"/><polyline points="12 18 12 5 21 2 21 15"/><line x1="12" y1="5" x2="21" y2="2"/></svg><span class="nav-btn-label"> BOI Music</span></button>
         <button class="nav-btn" id="nav-watch" onclick="showAppPage('watch')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><rect x="2" y="4" width="20" height="16" rx="2"/><polygon points="10 9 16 12 10 15 10 9" fill="currentColor" stroke="none"/></svg><span class="nav-btn-label"> BOITube</span></button>
         <button class="nav-btn" id="nav-shorts" onclick="showAppPage('shorts')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><polygon points="5 3 19 12 5 21 5 3"/></svg><span class="nav-btn-label"> Shorts</span></button>
-        <button class="nav-btn" id="nav-apps" onclick="showAppPage('apps')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="nav-btn-label"> Apps</span></button>
+
         <div class="spacer"></div>
         <div id="nav-info-strip">
             <div id="nav-clock-area">
@@ -1541,378 +1429,11 @@ e-btn" title="Shuffle">
             <div class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
             <div class="btn-label">BOITube Shorts</div>
         </div>
-        <div class="home-btn" onclick="showAppPage('apps')" style="--btn-glow: var(--accent)">
-            <div class="btn-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            </div>
-            <div class="btn-label">Apps</div>
-        </div>
+
     </div>
 </div>
 
 
-<!-- ═══════════════════════════════════════════
-     APPS PAGE
-═══════════════════════════════════════════ -->
-<div class="app-page" id="page-apps">
-  <div class="apps-layout">
-    <div class="apps-sidebar">
-      <h3>Tools</h3>
-      <div class="app-tab active" onclick="switchAppTab(this,'panel-calc')"><span class="tab-icon">🧮</span> Calculator</div>
-      <div class="app-tab" onclick="switchAppTab(this,'panel-notes')"><span class="tab-icon">📝</span> Notes</div>
-      <div class="app-tab" onclick="switchAppTab(this,'panel-timer')"><span class="tab-icon">⏱️</span> Timer</div>
-      <div class="app-tab" onclick="switchAppTab(this,'panel-converter')"><span class="tab-icon">🔄</span> Converter</div>
-      <div class="app-tab" onclick="switchAppTab(this,'panel-passgen')"><span class="tab-icon">🔐</span> Password</div>
-      <div class="app-tab" onclick="switchAppTab(this,'panel-color')"><span class="tab-icon">🎨</span> Colors</div>
-      <div class="app-tab" onclick="switchAppTab(this,'panel-text')"><span class="tab-icon">✍️</span> Text Tools</div>
-      <div class="app-tab" onclick="switchAppTab(this,'panel-zipper')"><span class="tab-icon">🗜️</span> Zipper</div>
-      <div class="app-tab" onclick="switchAppTab(this,'panel-unzipper')"><span class="tab-icon">📦</span> Unzipper</div>
-      <div class="app-tab" onclick="switchAppTab(this,'panel-code')"><span class="tab-icon">💻</span> Code Editor</div>
-      <div class="app-tab" onclick="switchAppTab(this,'panel-fileconv')"><span class="tab-icon">♻️</span> File Convert</div>
-      <div class="app-tab" onclick="switchAppTab(this,'panel-ruffle')"><span class="tab-icon">🎬</span> Flash (Ruffle)</div>
-      <div class="app-tab" onclick="switchAppTab(this,'panel-emulator')"><span class="tab-icon">🕹️</span> Emulator</div><div class="app-tab" onclick="switchAppTab(this,'panel-deobfuscator')"><span class="tab-icon">🔍</span> Deobfuscator</div>
-    </div>
-    <div class="apps-content">
-      <div class="app-panel active" id="panel-calc">
-        <div class="panel-title">🧮 Calculator</div>
-        <div class="panel-card" id="app-calc">
-          <div class="calc-display"><div class="calc-expr-mini" id="ac-expr"></div><div class="calc-result-mini" id="ac-result">0</div></div>
-          <div class="calc-grid">
-            <button class="app-calc-btn fn" onclick="acAction('clear')">C</button>
-            <button class="app-calc-btn fn" onclick="acAction('sign')">±</button>
-            <button class="app-calc-btn fn" onclick="acAction('percent')">%</button>
-            <button class="app-calc-btn op" onclick="acAction('op','/')">÷</button>
-            <button class="app-calc-btn" onclick="acAction('num','7')">7</button>
-            <button class="app-calc-btn" onclick="acAction('num','8')">8</button>
-            <button class="app-calc-btn" onclick="acAction('num','9')">9</button>
-            <button class="app-calc-btn op" onclick="acAction('op','*')">×</button>
-            <button class="app-calc-btn" onclick="acAction('num','4')">4</button>
-            <button class="app-calc-btn" onclick="acAction('num','5')">5</button>
-            <button class="app-calc-btn" onclick="acAction('num','6')">6</button>
-            <button class="app-calc-btn op" onclick="acAction('op','-')">−</button>
-            <button class="app-calc-btn" onclick="acAction('num','1')">1</button>
-            <button class="app-calc-btn" onclick="acAction('num','2')">2</button>
-            <button class="app-calc-btn" onclick="acAction('num','3')">3</button>
-            <button class="app-calc-btn op" onclick="acAction('op','+')">+</button>
-            <button class="app-calc-btn span2" onclick="acAction('num','0')">0</button>
-            <button class="app-calc-btn" onclick="acAction('dot')">.</button>
-            <button class="app-calc-btn eq" onclick="acAction('equals')">=</button>
-          </div>
-        </div>
-      </div>
-      <div class="app-panel" id="panel-notes">
-        <div class="panel-title">📝 Notes</div>
-        <div class="panel-card" id="app-notes">
-          <div style="display:flex;gap:8px;margin-bottom:12px;">
-            <select id="notes-slot-select" onchange="loadNote(this.value)" style="padding:8px 12px;background:var(--bg-primary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;cursor:pointer;">
-              <option value="1">Note 1</option><option value="2">Note 2</option><option value="3">Note 3</option><option value="4">Note 4</option><option value="5">Note 5</option>
-            </select>
-          </div>
-          <textarea class="notes-area" id="notes-textarea" placeholder="Start writing... Auto-saves!" oninput="saveNote()"></textarea>
-          <div class="notes-meta" id="notes-meta">Auto-saved</div>
-          <div class="notes-actions">
-            <button class="app-btn" onclick="copyNote()">📋 Copy</button>
-            <button class="app-btn danger" onclick="clearNote()">🗑️ Clear</button>
-            <button class="app-btn" onclick="downloadNote()">💾 Download</button>
-          </div>
-        </div>
-      </div>
-      <div class="app-panel" id="panel-timer">
-        <div class="panel-title">⏱️ Timer & Stopwatch</div>
-        <div class="panel-card" id="app-timer">
-          <div class="timer-mode-tabs">
-            <div class="timer-mode-btn active" onclick="setTimerMode('stopwatch',this)">STOPWATCH</div>
-            <div class="timer-mode-btn" onclick="setTimerMode('countdown',this)">COUNTDOWN</div>
-          </div>
-          <div class="timer-display" id="timer-display">00:00.00</div>
-          <div id="timer-countdown-inputs" style="display:none;">
-            <div class="timer-inputs">
-              <div class="timer-input-box"><input type="number" id="timer-h" min="0" max="99" value="0"><label>HOURS</label></div>
-              <span style="font-size:24px;color:var(--text-muted);align-self:center;margin-bottom:16px">:</span>
-              <div class="timer-input-box"><input type="number" id="timer-m" min="0" max="59" value="5"><label>MIN</label></div>
-              <span style="font-size:24px;color:var(--text-muted);align-self:center;margin-bottom:16px">:</span>
-              <div class="timer-input-box"><input type="number" id="timer-s" min="0" max="59" value="0"><label>SEC</label></div>
-            </div>
-          </div>
-          <div class="timer-controls">
-            <button class="app-btn primary" id="timer-start-btn" onclick="timerStartStop()">▶ Start</button>
-            <button class="app-btn" onclick="timerReset()">↺ Reset</button>
-            <button class="app-btn" id="timer-lap-btn" onclick="timerLap()" style="display:none;">🏁 Lap</button>
-          </div>
-          <div id="timer-laps" style="max-height:120px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
-        </div>
-      </div>
-      <div class="app-panel" id="panel-converter">
-        <div class="panel-title">🔄 Unit Converter</div>
-        <div class="panel-card" id="app-converter">
-          <div class="conv-category-tabs" id="conv-cats"></div>
-          <div class="conv-row">
-            <input type="number" class="conv-input" id="conv-from-val" value="1" oninput="convertUnits()">
-            <select class="conv-select" id="conv-from-unit" onchange="convertUnits()"></select>
-            <span style="font-size:20px;color:var(--accent)">→</span>
-            <select class="conv-select" id="conv-to-unit" onchange="convertUnits()"></select>
-          </div>
-          <div class="conv-result" id="conv-result">—</div>
-        </div>
-      </div>
-      <div class="app-panel" id="panel-passgen">
-        <div class="panel-title">🔐 Password Generator</div>
-        <div class="panel-card" id="app-passgen">
-          <div class="pass-display" id="pass-display">Click Generate</div>
-          <div class="pass-strength" id="pass-strength"></div>
-          <div class="pass-length"><label>Length: <strong id="pass-len-display">16</strong></label><input type="range" id="pass-len" min="4" max="64" value="16" oninput="document.getElementById('pass-len-display').textContent=this.value;generatePassword()"></div>
-          <div class="pass-options">
-            <label class="pass-option"><input type="checkbox" id="pass-upper" checked onchange="generatePassword()"> Uppercase A-Z</label>
-            <label class="pass-option"><input type="checkbox" id="pass-lower" checked onchange="generatePassword()"> Lowercase a-z</label>
-            <label class="pass-option"><input type="checkbox" id="pass-nums" checked onchange="generatePassword()"> Numbers 0-9</label>
-            <label class="pass-option"><input type="checkbox" id="pass-syms" onchange="generatePassword()"> Symbols !@#$</label>
-            <label class="pass-option"><input type="checkbox" id="pass-noamb" onchange="generatePassword()"> No Ambiguous (0,O,l,I)</label>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="app-btn primary" onclick="generatePassword()">🎲 Generate</button>
-            <button class="app-btn" onclick="copyPassword()">📋 Copy</button>
-          </div>
-          <div id="pass-copied" style="font-size:12px;color:var(--accent);margin-top:8px;opacity:0;transition:opacity 0.3s;">✓ Copied!</div>
-        </div>
-      </div>
-      <div class="app-panel" id="panel-color">
-        <div class="panel-title">🎨 Color Tools</div>
-        <div class="panel-card" id="app-color">
-          <div class="color-preview" id="color-preview" style="background:#5a5aff;"></div>
-          <div class="color-inputs">
-            <div class="color-field"><label>Color Picker</label><input type="color" id="color-picker" value="#5a5aff" oninput="colorFromPicker(this.value)"></div>
-            <div class="color-field"><label>HEX</label><input type="text" id="color-hex" value="#5a5aff" oninput="colorFromHex(this.value)" placeholder="#ffffff"></div>
-            <div class="color-field"><label>RGB</label><input type="text" id="color-rgb" value="rgb(90, 90, 255)" readonly></div>
-            <div class="color-field"><label>HSL</label><input type="text" id="color-hsl" value="hsl(240, 100%, 68%)" readonly></div>
-          </div>
-          <div style="margin-top:16px">
-            <div style="font-size:11px;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px;">SAVED SWATCHES</div>
-            <div class="color-swatches" id="color-swatches"></div>
-            <button class="app-btn" onclick="addSwatch()" style="margin-top:10px;">+ Save Color</button>
-            <button class="app-btn" onclick="copyColorHex()" style="margin-top:10px;">📋 Copy HEX</button>
-          </div>
-        </div>
-      </div>
-      <div class="app-panel" id="panel-text">
-        <div class="panel-title">✍️ Text Tools</div>
-        <div class="panel-card" id="app-text">
-          <textarea class="text-input" id="text-tools-input" placeholder="Paste or type text here..." oninput="updateTextStats()"></textarea>
-          <div class="text-stats">
-            <div class="text-stat"><div class="stat-val" id="txt-chars">0</div><div class="stat-lbl">CHARS</div></div>
-            <div class="text-stat"><div class="stat-val" id="txt-words">0</div><div class="stat-lbl">WORDS</div></div>
-            <div class="text-stat"><div class="stat-val" id="txt-lines">0</div><div class="stat-lbl">LINES</div></div>
-            <div class="text-stat"><div class="stat-val" id="txt-sentences">0</div><div class="stat-lbl">SENTENCES</div></div>
-          </div>
-          <div class="text-tools-grid">
-            <button class="app-btn" onclick="textTool('upper')">UPPERCASE</button>
-            <button class="app-btn" onclick="textTool('lower')">lowercase</button>
-            <button class="app-btn" onclick="textTool('title')">Title Case</button>
-            <button class="app-btn" onclick="textTool('sentence')">Sentence case</button>
-            <button class="app-btn" onclick="textTool('reverse')">esreveR</button>
-            <button class="app-btn" onclick="textTool('trim')">Trim Spaces</button>
-            <button class="app-btn" onclick="textTool('removeDups')">Remove Dups</button>
-            <button class="app-btn" onclick="textTool('sort')">Sort Lines</button>
-            <button class="app-btn" onclick="textTool('slug')">slug-case</button>
-            <button class="app-btn" onclick="textTool('camel')">camelCase</button>
-            <button class="app-btn" onclick="textTool('base64enc')">Base64 Encode</button>
-            <button class="app-btn" onclick="textTool('base64dec')">Base64 Decode</button>
-            <button class="app-btn" onclick="copyTextOutput()">📋 Copy</button>
-            <button class="app-btn danger" onclick="document.getElementById('text-tools-input').value='';updateTextStats()">🗑️ Clear</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ZIPPER -->
-      <div class="app-panel" id="panel-zipper">
-        <div class="panel-title">🗜️ File Zipper</div>
-        <div class="panel-card">
-          <div class="zip-dropzone" id="zip-dropzone" onclick="document.getElementById('zip-file-input').click()">
-            <div style="font-size:36px;margin-bottom:8px;">📁</div>
-            <strong>Click or drag & drop files here</strong><br>
-            <span style="font-size:12px;opacity:0.6">Add any files to zip them together</span>
-            <input type="file" id="zip-file-input" multiple style="display:none" onchange="zipAddFiles(this.files)">
-          </div>
-          <div class="zip-file-list" id="zip-file-list"></div>
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
-            <input type="text" class="zip-zip-name" id="zip-output-name" placeholder="output.zip" value="output.zip" style="flex:1;min-width:180px;">
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);cursor:pointer;flex-shrink:0;">
-              <input type="checkbox" id="zip-compress" checked style="accent-color:var(--accent)"> Compress (DEFLATE)
-            </label>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="app-btn primary" onclick="createZip()">🗜️ Create ZIP</button>
-            <button class="app-btn danger" onclick="clearZipFiles()">🗑️ Clear All</button>
-          </div>
-          <div id="zip-dl-area" style="margin-top:12px;"></div>
-        </div>
-      </div>
-
-      <!-- UNZIPPER -->
-      <div class="app-panel" id="panel-unzipper">
-        <div class="panel-title">📦 File Unzipper</div>
-        <div class="panel-card">
-          <div class="unzip-dropzone" id="unzip-dropzone" onclick="document.getElementById('unzip-file-input').click()">
-            <div style="font-size:36px;margin-bottom:8px;">📦</div>
-            <strong>Click or drop a ZIP file here</strong><br>
-            <span style="font-size:12px;opacity:0.6">Supports .zip files</span>
-            <input type="file" id="unzip-file-input" accept=".zip" style="display:none" onchange="unzipFile(this.files[0])">
-          </div>
-          <div id="unzip-info" style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;display:none;"></div>
-          <div id="unzip-entries" style="max-height:320px;overflow-y:auto;"></div>
-          <div id="unzip-actions" style="margin-top:12px;display:none;">
-            <button class="app-btn primary" onclick="unzipAll()">📥 Extract All</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- CODE EDITOR -->
-      <div class="app-panel" id="panel-code">
-        <div class="panel-title">💻 Code Editor</div>
-        <div class="panel-card">
-          <div class="code-toolbar">
-            <select class="code-lang-select" id="code-lang" onchange="changeCodeLang()">
-              <option value="html">HTML</option>
-              <option value="javascript">JavaScript</option>
-              <option value="css">CSS</option>
-              <option value="typescript">TypeScript</option>
-              <option value="lua">Lua</option>
-              <option value="python">Python</option>
-              <option value="cpp">C++</option>
-              <option value="c">C</option>
-              <option value="java">Java</option>
-              <option value="csharp">C#</option>
-              <option value="rust">Rust</option>
-              <option value="go">Go</option>
-              <option value="php">PHP</option>
-              <option value="ruby">Ruby</option>
-              <option value="swift">Swift</option>
-              <option value="kotlin">Kotlin</option>
-              <option value="sql">SQL</option>
-              <option value="json">JSON</option>
-              <option value="yaml">YAML</option>
-              <option value="xml">XML</option>
-              <option value="markdown">Markdown</option>
-              <option value="shell">Shell/Bash</option>
-              <option value="plaintext">Plain Text</option>
-            </select>
-            <input type="text" class="code-filename" id="code-filename" value="index.html" placeholder="filename.ext">
-            <button class="app-btn primary" onclick="downloadCode()">💾 Download</button>
-            <button class="app-btn" onclick="copyCode()">📋 Copy</button>
-            <button class="app-btn" onclick="clearCode()">🗑️ Clear</button>
-            <button class="app-btn" onclick="document.getElementById('code-upload-input').click()">📂 Open File</button>
-            <button class="app-btn primary" id="run-code-btn" onclick="runCode()">&#9654; Run</button>
-            <input type="file" id="code-upload-input" style="display:none" onchange="loadCodeFile(this)">
-          </div>
-          <div id="code-editor-container">
-            <textarea id="code-editor-fallback" spellcheck="false" placeholder="// Start coding here..."></textarea>
-          </div>
-          <div id="code-status">Lines: <span id="code-lines">1</span> | Chars: <span id="code-chars">0</span> | Lang: <span id="code-lang-status">HTML</span></div>
-            <div id="code-output-wrap" style="display:none;margin-top:12px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                <span style="font-size:11px;letter-spacing:1px;color:var(--accent);text-transform:uppercase;opacity:.7;">Output</span>
-                <button class="app-btn danger" onclick="clearCodeOutput()" style="padding:4px 10px;font-size:11px;">&#10005; Clear</button>
-              </div>
-              <div id="code-output-console" style="background:#0a0a1a;border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:12px;min-height:60px;max-height:220px;overflow-y:auto;color:#e0e0e0;"></div>
-              <iframe id="code-output-frame" style="display:none;width:100%;height:340px;border:1px solid var(--border);border-radius:8px;margin-top:8px;background:#fff;" sandbox="allow-scripts allow-modals"></iframe>
-            </div>
-        </div>
-      </div>
-
-      <!-- FILE CONVERTER -->
-      <div class="app-panel" id="panel-fileconv">
-        <div class="panel-title">♻️ File Converter</div>
-        <div class="panel-card">
-          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Convert between text, code, data formats. For audio/video use a separate tool.</p>
-          <div class="fc-dropzone" id="fc-dropzone" onclick="document.getElementById('fc-file-input').click()">
-            <div style="font-size:36px;margin-bottom:8px;">♻️</div>
-            <strong>Click or drag & drop files to convert</strong><br>
-            <span style="font-size:12px;opacity:0.6">TXT, JSON, XML, CSV, HTML, MD, JS, TS, PY, SH, YAML, Base64 ↔ any</span>
-            <input type="file" id="fc-file-input" multiple style="display:none" onchange="fcAddFiles(this.files)">
-          </div>
-          <div id="fc-file-rows"></div>
-          <div id="fc-dl-area" class="fc-dl-area"></div>
-        </div>
-      </div>
-
-      <!-- RUFFLE (FLASH) -->
-      <div class="app-panel" id="panel-ruffle">
-        <div class="panel-title">🎬 Flash Player (Ruffle)</div>
-        <div class="panel-card">
-          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Load .swf Flash files. Ruffle runs entirely in your browser — no plugins needed.</p>
-          <div class="ruffle-drop" id="ruffle-drop" onclick="document.getElementById('ruffle-file-input').click()">
-            <div style="font-size:40px;margin-bottom:8px;">🎬</div>
-            <strong>Click or drop a .swf file here</strong>
-            <input type="file" id="ruffle-file-input" accept=".swf" style="display:none" onchange="loadRuffleFile(this.files[0])">
-          </div>
-          <div id="ruffle-player-wrap">
-            <ruffle-player id="ruffle-player"></ruffle-player>
-          </div>
-          <div id="ruffle-status" style="font-size:12px;color:var(--text-muted);margin-top:8px;"></div>
-        </div>
-      </div>
-
-      <!-- EMULATOR -->
-      <div class="app-panel" id="panel-emulator">
-        <div class="panel-title">🕹️ Retro Emulator</div>
-        <div class="panel-card">
-          <div class="emu-system-tabs" id="emu-system-tabs">
-            <div class="emu-sys-btn active" data-core="nes" onclick="selectEmuSystem(this)">NES</div>
-            <div class="emu-sys-btn" data-core="snes" onclick="selectEmuSystem(this)">SNES</div>
-            <div class="emu-sys-btn" data-core="gb" onclick="selectEmuSystem(this)">Game Boy</div>
-            <div class="emu-sys-btn" data-core="gba" onclick="selectEmuSystem(this)">GBA</div>
-            <div class="emu-sys-btn" data-core="gbc" onclick="selectEmuSystem(this)">GBC</div>
-            <div class="emu-sys-btn" data-core="n64" onclick="selectEmuSystem(this)">N64</div>
-            <div class="emu-sys-btn" data-core="segaMD" onclick="selectEmuSystem(this)">Sega MD</div>
-            <div class="emu-sys-btn" data-core="segaMS" onclick="selectEmuSystem(this)">Sega MS</div>
-            <div class="emu-sys-btn" data-core="segaGG" onclick="selectEmuSystem(this)">Game Gear</div>
-            <div class="emu-sys-btn" data-core="psx" onclick="selectEmuSystem(this)">PS1</div>
-            <div class="emu-sys-btn" data-core="atari2600" onclick="selectEmuSystem(this)">Atari 2600</div>
-            <div class="emu-sys-btn" data-core="arcade" onclick="selectEmuSystem(this)">Arcade</div>
-          </div>
-          <div class="emu-drop" id="emu-drop" onclick="document.getElementById('emu-rom-input').click()">
-            <div style="font-size:36px;margin-bottom:8px;">🕹️</div>
-            <strong>Click or drop a ROM file here</strong><br>
-            <span id="emu-hint" style="font-size:12px;opacity:0.6">NES: .nes | SNES: .sfc/.smc | GB/GBC: .gb/.gbc | GBA: .gba | N64: .n64/.z64</span>
-            <input type="file" id="emu-rom-input" style="display:none" onchange="loadEmuRom(this.files[0])">
-          </div>
-          <div id="emu-container">
-            <iframe id="emu-iframe" src="" allow="fullscreen" sandbox="allow-scripts allow-same-origin allow-pointer-lock"></iframe>
-          </div>
-          <div id="emu-status" style="font-size:12px;color:var(--text-muted);margin-top:8px;"></div>
-        </div>
-        </div>
-        <div class="app-panel" id="panel-deobfuscator">
-            <div class="panel-title">&#128269; JS Deobfuscator</div>
-            <div class="panel-card">
-              <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Paste obfuscated JavaScript to deobfuscate, beautify and analyze it.</p>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-                <button class="app-btn primary" onclick="deobfuscate()">&#128269; Deobfuscate</button>
-                <button class="app-btn" onclick="beautifyDeob()">&#10024; Beautify Only</button>
-                <button class="app-btn" onclick="copyDeobOutput()">&#128203; Copy Output</button>
-                <button class="app-btn danger" onclick="clearDeob()">&#128465; Clear</button>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                <div>
-                  <div style="font-size:10px;letter-spacing:1px;color:var(--accent);opacity:.7;text-transform:uppercase;margin-bottom:6px;">Obfuscated Input</div>
-                  <textarea id="deob-input" style="width:100%;height:320px;background:var(--bg-primary);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);padding:12px;font-family:monospace;font-size:12px;resize:none;outline:none;line-height:1.5;" placeholder="Paste obfuscated JS here..."></textarea>
-                </div>
-                <div>
-                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                    <span style="font-size:10px;letter-spacing:1px;color:var(--accent);opacity:.7;text-transform:uppercase;">Deobfuscated Output</span>
-                    <span id="deob-status" style="font-size:11px;color:var(--text-muted);"></span>
-                  </div>
-                  <textarea id="deob-output" style="width:100%;height:320px;background:#0a0a1a;border:1px solid var(--border);border-radius:10px;color:#e0e0e0;padding:12px;font-family:monospace;font-size:12px;resize:none;outline:none;line-height:1.5;" placeholder="Output appears here..." readonly></textarea>
-                </div>
-              </div>
-              <div id="deob-stats" style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;"></div>
-            </div>
-          </div>
-</div>
-      </div>
-
-    </div>
-  </div>
-</div>
 
 <!-- ═══════════════════════════════════════════
      GAMES PAGE
@@ -1936,6 +1457,10 @@ e-btn" title="Shuffle">
                 <input type="text" id="searchInput" placeholder="Search games..." autocomplete="off">
                 <div class="autocomplete-list" id="autocompleteList"></div>
             </div>
+            <button id="searchRepoToggle" title="Search only current repo" onclick="toggleSearchRepo()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span id="searchRepoToggleLabel">All Repos</span>
+            </button>
             <select id="sortSelect">
                 <option value="name">Sort: A-Z</option>
                 <option value="name-desc">Sort: Z-A</option>
@@ -1945,8 +1470,6 @@ e-btn" title="Shuffle">
         <div class="content-area">
             <div class="homepage-view" id="homepageView">
                 <div class="quick-actions">
-                    <button id="continueBtn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><polygon points="5 3 19 12 5 21 5 3"/></svg><span class="nav-btn-label"> Continue Last Game</span></button>
-                    <button id="randomBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.2" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg><span class="nav-btn-label"> Random Game</span></button>
                     <button id="recentBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 15.5"/></svg><span class="nav-btn-label"> Recently Played</span></button>
                 </div>
                 <div class="recommended-section">
@@ -1960,6 +1483,10 @@ e-btn" title="Shuffle">
                     <button id="backBtn">← Back</button>
                     <button id="reloadBtn">↻ Reload</button>
                     <button id="fullscreenBtn" title="Fullscreen"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg><span class="nav-btn-label"> Fullscreen</span></button>
+                    <div id="gameInfoBar" style="display:none;margin-left:auto;display:flex;align-items:center;gap:8px;overflow:hidden;min-width:0;">
+                        <span id="gameNameLabel" style="font-size:13px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;"></span>
+                        <span id="gameSourceBadge" style="font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:20px;background:var(--accent);color:#fff;opacity:0.9;text-transform:uppercase;white-space:nowrap;flex-shrink:0;"></span>
+                    </div>
                 </div>
                 <div class="game-iframe-container" id="zoneViewer" style="display:none;">
                     <iframe id="zoneFrame" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" tabindex="0" sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms" allow="fullscreen; autoplay; clipboard-write"></iframe>
@@ -2296,7 +1823,7 @@ const HOME_MESSAGES = [
    "on foenem grave",
    "another day another victory for the og's",
    "edmondx is da goat",
-   "tom brady's taco bell commerical,
+   "tom brady's taco bell commerical",
    "im witteraly hitting the gwiddy"
 ];
 
@@ -2677,15 +2204,15 @@ async function loadData(key, defaultValue = null) {
     return defaultValue;
 }
 
-const FOLDER_CDN  = "https://cdn.jsdelivr.net/gh/gn-math/assets@main/";
-const SINGLE_CDN  = "https://cdn.jsdelivr.net/gh/sussyboi01/assetssinglefile/";
+
+
 const COVERS_CDN  = "https://cdn.jsdelivr.net/gh/gn-math/covers/";
 const ZONES_JSON  = "https://cdn.jsdelivr.net/gh/gn-math/assets/zones.json";
 const HTML_URL    = "https://cdn.jsdelivr.net/gh/gn-math/html@main";
 const IMG_KAI     = "https://pbs.twimg.com/media/Ggj70WPXcAAV1L9.jpg:small";
 const IMG_MANGO   = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpRNEYxLc84WINOIz3wOMxkc0sg85Qy3qWew&s";
 const IMG_BOI     = "https://preview.redd.it/imp-mimicking-the-spongebob-boi-meme-made-by-me-v0-395mkl35dom81.jpg?width=640&crop=smart&auto=webp&s=03469888e80a5f3e61b85a866b7e31c9da3638e3";
-const URL_CLASSROOM = "https://classroom.google.com";
+
 const REPOS = {
     gnmath: { name:"GN-MATH", gamesJsonUrl:ZONES_JSON, gameBaseUrl:"https://cdn.jsdelivr.net/gh/gn-math/html@main" },
     untitled: { name:"Untitled Stash", gamesJsonUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/ugs-files@refs/heads/main/files.json", gameBaseUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/ugs-files@refs/heads/main/" },
@@ -3150,6 +2677,7 @@ function renderGames() {
         if (currentFilter === 'favorites' && !appData.repoFavorites[favKey]) return false;
         if (currentFilter && currentFilter !== 'favorites' && game.category !== currentFilter) return false;
         if (searchTerm && !game.name.toLowerCase().includes(searchTerm)) return false;
+        if (isSearching && _searchRepoOnly && game.repo !== currentRepo) return false;
         return true;
     });
 
@@ -3177,9 +2705,39 @@ function renderGames() {
         const favKey = game.repo + ":" + game.id;
         const isFav = !!appData.repoFavorites[favKey];
         const thumbnailURL = (game.repo === "untitled" || game.repo === "custom") ? getFallbackThumbnailURL() : getThumbnailURL(game);
-        const repoTag = (isSearching || isFavoritesView) ? `<div style="font-size:10px;color:var(--text-muted);margin-top:2px;">(${REPOS[game.repo]?.name || game.repo})</div>` : "";
+        const repoTag = (isSearching || isFavoritesView) ? `<div class="repo-tag">${REPOS[game.repo]?.name || game.repo}</div>` : "";
         return `<div class="game-card" data-id="${game.id}" data-repo="${game.repo}"><span class="star ${isFav ? '' : 'off'}" data-id="${game.id}" data-repo="${game.repo}">${isFav ? '⭐' : '🌑'}</span><img src="${thumbnailURL}" alt="${game.name}" loading="lazy" decoding="async" onerror="this.src='${getFallbackThumbnailURL()}'"><div class="game-card-info"><div class="game-card-title">${game.name}</div>${repoTag}</div></div>`;
     }).join('');
+
+    // Prepend special cards (Random only) — hidden during search
+    if (!isSearching) {
+        const randomCard = `<div class="game-card special-card" data-special="random">
+        <div class="special-icon" id="randomCardIcon"><img id="randomCardCover" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;"><span id="randomCardEmoji" style="font-size:48px;">🎲</span></div>
+        <div class="game-card-info"><div class="game-card-title">Random Game</div></div>
+    </div>`;
+        const grid = document.getElementById("gamesGrid");
+        grid.innerHTML = randomCard + grid.innerHTML;
+
+        // Cycle through actual game covers every second
+        clearInterval(window._randomIconInterval);
+        window._randomIconInterval = setInterval(() => {
+            const img = document.getElementById('randomCardCover');
+            const emoji = document.getElementById('randomCardEmoji');
+            if (!img) { clearInterval(window._randomIconInterval); return; }
+            const allCached = Object.values(allGamesCache).flat();
+            const pool = allCached.length > 0 ? allCached : allGames;
+            if (pool.length === 0) return;
+            const pick = pool[Math.floor(Math.random() * pool.length)];
+            const url = (pick.repo === 'untitled' || pick.repo === 'custom') ? null : getThumbnailURL(pick);
+            if (url) {
+                img.onload = () => { img.style.display = 'block'; if (emoji) emoji.style.display = 'none'; };
+                img.onerror = () => { img.style.display = 'none'; if (emoji) emoji.style.display = 'block'; };
+                img.src = url;
+            }
+        }, 1000);
+    } else {
+        clearInterval(window._randomIconInterval);
+    }
 }
 // card interactions wired once below
 let _cardInteractionsAttached = false;
@@ -3196,6 +2754,16 @@ function attachCardInteractions() {
             if (appData.repoFavorites[favKey]) { delete appData.repoFavorites[favKey]; starEl.classList.add("off"); starEl.textContent = '🌑'; }
             else { appData.repoFavorites[favKey] = true; starEl.classList.remove("off"); starEl.textContent = '⭐'; }
             saveAppData(); renderCategories(); return;
+        }
+        // Handle special cards
+        const special = card.dataset.special;
+        if (special === 'random') {
+            const allCached = Object.values(allGamesCache).flat();
+            const pool = allCached.length > 0 ? allCached : allGames;
+            if (pool.length === 0) return;
+            const pick = pool[Math.floor(Math.random() * pool.length)];
+            loadGame(pick.id, pick.repo);
+            return;
         }
         const cardRepo = card.dataset.repo, cardId = card.dataset.id;
         if (cardRepo && cardRepo !== currentRepo) { currentRepo = cardRepo; document.querySelectorAll("#page-games .repo-btn").forEach(b => b.classList.toggle("active", b.dataset.repo === currentRepo)); fetchGames().then(() => loadGame(cardId)); }
@@ -3275,14 +2843,23 @@ document.getElementById("recentBtn").onclick = () => {
     document.getElementById("customDialog").classList.add("show");
     setTimeout(() => { document.querySelectorAll("#customDialogMessage .recommended-game").forEach(el => { el.onclick = () => { document.getElementById("customDialog").classList.remove("show"); loadGame(el.dataset.id); }; }); }, 0);
 };
-document.getElementById("continueBtn").onclick = () => { if (appData.recentGames.length > 0) loadGame(appData.recentGames[0]); else showAlert("No recent games to continue"); };
-document.getElementById("randomBtn").onclick = () => { if (allGames.length === 0) return; loadGame(allGames[Math.floor(Math.random() * allGames.length)].id); };
-
-async function loadGame(gameId) {
+async function loadGame(gameId, repoHint) {
     gameId = gameId.toString();
     currentGame = gameId;
 
-    const game = allGames.find(g => g.id.toString() === gameId);
+    // Look in allGames first, then all caches if a repoHint is given
+    let game = allGames.find(g => g.id.toString() === gameId);
+    if (!game && repoHint) {
+        const cached = allGamesCache[repoHint];
+        if (cached) game = cached.find(g => g.id.toString() === gameId);
+    }
+    if (!game) {
+        // Last resort: search all caches
+        for (const games of Object.values(allGamesCache)) {
+            game = games.find(g => g.id.toString() === gameId);
+            if (game) break;
+        }
+    }
     if (!game) {
         showGameError("Game not found");
         return;
@@ -3304,6 +2881,16 @@ async function loadGame(gameId) {
     if (window._hideNav) window._hideNav();
     if (window._hideCalcForGame) window._hideCalcForGame();
     document.body.classList.add('nav-game-active');
+
+    // ── Show game name + repo source in controls bar ──
+    const gameInfoBar = document.getElementById('gameInfoBar');
+    const gameNameLabel = document.getElementById('gameNameLabel');
+    const badge = document.getElementById('gameSourceBadge');
+    if (gameInfoBar && gameNameLabel && badge) {
+        gameNameLabel.textContent = game.name;
+        badge.textContent = REPOS[game.repo]?.name || game.repo;
+        gameInfoBar.style.display = 'flex';
+    }
 
     // ── Build game URL ──
     const gameURL = game.url && game.url.startsWith("http")
@@ -3390,8 +2977,31 @@ async function loadGame(gameId) {
         html = html.replace(/(<head[^>]*>)/i, `$1<base href="${base}">`);
     }
 
-    // ── Write into iframe ──
-    // Always replace the iframe element fresh to avoid any stale state
+    // ── Fix relative fetch/XHR string literals inside inline scripts ──
+    // Handles cases like fetch('parts-1.bin') where the string never goes through
+    // attribute rewriting but resolves relative to the document URL at runtime.
+    html = html.replace(/(<script[\s\S]*?<\/script>)/gi, scriptBlock => {
+        // Only touch inline scripts (no src=)
+        if (/^<script\b[^>]*\bsrc\s*=/i.test(scriptBlock)) return scriptBlock;
+        // Rewrite bare relative string literals passed to fetch(), new URL(), XHR.open(), Audio()
+        // Match single or double quoted strings that look like relative asset paths
+        return scriptBlock.replace(
+            /(fetch|XMLHttpRequest[\s\S]*?\.open\s*\([^,]+,\s*|new\s+URL\s*\(\s*|new\s+Audio\s*\(\s*)(['"])(?!https?:\/\/|\/\/|data:|blob:|javascript:|#|\/)([^'"?#\s]+\.[a-z0-9]{1,6})(\??[^'"]*)\2/gi,
+            (match, pre, q, rel, qs) => `${pre}${q}${base}${rel}${qs}${q}`
+        );
+    });
+
+    // Also rewrite bare string arrays / variable assignments that hold asset filenames
+    // e.g. let binParts = ["parts-1.bin", "parts-2.bin", ...]
+    html = html.replace(/(<script[\s\S]*?<\/script>)/gi, scriptBlock => {
+        if (/^<script\b[^>]*\bsrc\s*=/i.test(scriptBlock)) return scriptBlock;
+        return scriptBlock.replace(
+            /(['"])(?!https?:\/\/|\/\/|data:|blob:|javascript:|#|\/)([a-zA-Z0-9._-]+\.(?:bin|js|wasm|data|unityweb|json|gz|br|zip))\1/g,
+            (match, q, filename) => `${q}${base}${filename}${q}`
+        );
+    });
+
+    // ── Write into iframe via Blob URL so fetch() relative URLs resolve correctly ──
     const container = zoneFrame.parentNode;
     const newFrame = document.createElement("iframe");
     newFrame.id = "zoneFrame";
@@ -3402,16 +3012,19 @@ async function loadGame(gameId) {
     container.replaceChild(newFrame, zoneFrame);
     zoneFrame = newFrame;
 
-    // Write HTML directly — no src round-trip so no lag
-    zoneFrame.contentDocument.open();
-    zoneFrame.contentDocument.write(html);
-    zoneFrame.contentDocument.close();
-
-    // Focus and setup overlay after doc is ready
-    requestAnimationFrame(() => {
-        try { zoneFrame.contentWindow.focus(); } catch(e) {}
-        setupFocusDetection(zoneFrame);
-    });
+    // Use a Blob URL so the iframe has a real browsing context
+    // (avoids contentDocument.write origin issues with fetch() in inline scripts)
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    // Revoke after load to free memory
+    zoneFrame.onload = () => {
+        URL.revokeObjectURL(blobUrl);
+        requestAnimationFrame(() => {
+            try { zoneFrame.contentWindow?.focus(); } catch(e) {}
+            setupFocusDetection(zoneFrame);
+        });
+    };
+    zoneFrame.src = blobUrl;
 }
 
 function showGameError(realError) {
@@ -3471,6 +3084,11 @@ document.getElementById("reloadBtn").onclick = () => { if (currentGame) { loadGa
 
 function backToHomepage() {
     currentGame = null;
+    // Hide game info bar
+    const badge = document.getElementById('gameSourceBadge');
+    if (badge) badge.style.display = 'none';
+    const gameInfoBar = document.getElementById('gameInfoBar');
+    if (gameInfoBar) gameInfoBar.style.display = 'none';
     zoneViewer.hidden = false;
     zoneViewer.style.display = "none";
     // Replace iframe with a fresh blank one to stop all game execution and audio
@@ -3496,10 +3114,18 @@ function backToHomepage() {
 }
 
 document.getElementById("fullscreenBtn").onclick = () => {
+    const container = document.getElementById("zoneViewer");
     if (!document.fullscreenElement) {
-        zoneFrame.requestFullscreen().catch(err => showAlert("Fullscreen not available: " + err.message));
+        (container.requestFullscreen ? container.requestFullscreen() :
+         container.webkitRequestFullscreen ? container.webkitRequestFullscreen() :
+         Promise.reject('no fullscreen API'))
+        .then(() => {
+            // Focus iframe so keyboard/mouse work immediately
+            setTimeout(() => { try { zoneFrame.focus(); zoneFrame.contentWindow?.focus(); } catch(e) {} }, 100);
+        })
+        .catch(err => showAlert("Fullscreen not available: " + err.message));
     } else {
-        document.exitFullscreen();
+        (document.exitFullscreen || document.webkitExitFullscreen).call(document);
     }
 };
 
@@ -3507,7 +3133,10 @@ document.addEventListener("fullscreenchange", () => {
     const btn = document.getElementById("fullscreenBtn");
     if (document.fullscreenElement) {
         btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 3 3 3 3 8"/><polyline points="21 8 21 3 16 3"/><polyline points="3 16 3 21 8 21"/><polyline points="16 21 21 21 21 16"/></svg> Exit Fullscreen';
-        try { zoneFrame.contentDocument?.documentElement?.requestPointerLock?.(); } catch(e) {}
+        // Re-focus iframe so Unity / pointer lock games don't grey out
+        setTimeout(() => {
+            try { zoneFrame.focus(); zoneFrame.contentWindow?.focus(); } catch(e) {}
+        }, 80);
     } else {
         btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> Fullscreen';
         try { document.exitPointerLock?.(); } catch(e) {}
@@ -3522,6 +3151,11 @@ document.querySelectorAll("#page-games .repo-btn").forEach(btn => {
         document.querySelectorAll("#page-games .repo-btn").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         currentFilter = null;
+        // Keep toggle label in sync
+        if (_searchRepoOnly) {
+            const lbl = document.getElementById('searchRepoToggleLabel');
+            if (lbl) lbl.textContent = REPOS[currentRepo]?.name || currentRepo;
+        }
         fetchGames();
     };
 });
@@ -4051,6 +3685,19 @@ document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if
 })();
 
 /* ═══════════════════════════════════════════
+   SEARCH REPO TOGGLE
+═══════════════════════════════════════════ */
+let _searchRepoOnly = false;
+window.toggleSearchRepo = function() {
+    _searchRepoOnly = !_searchRepoOnly;
+    const btn = document.getElementById('searchRepoToggle');
+    const label = document.getElementById('searchRepoToggleLabel');
+    btn.classList.toggle('active', _searchRepoOnly);
+    label.textContent = _searchRepoOnly ? (REPOS[currentRepo]?.name || currentRepo) : 'All Repos';
+    renderGames();
+};
+
+/* ═══════════════════════════════════════════
    FLOATING MUSIC MINI-PLAYER SYSTEM
 ═══════════════════════════════════════════ */
 (function() {
@@ -4238,1278 +3885,6 @@ window._miniGetTitle  = () => {
     if (currentIndex === -1 || !queue[currentIndex]) return null;
     return queue[currentIndex].title || null;
 };
-
-
-// ===== APPS PAGE JS (from daboi v5) =====
-// ===== APPS PAGE JS =====
-function switchAppTab(el, panelId) {
-  document.querySelectorAll('#page-apps .app-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('#page-apps .app-panel').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById(panelId).classList.add('active');
-}
-
-// --- Calculator ---
-(function() {
-  let ac_cur='0', ac_prev='', ac_op=null, ac_evaled=false, ac_waiting=false;
-  function acUpdate() {
-    const d = document.getElementById('ac-result');
-    d.textContent = ac_cur.length>12 ? parseFloat(ac_cur).toExponential(4) : ac_cur;
-    d.style.fontSize = ac_cur.length>9 ? '28px' : '40px';
-  }
-  window.acAction = function(action, val) {
-    if (action==='num') {
-      if (ac_evaled) { ac_cur=val; ac_evaled=false; }
-      else if (ac_waiting) { ac_cur=val; ac_waiting=false; }
-      else ac_cur = ac_cur==='0' ? val : ac_cur+val;
-    } else if (action==='op') {
-      if (ac_op && !ac_waiting) acEval();
-      ac_prev=ac_cur; ac_op=val; ac_waiting=true; ac_evaled=false;
-      const sym={'/':'÷','*':'×','-':'−','+':'+'};
-      document.getElementById('ac-expr').textContent = ac_prev+' '+(sym[val]||val);
-      document.querySelectorAll('.app-calc-btn.op').forEach(b=>b.classList.remove('active-op'));
-      document.querySelectorAll('.app-calc-btn.op').forEach(b=>{if(b.textContent.trim()===({'/':'÷','*':'×','-':'−','+':'+'}[val]||val))b.classList.add('active-op');});
-    } else if (action==='equals') { acEval(); }
-    else if (action==='clear') { ac_cur='0'; ac_prev=''; ac_op=null; ac_evaled=false; ac_waiting=false; document.getElementById('ac-expr').textContent=''; document.querySelectorAll('.app-calc-btn.op').forEach(b=>b.classList.remove('active-op')); }
-    else if (action==='dot') { if(ac_waiting){ac_cur='0.';ac_waiting=false;} else if(!ac_cur.includes('.')) ac_cur+='.'; }
-    else if (action==='sign') { ac_cur=ac_cur.startsWith('-') ? ac_cur.slice(1) : (ac_cur==='0'?'0':'-'+ac_cur); }
-    else if (action==='percent') { ac_cur=String(parseFloat(ac_cur)/100); }
-    acUpdate();
-  };
-  function acEval() {
-    if(!ac_op||ac_waiting) return;
-    const a=parseFloat(ac_prev),b=parseFloat(ac_cur);
-    let res;
-    if(ac_op==='/') res=b===0?'Error':a/b;
-    else if(ac_op==='*') res=a*b;
-    else if(ac_op==='-') res=a-b;
-    else if(ac_op==='+') res=a+b;
-    const sym={'/':'÷','*':'×','-':'−','+':'+'};
-    document.getElementById('ac-expr').textContent=ac_prev+' '+(sym[ac_op]||ac_op)+' '+ac_cur+' =';
-    ac_cur = res==='Error' ? 'Error' : String(parseFloat(res.toFixed(10)));
-    ac_op=null; ac_prev=''; ac_evaled=true; ac_waiting=false;
-    document.querySelectorAll('.app-calc-btn.op').forEach(b=>b.classList.remove('active-op'));
-    acUpdate();
-  }
-})();
-
-// --- Notes ---
-let notesSlot = '1';
-function saveNote() {
-  const val = document.getElementById('notes-textarea').value;
-  localStorage.setItem('daboi_note_'+notesSlot, val);
-  const meta = document.getElementById('notes-meta');
-  meta.textContent = 'Saved • '+val.length+' chars';
-}
-function loadNote(slot) {
-  notesSlot = slot;
-  const saved = localStorage.getItem('daboi_note_'+slot) || '';
-  document.getElementById('notes-textarea').value = saved;
-  document.getElementById('notes-meta').textContent = 'Loaded • '+saved.length+' chars';
-}
-function copyNote() {
-  navigator.clipboard.writeText(document.getElementById('notes-textarea').value).then(()=>{
-    document.getElementById('notes-meta').textContent = '✓ Copied!';
-  });
-}
-function clearNote() {
-  if(confirm('Clear this note?')) {
-    document.getElementById('notes-textarea').value='';
-    saveNote();
-  }
-}
-function downloadNote() {
-  const text = document.getElementById('notes-textarea').value;
-  const blob = new Blob([text], {type:'text/plain'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'note-'+notesSlot+'.txt';
-  a.click();
-}
-loadNote('1');
-
-// --- Timer / Stopwatch ---
-let timerMode = 'stopwatch', timerRunning = false, timerStart = 0, timerElapsed = 0, timerInterval = null, timerLaps = [];
-function setTimerMode(mode, el) {
-  timerMode = mode;
-  document.querySelectorAll('.timer-mode-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('timer-countdown-inputs').style.display = mode==='countdown' ? 'block' : 'none';
-  document.getElementById('timer-lap-btn').style.display = mode==='stopwatch' ? 'inline-block' : 'none';
-  timerReset();
-}
-function timerFmt(ms) {
-  if (timerMode==='stopwatch') {
-    const m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000), cs=Math.floor((ms%1000)/10);
-    return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+String(cs).padStart(2,'0');
-  } else {
-    const total=Math.ceil(ms/1000), h=Math.floor(total/3600), m=Math.floor((total%3600)/60), s=total%60;
-    return (h?String(h).padStart(2,'0')+':':'')+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-  }
-}
-function timerStartStop() {
-  if (!timerRunning) {
-    if (timerMode==='countdown' && timerElapsed===0) {
-      const h=parseInt(document.getElementById('timer-h').value)||0;
-      const m=parseInt(document.getElementById('timer-m').value)||0;
-      const s=parseInt(document.getElementById('timer-s').value)||0;
-      timerElapsed=(h*3600+m*60+s)*1000;
-      if (!timerElapsed) return;
-    }
-    timerStart = Date.now() - (timerMode==='stopwatch' ? timerElapsed : 0);
-    if (timerMode==='countdown') timerStart = Date.now();
-    timerRunning=true;
-    document.getElementById('timer-start-btn').textContent='⏸ Pause';
-    const countdownTotal = timerElapsed;
-    timerInterval=setInterval(()=>{
-      if(timerMode==='stopwatch') {
-        timerElapsed=Date.now()-timerStart;
-        document.getElementById('timer-display').textContent=timerFmt(timerElapsed);
-      } else {
-        const rem=countdownTotal-(Date.now()-timerStart);
-        if(rem<=0) { timerElapsed=0; document.getElementById('timer-display').textContent='00:00'; timerReset(); return; }
-        document.getElementById('timer-display').textContent=timerFmt(rem);
-        document.getElementById('timer-display').style.color=rem<10000?'#ff5a5a':'var(--text-primary)';
-      }
-    },50);
-  } else {
-    timerRunning=false;
-    clearInterval(timerInterval);
-    document.getElementById('timer-start-btn').textContent='▶ Start';
-  }
-}
-function timerReset() {
-  timerRunning=false; clearInterval(timerInterval); timerElapsed=0; timerLaps=[];
-  document.getElementById('timer-start-btn').textContent='▶ Start';
-  document.getElementById('timer-display').textContent=timerMode==='stopwatch'?'00:00.00':'00:00';
-  document.getElementById('timer-display').style.color='var(--text-primary)';
-  document.getElementById('timer-laps').innerHTML='';
-}
-function timerLap() {
-  timerLaps.push(timerElapsed);
-  const lapsEl=document.getElementById('timer-laps');
-  const div=document.createElement('div');
-  div.style.cssText='font-size:12px;color:var(--text-secondary);font-family:monospace;padding:4px 8px;background:var(--bg-card);border-radius:6px;';
-  div.textContent='Lap '+timerLaps.length+': '+timerFmt(timerElapsed);
-  lapsEl.prepend(div);
-}
-
-// --- Unit Converter ---
-const convData = {
-  Length: { m:1, km:0.001, cm:100, mm:1000, mi:0.000621371, ft:3.28084, in:39.3701, yd:1.09361 },
-  Weight: { kg:1, g:1000, mg:1e6, lb:2.20462, oz:35.274, ton:0.001 },
-  Temperature: { C:1, F:1, K:1 }, // special case
-  Volume: { L:1, mL:1000, gal:0.264172, fl_oz:33.814, cup:4.22675, tbsp:67.628, tsp:202.884 },
-  Area: { m2:1, km2:1e-6, cm2:10000, ft2:10.7639, acre:0.000247105, ha:0.0001 },
-  Speed: { 'km/h':1, 'mph':0.621371, 'm/s':0.277778, knot:0.539957 },
-  Data: { B:1, KB:1/1024, MB:1/1048576, GB:1/1073741824, TB:1/1099511627776 },
-  Time: { s:1, ms:1000, min:1/60, h:1/3600, day:1/86400 }
-};
-let convCat = 'Length';
-(function initConverter() {
-  const cats = document.getElementById('conv-cats');
-  Object.keys(convData).forEach(cat => {
-    const btn = document.createElement('div');
-    btn.className='conv-cat-btn'+(cat===convCat?' active':'');
-    btn.textContent=cat;
-    btn.onclick=()=>{
-      convCat=cat;
-      document.querySelectorAll('.conv-cat-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      populateConvSelects();
-      convertUnits();
-    };
-    cats.appendChild(btn);
-  });
-  populateConvSelects();
-})();
-function populateConvSelects() {
-  const units=Object.keys(convData[convCat]);
-  ['conv-from-unit','conv-to-unit'].forEach((id,i)=>{
-    const sel=document.getElementById(id);
-    sel.innerHTML=units.map((u,j)=>`<option value="${u}"${(i===0?j===0:j===1)?' selected':''}>${u}</option>`).join('');
-  });
-  if(convCat==='Temperature') { document.getElementById('conv-to-unit').value='F'; }
-}
-window.convertUnits = function() {
-  const val=parseFloat(document.getElementById('conv-from-val').value);
-  const from=document.getElementById('conv-from-unit').value;
-  const to=document.getElementById('conv-to-unit').value;
-  if(isNaN(val)){document.getElementById('conv-result').textContent='—';return;}
-  let result;
-  if(convCat==='Temperature') {
-    let c; if(from==='C') c=val; else if(from==='F') c=(val-32)*5/9; else c=val-273.15;
-    if(to==='C') result=c; else if(to==='F') result=c*9/5+32; else result=c+273.15;
-  } else {
-    const base=val/convData[convCat][from]; result=base*convData[convCat][to];
-  }
-  const fmt = Math.abs(result)<0.0001||Math.abs(result)>1e8 ? result.toExponential(4) : parseFloat(result.toPrecision(8));
-  document.getElementById('conv-result').textContent=fmt+' '+to;
-};
-convertUnits();
-
-// --- Password Generator ---
-function generatePassword() {
-  const len=parseInt(document.getElementById('pass-len').value);
-  let chars='';
-  const upper='ABCDEFGHIJKLMNOPQRSTUVWXYZ', lower='abcdefghijklmnopqrstuvwxyz', nums='0123456789', syms='!@#$%^&*()_+-=[]{}|;:,.<>?';
-  const amb='0O1lI';
-  const noAmb=document.getElementById('pass-noamb').checked;
-  if(document.getElementById('pass-upper').checked) chars+=upper;
-  if(document.getElementById('pass-lower').checked) chars+=lower;
-  if(document.getElementById('pass-nums').checked) chars+=nums;
-  if(document.getElementById('pass-syms').checked) chars+=syms;
-  if(noAmb) chars=chars.split('').filter(c=>!amb.includes(c)).join('');
-  if(!chars) { document.getElementById('pass-display').textContent='Select options'; return; }
-  let pass='';
-  for(let i=0;i<len;i++) pass+=chars[Math.floor(Math.random()*chars.length)];
-  document.getElementById('pass-display').textContent=pass;
-  // Strength
-  let strength=0;
-  if(pass.length>=12) strength++;
-  if(/[A-Z]/.test(pass)) strength++;
-  if(/[a-z]/.test(pass)) strength++;
-  if(/[0-9]/.test(pass)) strength++;
-  if(/[^A-Za-z0-9]/.test(pass)) strength++;
-  const colors=['#ff5a5a','#ff8c42','#ffcc00','#44ff88','#44ff44'];
-  const labels=['Very Weak','Weak','Fair','Strong','Very Strong'];
-  document.getElementById('pass-strength').style.cssText=`width:${strength*20}%;background:${colors[strength-1]||'#555'};height:4px;border-radius:4px;transition:all 0.3s;`;
-}
-function copyPassword() {
-  const pass=document.getElementById('pass-display').textContent;
-  if(!pass||pass==='Click Generate'||pass==='Select options') return;
-  navigator.clipboard.writeText(pass).then(()=>{
-    const el=document.getElementById('pass-copied');
-    el.style.opacity='1';
-    setTimeout(()=>el.style.opacity='0',2000);
-  });
-}
-generatePassword();
-
-// --- Color Tools ---
-let colorSwatches = JSON.parse(localStorage.getItem('daboi_color_swatches')||'["#5a5aff","#ff5a5a","#44ff88","#ffcc00","#ff44cc"]');
-function hexToRgb(hex) {
-  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
-  return {r,g,b};
-}
-function rgbToHsl(r,g,b) {
-  r/=255; g/=255; b/=255;
-  const max=Math.max(r,g,b), min=Math.min(r,g,b);
-  let h,s,l=(max+min)/2;
-  if(max===min){h=s=0;}else{
-    const d=max-min; s=l>0.5?d/(2-max-min):d/(max+min);
-    switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;}
-    h/=6;
-  }
-  return {h:Math.round(h*360),s:Math.round(s*100),l:Math.round(l*100)};
-}
-function updateColorDisplays(hex) {
-  document.getElementById('color-preview').style.background=hex;
-  document.getElementById('color-picker').value=hex;
-  document.getElementById('color-hex').value=hex;
-  const {r,g,b}=hexToRgb(hex);
-  document.getElementById('color-rgb').value=`rgb(${r}, ${g}, ${b})`;
-  const {h,s,l}=rgbToHsl(r,g,b);
-  document.getElementById('color-hsl').value=`hsl(${h}, ${s}%, ${l}%)`;
-}
-window.colorFromPicker = function(hex) { updateColorDisplays(hex); };
-window.colorFromHex = function(hex) {
-  if(/^#[0-9a-fA-F]{6}$/.test(hex)) updateColorDisplays(hex);
-};
-window.addSwatch = function() {
-  const hex=document.getElementById('color-hex').value;
-  if(!colorSwatches.includes(hex)) { colorSwatches.push(hex); if(colorSwatches.length>20) colorSwatches.shift(); }
-  localStorage.setItem('daboi_color_swatches', JSON.stringify(colorSwatches));
-  renderSwatches();
-};
-window.copyColorHex = function() {
-  navigator.clipboard.writeText(document.getElementById('color-hex').value);
-};
-function renderSwatches() {
-  const el=document.getElementById('color-swatches');
-  el.innerHTML=colorSwatches.map(c=>`<div class="color-swatch" style="background:${c}" title="${c}" onclick="updateColorDisplays('${c}')"></div>`).join('');
-}
-renderSwatches();
-updateColorDisplays('#5a5aff');
-
-// --- Text Tools ---
-function updateTextStats() {
-  const t=document.getElementById('text-tools-input').value;
-  document.getElementById('txt-chars').textContent=t.length;
-  document.getElementById('txt-words').textContent=t.trim()?t.trim().split(/\s+/).length:0;
-  document.getElementById('txt-lines').textContent=t?t.split('\n').length:0;
-  document.getElementById('txt-sentences').textContent=t.trim()?(t.match(/[.!?]+/g)||[]).length:0;
-}
-window.textTool = function(tool) {
-  const ta=document.getElementById('text-tools-input');
-  let t=ta.value;
-  if(tool==='upper') t=t.toUpperCase();
-  else if(tool==='lower') t=t.toLowerCase();
-  else if(tool==='title') t=t.replace(/\b\w/g,c=>c.toUpperCase());
-  else if(tool==='sentence') t=t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();
-  else if(tool==='reverse') t=t.split('').reverse().join('');
-  else if(tool==='trim') t=t.split('\n').map(l=>l.trim()).join('\n');
-  else if(tool==='removeDups') t=[...new Set(t.split('\n'))].join('\n');
-  else if(tool==='sort') t=t.split('\n').sort().join('\n');
-  else if(tool==='slug') t=t.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-  else if(tool==='camel') t=t.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g,(m,i)=>i===0?m.toLowerCase():m.toUpperCase()).replace(/\s+/g,'');
-  else if(tool==='base64enc') { try{t=btoa(unescape(encodeURIComponent(t)));}catch(e){alert('Encode error');return;} }
-  else if(tool==='base64dec') { try{t=decodeURIComponent(escape(atob(t)));}catch(e){alert('Invalid Base64');return;} }
-  ta.value=t;
-  updateTextStats();
-};
-window.copyTextOutput = function() {
-  navigator.clipboard.writeText(document.getElementById('text-tools-input').value);
-};
-
-
-
-// ===================================================
-// BASE64 SPAM PROTECTION
-// ===================================================
-(function() {
-  const KEY_B64 = 'daboi_b64_count';
-  const KEY_B64_TIME = 'daboi_b64_locktime';
-  const MAX_B64 = 3;
-  const LOCK_MINUTES = 5;
-
-  function getB64State() {
-    const count = parseInt(localStorage.getItem(KEY_B64) || '0');
-    const lockTime = parseInt(localStorage.getItem(KEY_B64_TIME) || '0');
-    const now = Date.now();
-    // Auto-unlock after LOCK_MINUTES
-    if (lockTime && now - lockTime > LOCK_MINUTES * 60 * 1000) {
-      localStorage.removeItem(KEY_B64);
-      localStorage.removeItem(KEY_B64_TIME);
-      return { locked: false, count: 0 };
-    }
-    return { locked: count >= MAX_B64, count };
-  }
-
-  function incrementB64() {
-    const state = getB64State();
-    if (state.locked) return false;
-    const newCount = state.count + 1;
-    localStorage.setItem(KEY_B64, newCount);
-    if (newCount >= MAX_B64) {
-      localStorage.setItem(KEY_B64_TIME, Date.now());
-      showB64Lock();
-    }
-    return true;
-  }
-
-  function showB64Lock() {
-    const notice = document.getElementById('b64-lock-notice');
-    const btns = document.querySelectorAll('.b64-enc-btn');
-    if (notice) {
-      notice.style.display = 'block';
-      notice.innerHTML = `⛔ Base64 Encode locked! You encoded an already-encoded string ${MAX_B64} times. Chill. Unlocks in ${LOCK_MINUTES} min, or <button class="app-btn" style="display:inline-block;padding:4px 12px;font-size:12px;margin-left:6px;" onclick="unlockB64Manual()">Unlock Now (cooldown)</button>`;
-    }
-    btns.forEach(b => b.classList.add('base64-locked'));
-  }
-
-  function checkB64LockUI() {
-    const state = getB64State();
-    const notice = document.getElementById('b64-lock-notice');
-    const btns = document.querySelectorAll('.b64-enc-btn');
-    if (!notice) return;
-    if (state.locked) {
-      showB64Lock();
-    } else {
-      notice.style.display = 'none';
-      btns.forEach(b => b.classList.remove('base64-locked'));
-    }
-  }
-
-  window.incrementB64 = incrementB64;
-  window.getB64State = getB64State;
-  window.checkB64LockUI = checkB64LockUI;
-
-  window.unlockB64Manual = function() {
-    // Require a simple puzzle to unlock early
-    const answer = prompt('Solve to unlock: What is 7 × 8?');
-    if (answer && answer.trim() === '56') {
-      localStorage.removeItem('daboi_b64_count');
-      localStorage.removeItem('daboi_b64_locktime');
-      checkB64LockUI();
-      alert('Unlocked! Try to use it wisely this time 😤');
-    } else {
-      alert('Wrong answer! Wait for the cooldown.');
-    }
-  };
-
-  // Helper: check if a string looks like valid base64
-  function isAlreadyBase64(str) {
-    const trimmed = str.trim();
-    if (trimmed.length === 0) return false;
-    // Must match base64 character set and length divisible by 4 (with padding)
-    return /^[A-Za-z0-9+/]+=*$/.test(trimmed) && trimmed.length % 4 === 0 && trimmed.length >= 4;
-  }
-
-  // Hook into the existing textTool function
-  const _origTextTool = window.textTool;
-  window.textTool = function(tool) {
-    if (tool === 'base64enc') {
-      const ta = document.getElementById('text-tools-input');
-      const inputText = ta ? ta.value : '';
-      // Only count against the cap if input is ALREADY base64-encoded
-      if (isAlreadyBase64(inputText)) {
-        const state = getB64State();
-        if (state.locked) {
-          alert('⛔ Stop! You\'ve already encoded an encoded string 3 times. Chill out. Wait ' + LOCK_MINUTES + ' min or unlock manually.');
-          return;
-        }
-        if (!incrementB64()) return;
-      }
-    }
-    if (_origTextTool) _origTextTool(tool);
-  };
-
-  // Check on page load
-  document.addEventListener('DOMContentLoaded', checkB64LockUI);
-  setTimeout(checkB64LockUI, 500);
-})();
-
-// Also patch the base64 buttons to add the class
-setTimeout(() => {
-  document.querySelectorAll('.text-tools-grid .app-btn').forEach(btn => {
-    if (btn.textContent.includes('Base64 Encode')) {
-      btn.classList.add('b64-enc-btn');
-    }
-  });
-  // Add lock notice to text panel
-  const textPanel = document.getElementById('panel-text');
-  if (textPanel) {
-    const notice = document.createElement('div');
-    notice.id = 'b64-lock-notice';
-    notice.className = 'base64-lock-notice';
-    textPanel.querySelector('.panel-card').appendChild(notice);
-  }
-  window.checkB64LockUI && window.checkB64LockUI();
-}, 600);
-
-
-// ===================================================
-// ZIPPER
-// ===================================================
-let zipFiles = [];
-
-function formatBytes(bytes) {
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
-  return (bytes/1048576).toFixed(2) + ' MB';
-}
-
-function zipAddFiles(fileList) {
-  Array.from(fileList).forEach(f => {
-    if (!zipFiles.find(z => z.name === f.name)) zipFiles.push(f);
-  });
-  renderZipFileList();
-}
-
-function renderZipFileList() {
-  const list = document.getElementById('zip-file-list');
-  if (!zipFiles.length) { list.innerHTML = ''; return; }
-  list.innerHTML = zipFiles.map((f, i) => `
-    <div class="zip-file-item">
-      <span style="font-size:18px;">${getFileEmoji(f.name)}</span>
-      <span class="zfi-name">${f.name}</span>
-      <span class="zfi-size">${formatBytes(f.size)}</span>
-      <span class="zfi-remove" onclick="zipRemoveFile(${i})">✕</span>
-    </div>
-  `).join('');
-}
-
-function zipRemoveFile(idx) {
-  zipFiles.splice(idx, 1);
-  renderZipFileList();
-}
-
-function clearZipFiles() {
-  zipFiles = [];
-  renderZipFileList();
-  document.getElementById('zip-dl-area').innerHTML = '';
-}
-
-function getFileEmoji(name) {
-  const ext = name.split('.').pop().toLowerCase();
-  const map = { jpg:'🖼️', jpeg:'🖼️', png:'🖼️', gif:'🎞️', svg:'🔷', mp3:'🎵', wav:'🎵', mp4:'🎬', avi:'🎬',
-    pdf:'📄', doc:'📝', docx:'📝', txt:'📃', html:'🌐', js:'📜', py:'🐍', zip:'🗜️', json:'📊', csv:'📊',
-    css:'🎨', ts:'📜', lua:'🌙', cpp:'⚙️', c:'⚙️', java:'☕', cs:'🔷', rb:'💎', go:'🦫', rs:'⚙️', sh:'💻' };
-  return map[ext] || '📄';
-}
-
-async function createZip() {
-  if (!zipFiles.length) { alert('Add some files first!'); return; }
-  if (typeof JSZip === 'undefined') { alert('JSZip library not loaded. Check your connection.'); return; }
-
-  const zip = new JSZip();
-  const compress = document.getElementById('zip-compress').checked;
-
-  for (const file of zipFiles) {
-    const bytes = await file.arrayBuffer();
-    zip.file(file.name, bytes, { compression: compress ? 'DEFLATE' : 'STORE' });
-  }
-
-  const blob = await zip.generateAsync({ type: 'blob', compression: compress ? 'DEFLATE' : 'STORE' });
-  const name = document.getElementById('zip-output-name').value.trim() || 'output.zip';
-  const finalName = name.endsWith('.zip') ? name : name + '.zip';
-
-  const url = URL.createObjectURL(blob);
-  const dlArea = document.getElementById('zip-dl-area');
-  dlArea.innerHTML = `
-    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(90,255,90,0.07);border:1px solid rgba(90,255,90,0.2);border-radius:10px;">
-      <span style="font-size:24px;">✅</span>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:700;color:#44ff88;">${finalName}</div>
-        <div style="font-size:11px;color:var(--text-muted)">${formatBytes(blob.size)} · ${zipFiles.length} files</div>
-      </div>
-      <a href="${url}" download="${finalName}" class="app-btn primary" style="text-decoration:none;">💾 Download</a>
-    </div>`;
-}
-
-// Drag & drop for zipper
-setTimeout(() => {
-  ['zip-dropzone'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
-    el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
-    el.addEventListener('drop', e => {
-      e.preventDefault(); el.classList.remove('drag-over');
-      zipAddFiles(e.dataTransfer.files);
-    });
-  });
-}, 800);
-
-
-// ===================================================
-// UNZIPPER
-// ===================================================
-let unzipData = null;
-
-async function unzipFile(file) {
-  if (!file) return;
-  if (typeof JSZip === 'undefined') { alert('JSZip not loaded.'); return; }
-
-  const bytes = await file.arrayBuffer();
-  try {
-    const zip = await JSZip.loadAsync(bytes);
-    unzipData = zip;
-    const entries = Object.values(zip.files).filter(f => !f.dir);
-
-    document.getElementById('unzip-info').style.display = 'block';
-    document.getElementById('unzip-info').innerHTML = `📦 <strong>${file.name}</strong> · ${entries.length} files · ${formatBytes(file.size)}`;
-
-    const container = document.getElementById('unzip-entries');
-    container.innerHTML = '';
-    for (const entry of entries) {
-      const size = entry._data?.uncompressedSize || 0;
-      const div = document.createElement('div');
-      div.className = 'unzip-entry';
-      div.innerHTML = `
-        <span style="font-size:18px;">${getFileEmoji(entry.name)}</span>
-        <span class="ue-name">${entry.name}</span>
-        <span class="ue-size">${size ? formatBytes(size) : '?'}</span>
-        <span class="ue-dl" title="Download this file" onclick="unzipSingleFile('${entry.name.replace(/'/g,"\\'")}')">⬇️</span>
-      `;
-      container.appendChild(div);
-    }
-    document.getElementById('unzip-actions').style.display = 'block';
-  } catch(e) {
-    alert('Could not read ZIP: ' + e.message);
-  }
-}
-
-async function unzipSingleFile(name) {
-  if (!unzipData) return;
-  const file = unzipData.file(name);
-  if (!file) return;
-  const blob = await file.async('blob');
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name.split('/').pop();
-  a.click();
-}
-
-async function unzipAll() {
-  if (!unzipData) return;
-  const entries = Object.values(unzipData.files).filter(f => !f.dir);
-  for (const entry of entries) {
-    await unzipSingleFile(entry.name);
-    await new Promise(r => setTimeout(r, 80)); // small delay between downloads
-  }
-}
-
-setTimeout(() => {
-  const el = document.getElementById('unzip-dropzone');
-  if (!el) return;
-  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
-  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
-  el.addEventListener('drop', e => {
-    e.preventDefault(); el.classList.remove('drag-over');
-    if (e.dataTransfer.files[0]) unzipFile(e.dataTransfer.files[0]);
-  });
-}, 800);
-
-
-// ===================================================
-// CODE EDITOR
-// ===================================================
-const langExtMap = {
-  html:'html', javascript:'js', css:'css', typescript:'ts', lua:'lua',
-  python:'py', cpp:'cpp', c:'c', java:'java', csharp:'cs', rust:'rs',
-  go:'go', php:'php', ruby:'rb', swift:'swift', kotlin:'kt', sql:'sql',
-  json:'json', yaml:'yml', xml:'xml', markdown:'md', shell:'sh', plaintext:'txt'
-};
-
-const langSnippets = {
-  html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>My Page</title>\n</head>\n<body>\n  <h1>Hello World!</h1>\n</body>\n</html>',
-  javascript: '// JavaScript\nconsole.log("Hello, World!");\n\nfunction greet(name) {\n  return `Hello, ${name}!`;\n}\n\ngreet("boi");',
-  lua: '-- Lua script\nprint("Hello from Lua!")\n\nlocal function greet(name)\n  return "Hello, " .. name .. "!"\nend\n\nprint(greet("boi"))',
-  cpp: '#include <iostream>\nusing namespace std;\n\nint main() {\n  cout << "Hello, World!" << endl;\n  return 0;\n}',
-  c: '#include <stdio.h>\n\nint main() {\n  printf("Hello, World!\\n");\n  return 0;\n}',
-  java: 'public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello, World!");\n  }\n}',
-  python: '# Python script\nprint("Hello, World!")\n\ndef greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("boi"))',
-  csharp: 'using System;\n\nclass Program {\n  static void Main() {\n    Console.WriteLine("Hello, World!");\n  }\n}',
-  rust: 'fn main() {\n    println!("Hello, World!");\n}',
-  go: 'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello, World!")\n}',
-};
-
-let monacoLoaded = false;
-let monacoEditor = null;
-
-function initMonaco() {
-  if (monacoLoaded) return;
-  monacoLoaded = true;
-  const script = document.createElement('script');
-  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js';
-  script.onload = () => {
-    require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
-    require(['vs/editor/editor.main'], () => {
-      const container = document.getElementById('code-editor-container');
-      const fallback = document.getElementById('code-editor-fallback');
-      container.innerHTML = '';
-      monacoEditor = monaco.editor.create(container, {
-        value: langSnippets.html || '',
-        language: 'html',
-        theme: 'vs-dark',
-        fontSize: 13,
-        fontFamily: "'Cascadia Code','Fira Code','Consolas','Monaco',monospace",
-        fontLigatures: true,
-        minimap: { enabled: false },
-        scrollBeyondLastLine: false,
-        automaticLayout: true,
-        tabSize: 2,
-        wordWrap: 'on',
-        lineNumbers: 'on',
-        roundedSelection: true,
-        cursorBlinking: 'smooth',
-      });
-      monacoEditor.onDidChangeModelContent(() => updateCodeStatus());
-      updateCodeStatus();
-      document.getElementById('code-status').style.display = 'block';
-    });
-  };
-  script.onerror = () => {
-    document.getElementById('code-editor-fallback').style.display = 'block';
-    document.getElementById('code-editor-container').innerHTML = '';
-    document.getElementById('code-editor-container').appendChild(document.getElementById('code-editor-fallback'));
-  };
-  document.head.appendChild(script);
-}
-
-function getCodeContent() {
-  if (monacoEditor) return monacoEditor.getValue();
-  return document.getElementById('code-editor-fallback').value;
-}
-
-function setCodeContent(text) {
-  if (monacoEditor) monacoEditor.setValue(text);
-  else document.getElementById('code-editor-fallback').value = text;
-}
-
-function updateCodeStatus() {
-  const text = getCodeContent();
-  const lines = text.split('\n').length;
-  const chars = text.length;
-  const langEl = document.getElementById('code-lang');
-  const langName = langEl ? langEl.options[langEl.selectedIndex]?.text : '';
-  document.getElementById('code-lines').textContent = lines;
-  document.getElementById('code-chars').textContent = chars;
-  document.getElementById('code-lang-status').textContent = langName || '';
-}
-
-window.changeCodeLang = function() {
-  const lang = document.getElementById('code-lang').value;
-  const ext = langExtMap[lang] || lang;
-  const filenameEl = document.getElementById('code-filename');
-  const currentName = filenameEl.value;
-  const baseName = currentName.includes('.') ? currentName.substring(0, currentName.lastIndexOf('.')) : currentName;
-  filenameEl.value = baseName + '.' + ext;
-  if (monacoEditor) monaco.editor.setModelLanguage(monacoEditor.getModel(), lang);
-  const snippet = langSnippets[lang];
-  if (snippet && !getCodeContent().trim()) setCodeContent(snippet);
-  updateCodeStatus();
-};
-
-window.downloadCode = function() {
-  const text = getCodeContent();
-  const name = document.getElementById('code-filename').value || 'code.txt';
-  const blob = new Blob([text], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = name; a.click();
-};
-
-window.copyCode = function() {
-  navigator.clipboard.writeText(getCodeContent()).then(() => {
-    const btn = [...document.querySelectorAll('#panel-code .app-btn')].find(b => b.textContent.includes('Copy'));
-    if (btn) { const old = btn.textContent; btn.textContent = '✓ Copied!'; setTimeout(() => btn.textContent = old, 1500); }
-  });
-};
-
-window.clearCode = function() { setCodeContent(''); updateCodeStatus(); };
-
-window.loadCodeFile = function(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    setCodeContent(e.target.result);
-    document.getElementById('code-filename').value = file.name;
-    const ext = file.name.split('.').pop().toLowerCase();
-    const extToLang = { js:'javascript', ts:'typescript', py:'python', cpp:'cpp', c:'c', java:'java',
-      cs:'csharp', rs:'rust', go:'go', rb:'ruby', php:'php', lua:'lua', sh:'shell', sql:'sql',
-      json:'json', yml:'yaml', yaml:'yaml', xml:'xml', md:'markdown', html:'html', css:'css', txt:'plaintext' };
-    const lang = extToLang[ext] || 'plaintext';
-    document.getElementById('code-lang').value = lang;
-    if (monacoEditor) monaco.editor.setModelLanguage(monacoEditor.getModel(), lang);
-    updateCodeStatus();
-  };
-  reader.readAsText(file);
-};
-
-// Init Monaco when code editor tab is opened
-const _origSwitchAppTab = window.switchAppTab;
-window.switchAppTab = function(el, panelId) {
-  _origSwitchAppTab(el, panelId);
-  if (panelId === 'panel-code' && !monacoLoaded) initMonaco();
-};
-
-// Fallback textarea events
-setTimeout(() => {
-  const fb = document.getElementById('code-editor-fallback');
-  if (fb) {
-    fb.addEventListener('input', updateCodeStatus);
-    fb.addEventListener('keydown', e => {
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        const start = fb.selectionStart, end = fb.selectionEnd;
-        fb.value = fb.value.substring(0, start) + '  ' + fb.value.substring(end);
-        fb.selectionStart = fb.selectionEnd = start + 2;
-        updateCodeStatus();
-      }
-    });
-  }
-}, 800);
-
-
-// ===================================================
-// FILE CONVERTER
-// ===================================================
-const fcConvertibleFormats = {
-  txt: ['json', 'html', 'md', 'csv', 'base64', 'hex', 'binary', 'uri'],
-  json: ['txt', 'csv', 'yaml', 'xml', 'html'],
-  csv: ['json', 'txt', 'html', 'tsv'],
-  html: ['txt', 'md'],
-  md: ['html', 'txt'],
-  js: ['ts', 'txt'],
-  ts: ['js', 'txt'],
-  py: ['txt'],
-  sh: ['txt'],
-  xml: ['json', 'txt'],
-  yaml: ['json', 'txt'],
-  yml: ['json', 'txt'],
-  any: ['base64', 'hex', 'zip', 'txt'],
-};
-
-let fcFiles = [];
-
-function fcAddFiles(fileList) {
-  Array.from(fileList).forEach(f => {
-    if (!fcFiles.find(x => x.name === f.name)) fcFiles.push(f);
-  });
-  renderFcRows();
-}
-
-function fcGetOutputFormats(filename) {
-  const ext = filename.split('.').pop().toLowerCase();
-  const formats = fcConvertibleFormats[ext] || fcConvertibleFormats.any;
-  return [...new Set([...formats, 'base64', 'hex', 'zip', 'txt'])];
-}
-
-function renderFcRows() {
-  const container = document.getElementById('fc-file-rows');
-  container.innerHTML = '';
-  fcFiles.forEach((file, i) => {
-    const formats = fcGetOutputFormats(file.name);
-    const row = document.createElement('div');
-    row.className = 'fc-file-row';
-    row.innerHTML = `
-      <span style="font-size:20px">${getFileEmoji(file.name)}</span>
-      <span class="fc-name">${file.name} <small style="color:var(--text-muted)">(${formatBytes(file.size)})</small></span>
-      <span style="color:var(--text-muted);font-size:12px">→</span>
-      <select>${formats.map(f => `<option value="${f}">${f.toUpperCase()}</option>`).join('')}</select>
-      <button class="fc-convert-btn" onclick="fcConvert(${i},this)">Convert</button>
-      <span class="fc-remove" onclick="fcRemove(${i})">✕</span>`;
-    container.appendChild(row);
-  });
-}
-
-function fcRemove(idx) { fcFiles.splice(idx, 1); renderFcRows(); }
-
-async function fcConvert(idx, btn) {
-  const file = fcFiles[idx];
-  const row = btn.closest('.fc-file-row');
-  const toFmt = row.querySelector('select').value;
-  btn.textContent = '⏳';
-  btn.disabled = true;
-
-  try {
-    let outputName = file.name.replace(/\.[^/.]+$/, '') + '.' + toFmt;
-    let blob;
-
-    if (toFmt === 'base64') {
-      const ab = await file.arrayBuffer();
-      const b64 = btoa(String.fromCharCode(...new Uint8Array(ab)));
-      blob = new Blob([b64], { type: 'text/plain' });
-      outputName = file.name + '.b64.txt';
-    } else if (toFmt === 'hex') {
-      const ab = await file.arrayBuffer();
-      const hex = Array.from(new Uint8Array(ab)).map(b => b.toString(16).padStart(2,'0')).join(' ');
-      blob = new Blob([hex], { type: 'text/plain' });
-      outputName = file.name + '.hex.txt';
-    } else if (toFmt === 'zip') {
-      if (typeof JSZip === 'undefined') throw new Error('JSZip not loaded');
-      const zip = new JSZip();
-      const ab = await file.arrayBuffer();
-      zip.file(file.name, ab);
-      blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
-      outputName = file.name + '.zip';
-    } else if (toFmt === 'binary') {
-      const ab = await file.arrayBuffer();
-      const bin = Array.from(new Uint8Array(ab)).map(b => b.toString(2).padStart(8,'0')).join(' ');
-      blob = new Blob([bin], { type: 'text/plain' });
-      outputName = file.name + '.bin.txt';
-    } else if (toFmt === 'uri') {
-      const ab = await file.arrayBuffer();
-      const b64 = btoa(String.fromCharCode(...new Uint8Array(ab)));
-      const mime = file.type || 'application/octet-stream';
-      const dataUri = `data:${mime};base64,${b64}`;
-      blob = new Blob([dataUri], { type: 'text/plain' });
-      outputName = file.name + '.datauri.txt';
-    } else {
-      // Text-based conversions
-      const text = await file.text();
-      const srcExt = file.name.split('.').pop().toLowerCase();
-      let converted = text;
-
-      if (srcExt === 'csv' && toFmt === 'json') {
-        const lines = text.trim().split('\n');
-        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,''));
-        const rows = lines.slice(1).map(l => {
-          const vals = l.split(',').map(v => v.trim().replace(/^"|"$/g,''));
-          const obj = {};
-          headers.forEach((h,i) => obj[h] = vals[i]);
-          return obj;
-        });
-        converted = JSON.stringify(rows, null, 2);
-      } else if (srcExt === 'json' && toFmt === 'csv') {
-        const parsed = JSON.parse(text);
-        if (Array.isArray(parsed) && parsed.length) {
-          const keys = Object.keys(parsed[0]);
-          const header = keys.join(',');
-          const rows = parsed.map(r => keys.map(k => JSON.stringify(r[k]??'')).join(','));
-          converted = [header, ...rows].join('\n');
-        }
-      } else if ((srcExt === 'json' || srcExt === 'yaml' || srcExt === 'yml') && toFmt === 'html') {
-        converted = `<!DOCTYPE html><html><body><pre style="background:#1a1a2e;color:#fff;padding:20px;border-radius:8px;font-family:monospace">${text.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre></body></html>`;
-      } else if (srcExt === 'md' && toFmt === 'html') {
-        // Simple MD to HTML
-        converted = text
-          .replace(/^### (.*)/gm, '<h3>$1</h3>').replace(/^## (.*)/gm, '<h2>$1</h2>').replace(/^# (.*)/gm, '<h1>$1</h1>')
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>')
-          .replace(/`(.*?)`/g, '<code>$1</code>')
-          .replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>');
-        converted = `<!DOCTYPE html><html><body>${converted}</body></html>`;
-      } else if (srcExt === 'html' && toFmt === 'txt') {
-        converted = text.replace(/<[^>]+>/g, '').replace(/\s\s+/g, '\n').trim();
-      } else if (srcExt === 'csv' && toFmt === 'tsv') {
-        converted = text.replace(/,/g, '\t');
-      } else if (srcExt === 'csv' && toFmt === 'html') {
-        const lines = text.trim().split('\n');
-        const headers = lines[0].split(',');
-        const rows = lines.slice(1).map(l => l.split(','));
-        converted = `<!DOCTYPE html><html><body><table border="1" cellpadding="6" style="border-collapse:collapse"><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table></body></html>`;
-      }
-
-      blob = new Blob([converted], { type: 'text/plain' });
-    }
-
-    const url = URL.createObjectURL(blob);
-    const dlArea = document.getElementById('fc-dl-area');
-    const item = document.createElement('div');
-    item.className = 'fc-dl-item';
-    item.innerHTML = `<span style="font-size:18px">${getFileEmoji(outputName)}</span> <span style="flex:1">${outputName}</span> <a href="${url}" download="${outputName}">💾 Download</a>`;
-    dlArea.prepend(item);
-
-  } catch(e) {
-    alert('Conversion failed: ' + e.message);
-  }
-
-  btn.textContent = '✓ Done';
-  setTimeout(() => { btn.textContent = 'Convert'; btn.disabled = false; }, 2000);
-}
-
-setTimeout(() => {
-  const el = document.getElementById('fc-dropzone');
-  if (!el) return;
-  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
-  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
-  el.addEventListener('drop', e => { e.preventDefault(); el.classList.remove('drag-over'); fcAddFiles(e.dataTransfer.files); });
-}, 800);
-
-
-// ===================================================
-// RUFFLE (FLASH PLAYER)
-// ===================================================
-let ruffleReady = false;
-
-function initRuffle() {
-  if (!window.RufflePlayer) {
-    document.getElementById('ruffle-status').textContent = '⚠️ Ruffle not loaded. Check internet connection.';
-    return;
-  }
-  ruffleReady = true;
-  document.getElementById('ruffle-status').textContent = '✅ Ruffle ready. Drop a .swf file!';
-}
-
-window.loadRuffleFile = async function(file) {
-  if (!file) return;
-
-  // Build a self-contained HTML page that embeds Ruffle + the SWF as base64
-  const bytes = await file.arrayBuffer();
-  const b64 = btoa(String.fromCharCode(...new Uint8Array(bytes)));
-  const swfDataUrl = 'data:application/x-shockwave-flash;base64,' + b64;
-
-  const _so = '<' + 'script';
-  const _sc = '<' + '/script>';
-  const ruffleHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#000;width:100vw;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center}ruffle-player{width:100%;height:100%;display:block}</style>' + _so + ' src="https://unpkg.com/@ruffle-rs/ruffle">' + _sc + '</head><body>' + _so + '>window.addEventListener("load",()=>{const ruffle=window.RufflePlayer.newest();const player=ruffle.createPlayer();player.style.width="100%";player.style.height="100%";document.body.appendChild(player);player.load("' + swfDataUrl + '");});' + _sc + '</body></html>';
-
-  _openInGameView(ruffleHtml, '🎬 ' + file.name);
-};
-
-setTimeout(() => {
-  const el = document.getElementById('ruffle-drop');
-  if (!el) return;
-  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
-  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
-  el.addEventListener('drop', e => {
-    e.preventDefault(); el.classList.remove('drag-over');
-    if (e.dataTransfer.files[0]) loadRuffleFile(e.dataTransfer.files[0]);
-  });
-  // Check if ruffle loaded
-  setTimeout(initRuffle, 2000);
-}, 800);
-
-
-// ===================================================
-// EMULATOR (EmulatorJS)
-// ===================================================
-let emuCore = 'nes';
-let emuRomData = null;
-let emuRomName = '';
-
-const emuCoreInfo = {
-  nes:      { name: 'NES',       exts: 'nes',              hint: 'NES: .nes files' },
-  snes:     { name: 'SNES',      exts: 'sfc,smc',          hint: 'SNES: .sfc or .smc files' },
-  gb:       { name: 'Game Boy',  exts: 'gb',               hint: 'Game Boy: .gb files' },
-  gba:      { name: 'GBA',       exts: 'gba',              hint: 'GBA: .gba files' },
-  gbc:      { name: 'GBC',       exts: 'gbc',              hint: 'Game Boy Color: .gbc files' },
-  n64:      { name: 'N64',       exts: 'n64,z64,v64',      hint: 'N64: .n64, .z64, or .v64 files' },
-  segaMD:   { name: 'Sega MD',   exts: 'md,gen',           hint: 'Sega Mega Drive: .md or .gen files' },
-  segaMS:   { name: 'Sega MS',   exts: 'sms',              hint: 'Sega Master System: .sms files' },
-  segaGG:   { name: 'Game Gear', exts: 'gg',               hint: 'Game Gear: .gg files' },
-  psx:      { name: 'PS1',       exts: 'bin,cue,img,pbp',  hint: 'PlayStation: .bin/.cue, .img, or .pbp files' },
-  atari2600:{ name: 'Atari',     exts: 'a26,bin,rom',      hint: 'Atari 2600: .a26, .bin, or .rom files' },
-  arcade:   { name: 'Arcade',    exts: 'zip',              hint: 'Arcade (MAME): .zip ROM sets' },
-};
-
-window.selectEmuSystem = function(el) {
-  document.querySelectorAll('.emu-sys-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  emuCore = el.dataset.core;
-  const info = emuCoreInfo[emuCore] || {};
-  document.getElementById('emu-hint').textContent = info.hint || '';
-  document.getElementById('emu-rom-input').accept = (info.exts || '').split(',').map(e => '.'+e).join(',');
-};
-
-window.loadEmuRom = async function(file) {
-  if (!file) return;
-  emuRomName = file.name;
-
-  const ab = await file.arrayBuffer();
-  const b64 = btoa(String.fromCharCode(...new Uint8Array(ab)));
-  emuRomData = `data:application/octet-stream;base64,${b64}`;
-
-  launchEmulator();
-};
-
-
-// ===== OPEN IN GAME VIEW (used by Ruffle + Emulator) =====
-function _openInGameView(htmlContent, title) {
-  // Track that back should return to apps
-  window._backToApps = true;
-
-  // Navigate to games page
-  showAppPage('games');
-
-  // Wait a tick for the DOM to be visible, then activate gameView
-  requestAnimationFrame(() => {
-    // Hide the games browser UI, show the game iframe view
-    const gameView = document.getElementById('gameView');
-    const categorySidebar = document.getElementById('categorySidebar');
-    const topBar = document.getElementById('topBar');
-    const homepageView = document.getElementById('homepageView');
-    const zoneViewerEl = document.getElementById('zoneViewer');
-
-    if (categorySidebar) categorySidebar.classList.add('hidden');
-    if (topBar) topBar.classList.add('hidden');
-    if (homepageView) homepageView.style.display = 'none';
-    if (gameView) gameView.classList.add('active');
-
-    // Update the back button label
-    const backBtn = document.getElementById('backBtn');
-    if (backBtn) backBtn.textContent = '← Back to Apps';
-
-    // Load content into zoneFrame via srcdoc
-    if (zoneViewerEl) {
-      zoneViewerEl.style.display = 'block';
-      zoneViewerEl.hidden = false;
-    }
-
-    const frame = document.getElementById('zoneFrame');
-    if (frame) {
-      frame.srcdoc = htmlContent;
-    }
-
-    // Show nav hamburger / hide full nav
-    window._navGameActive = true;
-    document.body.classList.add('nav-game-active');
-  });
-}
-
-function launchEmulator() {
-  if (!emuRomData) return;
-
-  const _so = '<' + 'script';
-  const _sc = '<' + '/script>';
-  const emuHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#000;width:100vw;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center}#game{width:100%;height:100%}</style></head><body><div id="game"></div>' + _so + '>window.EJS_player="#game";window.EJS_core="' + emuCore + '";window.EJS_gameUrl="' + emuRomData + '";window.EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";window.EJS_startOnLoaded=true;window.EJS_color="#5a5aff";window.EJS_backgroundColor="#08081a";window.EJS_volume=0.7;' + _sc + _so + ' src="https://cdn.emulatorjs.org/stable/data/loader.js">' + _sc + '</body></html>';
-
-  _openInGameView(emuHtml, '🕹️ ' + (emuCoreInfo[emuCore]?.name || emuCore) + ' · ' + emuRomName);
-}
-
-setTimeout(() => {
-  const el = document.getElementById('emu-drop');
-  if (!el) return;
-  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
-  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
-  el.addEventListener('drop', e => {
-    e.preventDefault(); el.classList.remove('drag-over');
-    if (e.dataTransfer.files[0]) loadEmuRom(e.dataTransfer.files[0]);
-  });
-}, 800);
-
-
-
-var runnableLangs = {javascript:1,html:1,css:1,json:1};
-function updateRunBtn(){
-  var l=document.getElementById('code-lang');
-  var b=document.getElementById('run-code-btn');
-  if(!b||!l) return;
-  b.style.display='';
-  if(runnableLangs[l.value]){b.style.opacity='1';b.title='Run code';}
-  else{b.style.opacity='0.55';b.title='Cannot run this language in browser (will show error)';}
-}
-(function(){var oc=window.changeCodeLang;window.changeCodeLang=function(){if(oc)oc();updateRunBtn();};var os=window.switchAppTab;window.switchAppTab=function(el,pid){os(el,pid);if(pid==='panel-code')setTimeout(updateRunBtn,100);};})();
-window.runCode=function(){
-  var lang=document.getElementById('code-lang').value;
-  var code=getCodeContent();
-  var wrap=document.getElementById('code-output-wrap');
-  var con=document.getElementById('code-output-console');
-  var frm=document.getElementById('code-output-frame');
-  wrap.style.display='block';
-
-  function addLog(type,args){
-    var colors={log:'#e0e0e0',warn:'#ffcc00',error:'#ff6060',info:'#66cfff',success:'#66ff99'};
-    var d=document.createElement('div');
-    d.style.cssText='color:'+(colors[type]||'#e0e0e0')+';border-bottom:1px solid rgba(255,255,255,.04);padding:4px 0;word-break:break-all;font-family:monospace;font-size:12px;';
-    var icons={log:'',warn:'&#9888; ',error:'&#10006; ',info:'&#8505; ',success:'&#10004; '};
-    var pre=type!=='log'?'<span style="opacity:.7;margin-right:6px">'+(icons[type]||'')+'['+type.toUpperCase()+']</span>':'';
-    var msg=args.map(function(a){return a==null?'null':typeof a==='object'?JSON.stringify(a,null,2):String(a);}).join(' ');
-    d.innerHTML=pre+msg.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-    con.appendChild(d);
-    con.scrollTop=con.scrollHeight;
-  }
-
-  function showUnsupported(l){
-    frm.style.display='none';con.style.display='block';con.innerHTML='';
-    addLog('error',['Cannot run '+l+' in the browser directly.']);
-    addLog('info',['Runnable: JavaScript, HTML, CSS, JSON']);
-  }
-
-  if(lang==='javascript'){
-    frm.style.display='none';con.style.display='block';con.innerHTML='';
-    // Syntax check via new Function
-    try{ new Function(code); } catch(e){ addLog('error',['Syntax Error: '+e.message]); return; }
-    var msgId='__cr_'+Date.now();
-    var onMsg=function(e){
-      if(e.data&&e.data.__crid===msgId) addLog(e.data.type,e.data.args);
-    };
-    window.addEventListener('message',onMsg);
-    // Build runner as srcdoc so no escaping issues
-    var runner=[
-      '<!DOCTYPE html><html><body><script>',
-      '(function(){',
-      'var _id=',JSON.stringify(msgId),';',
-      'function send(t,a){parent.postMessage({__crid:_id,type:t,args:a.map(function(x){return typeof x==="object"?JSON.stringify(x,null,2):String(x);})}, "*");}',
-      '["log","warn","error","info"].forEach(function(t){var o=console[t].bind(console);console[t]=function(){var a=Array.prototype.slice.call(arguments);o.apply(console,a);send(t,a);};});',
-      'window.onerror=function(m,s,l,c,err){send("error",[(err&&err.stack?err.stack:m)+" (line "+l+", col "+c+")"]);return true;};',
-      'window.onunhandledrejection=function(e){send("error",["Unhandled Promise rejection: "+(e.reason&&e.reason.stack?e.reason.stack:String(e.reason))]);};',
-      'try{\n',
-      '</scr','ipt><script>',
-      code,
-      '<\/script>',
-      '<script>',
-      '}catch(e){send("error",[e.stack||e.toString()]);}',
-      '})();',
-      '<\/script></body></html>'
-    ].join('');
-    // Use srcdoc on a temp iframe - no blob URL needed
-    var tmpFrm=document.createElement('iframe');
-    tmpFrm.style.cssText='display:none;width:0;height:0;border:none;';
-    tmpFrm.sandbox='allow-scripts';
-    tmpFrm.srcdoc=runner;
-    document.body.appendChild(tmpFrm);
-    setTimeout(function(){
-      window.removeEventListener('message',onMsg);
-      if(document.body.contains(tmpFrm))document.body.removeChild(tmpFrm);
-      if(!con.children.length) addLog('success',['Ran with no output']);
-    },2500);
-  }else if(lang==='html'){
-    var errOverlay='<scr'+'ipt>window.onerror=function(m,s,l,c,e){'
-      +'var d=document.createElement("div");'
-      +'d.style="position:fixed;bottom:0;left:0;right:0;background:#1a0000;color:#ff6060;padding:8px 14px;font:12px monospace;z-index:9999;border-top:2px solid #ff4444;white-space:pre-wrap;";'
-      +'d.textContent="ERROR: "+(e&&e.stack?e.stack:m)+" (line "+l+")";'
-      +'document.body.appendChild(d);return true;};<\/scr'+'ipt>';
-    var injected=code.indexOf('</head>')!==-1 ? code.replace('</head>',errOverlay+'</head>') : errOverlay+code;
-    con.style.display='none';frm.style.display='block';frm.srcdoc=injected;
-  }else if(lang==='css'){
-    var ph='<!DOCTYPE html><html><head>'
-      +'<style>body{background:#1a1a2e;color:#e0e0e0;font-family:sans-serif;padding:20px;margin:0;}'
-      +'h1,h2,h3{color:#ccc;} a{color:#5a9aff;}'
-      +'button{padding:6px 14px;border-radius:6px;border:1px solid #555;background:#333;color:#fff;cursor:pointer;margin:2px;}'
-      +'input,select{padding:6px;border-radius:6px;border:1px solid #555;background:#222;color:#fff;}'
-      +'.card{background:#222;border:1px solid #333;border-radius:8px;padding:16px;margin:8px 0;}'
-      +'</style>'
-      +'<style>'+code+'</style></head>'
-      +'<body><h1>Heading 1</h1><h2>Heading 2</h2><p>Some <strong>bold</strong> and <em>italic</em> text.</p>'
-      +'<button class="btn">Button</button> <input placeholder="Input" class="input">'
-      +'<div class="card">Card element</div>'
-      +'<a href="#" class="link">A link</a>'
-      +'<ul><li>List item 1</li><li>List item 2</li></ul></body></html>';
-    con.style.display='block';
-    con.innerHTML='<div style="color:var(--text-muted);font-size:11px;letter-spacing:1px;padding-bottom:4px;">CSS Preview</div>';
-    frm.srcdoc=ph;frm.style.display='block';
-  }else if(lang==='json'){
-    frm.style.display='none';con.style.display='block';con.innerHTML='';
-    try{
-      var parsed=JSON.parse(code);
-      addLog('success',['Valid JSON']);
-      addLog('log',[JSON.stringify(parsed,null,2)]);
-    }catch(e){ addLog('error',['JSON Parse Error: '+e.message]); }
-  }else{
-    showUnsupported(lang);
-  }
-};
-window.clearCodeOutput=function(){document.getElementById('code-output-wrap').style.display='none';document.getElementById('code-output-console').innerHTML='';document.getElementById('code-output-frame').srcdoc='';};
-
-function jsBeautify(code){
-  var out='',indent=0,inStr=false,strChar='',i=0,IND='  ';
-  function nl(){var s='\n';for(var x=0;x<Math.max(0,indent);x++)s+=IND;return s;}
-  while(i<code.length){
-    var c=code[i],nxt=code[i+1]||'';
-    if(!inStr&&(c==='"'||c==="'"||c==='`')){inStr=true;strChar=c;out+=c;i++;continue;}
-    if(inStr){if(c==='\\'){out+=c+(code[i+1]||'');i+=2;continue;}if(c===strChar)inStr=false;out+=c;i++;continue;}
-    if(c==='/'&&nxt==='/'){var j=i;while(j<code.length&&code[j]!=='\n')j++;out+=code.slice(i,j);i=j;continue;}
-    if(c==='/'&&nxt==='*'){var j2=i+2;while(j2<code.length-1&&!(code[j2]==='*'&&code[j2+1]==='/'))j2++;out+=code.slice(i,j2+2);i=j2+2;continue;}
-    if(c==='{'){out=out.trimEnd();out+=' {';indent++;out+=nl();i++;continue;}
-    if(c==='}'){out=out.trimEnd();indent=Math.max(0,indent-1);out+=nl()+'}';var aft=code.slice(i+1).trimStart()[0];if(aft&&',);'.indexOf(aft)===-1)out+=nl();i++;continue;}
-    if(c===';'){out+=';';var k=i+1;while(k<code.length&&(code[k]===' '||code[k]==='\t'))k++;if(code[k]!=='\n'&&code[k]!=='}')out+=nl();i++;continue;}
-    if(c===' '||c==='\t'||c==='\n'||c==='\r'){if(out.length&&out[out.length-1]!==' '&&out[out.length-1]!=='\n')out+=' ';i++;continue;}
-    out+=c;i++;
-  }
-  return out.replace(/ +\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
-}
-
-window.deobfuscate=function(){
-  var input=document.getElementById('deob-input').value.trim();
-  if(!input)return;
-  var statusEl=document.getElementById('deob-status');
-  statusEl.textContent='Working...';
-  try{
-    var code=input,passes=0;
-    code=code.replace(/\\x([0-9a-fA-F]{2})/g,function(m,h){return String.fromCharCode(parseInt(h,16));});
-    code=code.replace(/\\u([0-9a-fA-F]{4})/g,function(m,h){return String.fromCharCode(parseInt(h,16));});
-    code=code.replace(/\\u\{([0-9a-fA-F]+)\}/g,function(m,h){return String.fromCharCode(parseInt(h,16));});
-    var prev='',iters=0;
-    while(prev!==code&&iters<20){prev=code;iters++;
-      code=code.replace(/'([^']*)'\s*\+\s*'([^']*)'/g,function(m,a,b){return"'"+a+b+"'";});
-      code=code.replace(/"([^"]*)"\s*\+\s*"([^"]*)"/g,function(m,a,b){return'"'+a+b+'"';});
-    }
-    passes+=iters;
-    code=code.replace(/\batob\s*\(\s*(['"\`])(.*?)\1\s*\)/g,function(m,q,b64){try{return q+atob(b64)+q;}catch(e){return m;}});
-    var arrPat=/(?:var|let|const)\s+(_0x[a-fA-F0-9]+)\s*=\s*\[([^\]]+)\]\s*;/g,am;
-    while((am=arrPat.exec(code))!==null){
-      try{
-        var items=am[2].match(/(?:'[^']*'|"[^"]*")/g);
-        if(!items)continue;
-        var arr=items.map(function(s){return s.slice(1,-1);});
-        var sn=am[1].replace(/\$/g,'\\$');
-        code=code.replace(new RegExp(sn+'\\[(\\d+)\\]','g'),function(m3,idx){var ii=parseInt(idx);return ii<arr.length?"'"+arr[ii]+"'":m3;});
-      }catch(e){}
-    }
-    code=jsBeautify(code);
-    document.getElementById('deob-output').value=code;
-    statusEl.textContent='\u2713 Done ('+passes+' passes)';
-    var origLen=input.length,newLen=code.length,reduction=Math.round((1-newLen/origLen)*100);
-    document.getElementById('deob-stats').innerHTML=[
-      {label:'Original',val:origLen.toLocaleString()+' chars'},
-      {label:'Output',val:newLen.toLocaleString()+' chars'},
-      {label:'Lines',val:code.split('\n').length.toLocaleString()},
-      {label:'Change',val:(reduction>0?'-':'+')+Math.abs(reduction)+'%'}
-    ].map(function(s){return '<div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--accent);font-family:monospace">'+s.val+'</div><div style="font-size:10px;color:var(--text-muted);letter-spacing:1px">'+s.label+'</div></div>';}).join('');
-  }catch(err){
-    document.getElementById('deob-output').value='// Error:\n// '+err.message+'\n\n'+jsBeautify(input);
-    statusEl.textContent='\u26a0 Partial';
-  }
-};
-window.beautifyDeob=function(){var input=document.getElementById('deob-input').value.trim();if(!input)return;document.getElementById('deob-output').value=jsBeautify(input);document.getElementById('deob-status').textContent='\u2713 Beautified';};
-window.copyDeobOutput=function(){var out=document.getElementById('deob-output').value;if(!out)return;navigator.clipboard.writeText(out).then(function(){document.getElementById('deob-status').textContent='\u2713 Copied!';setTimeout(function(){document.getElementById('deob-status').textContent='';},2000);});};
-window.clearDeob=function(){document.getElementById('deob-input').value='';document.getElementById('deob-output').value='';document.getElementById('deob-status').textContent='';document.getElementById('deob-stats').innerHTML='';};
-
 </script>
 </body>
 </html>
