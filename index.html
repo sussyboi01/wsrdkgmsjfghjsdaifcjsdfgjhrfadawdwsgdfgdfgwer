@@ -2843,23 +2843,11 @@ document.getElementById("recentBtn").onclick = () => {
     document.getElementById("customDialog").classList.add("show");
     setTimeout(() => { document.querySelectorAll("#customDialogMessage .recommended-game").forEach(el => { el.onclick = () => { document.getElementById("customDialog").classList.remove("show"); loadGame(el.dataset.id); }; }); }, 0);
 };
-async function loadGame(gameId, repoHint) {
+async function loadGame(gameId) {
     gameId = gameId.toString();
     currentGame = gameId;
 
-    // Look in allGames first, then all caches if a repoHint is given
-    let game = allGames.find(g => g.id.toString() === gameId);
-    if (!game && repoHint) {
-        const cached = allGamesCache[repoHint];
-        if (cached) game = cached.find(g => g.id.toString() === gameId);
-    }
-    if (!game) {
-        // Last resort: search all caches
-        for (const games of Object.values(allGamesCache)) {
-            game = games.find(g => g.id.toString() === gameId);
-            if (game) break;
-        }
-    }
+    const game = allGames.find(g => g.id.toString() === gameId);
     if (!game) {
         showGameError("Game not found");
         return;
@@ -2881,16 +2869,6 @@ async function loadGame(gameId, repoHint) {
     if (window._hideNav) window._hideNav();
     if (window._hideCalcForGame) window._hideCalcForGame();
     document.body.classList.add('nav-game-active');
-
-    // ── Show game name + repo source in controls bar ──
-    const gameInfoBar = document.getElementById('gameInfoBar');
-    const gameNameLabel = document.getElementById('gameNameLabel');
-    const badge = document.getElementById('gameSourceBadge');
-    if (gameInfoBar && gameNameLabel && badge) {
-        gameNameLabel.textContent = game.name;
-        badge.textContent = REPOS[game.repo]?.name || game.repo;
-        gameInfoBar.style.display = 'flex';
-    }
 
     // ── Build game URL ──
     const gameURL = game.url && game.url.startsWith("http")
@@ -2977,31 +2955,8 @@ async function loadGame(gameId, repoHint) {
         html = html.replace(/(<head[^>]*>)/i, `$1<base href="${base}">`);
     }
 
-    // ── Fix relative fetch/XHR string literals inside inline scripts ──
-    // Handles cases like fetch('parts-1.bin') where the string never goes through
-    // attribute rewriting but resolves relative to the document URL at runtime.
-    html = html.replace(/(<script[\s\S]*?<\/script>)/gi, scriptBlock => {
-        // Only touch inline scripts (no src=)
-        if (/^<script\b[^>]*\bsrc\s*=/i.test(scriptBlock)) return scriptBlock;
-        // Rewrite bare relative string literals passed to fetch(), new URL(), XHR.open(), Audio()
-        // Match single or double quoted strings that look like relative asset paths
-        return scriptBlock.replace(
-            /(fetch|XMLHttpRequest[\s\S]*?\.open\s*\([^,]+,\s*|new\s+URL\s*\(\s*|new\s+Audio\s*\(\s*)(['"])(?!https?:\/\/|\/\/|data:|blob:|javascript:|#|\/)([^'"?#\s]+\.[a-z0-9]{1,6})(\??[^'"]*)\2/gi,
-            (match, pre, q, rel, qs) => `${pre}${q}${base}${rel}${qs}${q}`
-        );
-    });
-
-    // Also rewrite bare string arrays / variable assignments that hold asset filenames
-    // e.g. let binParts = ["parts-1.bin", "parts-2.bin", ...]
-    html = html.replace(/(<script[\s\S]*?<\/script>)/gi, scriptBlock => {
-        if (/^<script\b[^>]*\bsrc\s*=/i.test(scriptBlock)) return scriptBlock;
-        return scriptBlock.replace(
-            /(['"])(?!https?:\/\/|\/\/|data:|blob:|javascript:|#|\/)([a-zA-Z0-9._-]+\.(?:bin|js|wasm|data|unityweb|json|gz|br|zip))\1/g,
-            (match, q, filename) => `${q}${base}${filename}${q}`
-        );
-    });
-
-    // ── Write into iframe via Blob URL so fetch() relative URLs resolve correctly ──
+    // ── Write into iframe ──
+    // Always replace the iframe element fresh to avoid any stale state
     const container = zoneFrame.parentNode;
     const newFrame = document.createElement("iframe");
     newFrame.id = "zoneFrame";
@@ -3012,19 +2967,16 @@ async function loadGame(gameId, repoHint) {
     container.replaceChild(newFrame, zoneFrame);
     zoneFrame = newFrame;
 
-    // Use a Blob URL so the iframe has a real browsing context
-    // (avoids contentDocument.write origin issues with fetch() in inline scripts)
-    const blob = new Blob([html], { type: 'text/html' });
-    const blobUrl = URL.createObjectURL(blob);
-    // Revoke after load to free memory
-    zoneFrame.onload = () => {
-        URL.revokeObjectURL(blobUrl);
-        requestAnimationFrame(() => {
-            try { zoneFrame.contentWindow?.focus(); } catch(e) {}
-            setupFocusDetection(zoneFrame);
-        });
-    };
-    zoneFrame.src = blobUrl;
+    // Write HTML directly — no src round-trip so no lag
+    zoneFrame.contentDocument.open();
+    zoneFrame.contentDocument.write(html);
+    zoneFrame.contentDocument.close();
+
+    // Focus and setup overlay after doc is ready
+    requestAnimationFrame(() => {
+        try { zoneFrame.contentWindow.focus(); } catch(e) {}
+        setupFocusDetection(zoneFrame);
+    });
 }
 
 function showGameError(realError) {
@@ -3885,6 +3837,9 @@ window._miniGetTitle  = () => {
     if (currentIndex === -1 || !queue[currentIndex]) return null;
     return queue[currentIndex].title || null;
 };
-</script>
+
+
+// ===== APPS PAGE JS (from daboi v5) =====
+// ===== APPS PAGE JS =====</script>
 </body>
 </html>
