@@ -3557,6 +3557,264 @@ document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if
     const sFavsGridPage = document.getElementById('favsGridPage');
     const sFavsFeedPage = document.getElementById('favsFeedPage');
 
+    /* ═══════════════════════════════════════════
+       BOISMART ALGORITHM — Persistent Preference Engine
+       ─────────────────────────────────────────────
+       Storage keys (never reset, never capped at init):
+         shorts_watch_history  → { videoId: { watchMs, visits, liked, topics:[], seenAt } }
+         shorts_topic_scores   → { topicKey: score }
+         shorts_seen_ids       → [ ...up to 5000 video IDs in watch order ]
+       ─────────────────────────────────────────────
+       Scoring weights:
+         +200   → liked (hearted)
+         +5/sec → watch time (capped at +100 for a single session)
+         +10    → re-watch (visited before)
+         −40    → skipped quickly (< 3s watched)
+         topic  → bleed from per-video signals into topic score bank
+    ═══════════════════════════════════════════ */
+
+    const ALGO_HISTORY_KEY   = 'shorts_watch_history';
+    const ALGO_TOPICS_KEY    = 'shorts_topic_scores';
+    const ALGO_SEEN_KEY      = 'shorts_seen_ids';
+    const MAX_SEEN_IDS       = 5000;
+    const WATCH_TICK_MS      = 1000;          // score every second of watch time
+    const WATCH_SCORE_PER_S  = 5;
+    const WATCH_CAP_SCORE    = 100;           // max per-session watch score
+    const LIKE_SCORE         = 200;
+    const SKIP_PENALTY       = -40;
+    const SKIP_THRESHOLD_MS  = 3000;         // < 3s = skip
+    const TOPIC_BLEED        = 0.4;          // how much video score bleeds to topics
+    const SCORE_DECAY        = 0.98;         // daily passive decay applied on load
+    const ALGO_VERSION       = 1;
+
+    // ── Load persistent data from localStorage (raw, no reset) ──
+    function algoLoad(key, def) {
+        try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; }
+        catch(e) { return def; }
+    }
+    function algoSave(key, val) {
+        try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {
+            // If localStorage is full, try removing old least-used history entries
+            try {
+                pruneHistory(); // shrink if needed
+                localStorage.setItem(key, JSON.stringify(val));
+            } catch(e2) { console.warn('BOIsmart: storage full', e2); }
+        }
+    }
+
+    let watchHistory  = algoLoad(ALGO_HISTORY_KEY, {});  // { id: {...} }
+    let topicScores   = algoLoad(ALGO_TOPICS_KEY, {});   // { topic: score }
+    let seenIds       = algoLoad(ALGO_SEEN_KEY, []);      // [ ...ids ]
+
+    // ── Seen ID ring buffer (max 5000, oldest pushed out) ──
+    function markSeen(id) {
+        if (!seenIds.includes(id)) {
+            seenIds.push(id);
+            if (seenIds.length > MAX_SEEN_IDS) seenIds.shift(); // drop oldest
+            algoSave(ALGO_SEEN_KEY, seenIds);
+        }
+    }
+
+    // ── Prune history to free space: drop entries with lowest score ──
+    function pruneHistory(maxEntries = 3000) {
+        const entries = Object.entries(watchHistory);
+        if (entries.length <= maxEntries) return;
+        entries.sort((a, b) => (a[1].score||0) - (b[1].score||0));
+        entries.slice(0, entries.length - maxEntries).forEach(([id]) => delete watchHistory[id]);
+        algoSave(ALGO_HISTORY_KEY, watchHistory);
+    }
+
+    // ── Apply score decay (called once on init) ──
+    function applyDecay() {
+        let dirty = false;
+        for (const id in watchHistory) {
+            const h = watchHistory[id];
+            if (h.score && Math.abs(h.score) > 0.5) {
+                h.score = (h.score || 0) * SCORE_DECAY;
+                dirty = true;
+            }
+        }
+        for (const t in topicScores) {
+            if (Math.abs(topicScores[t]) > 0.5) {
+                topicScores[t] *= SCORE_DECAY;
+            }
+        }
+        if (dirty) {
+            algoSave(ALGO_HISTORY_KEY, watchHistory);
+            algoSave(ALGO_TOPICS_KEY, topicScores);
+        }
+    }
+    applyDecay();
+
+    // ── Ensure history entry exists ──
+    function ensureEntry(id) {
+        if (!watchHistory[id]) {
+            watchHistory[id] = { score: 0, watchMs: 0, visits: 0, liked: false, topics: [], seenAt: Date.now() };
+        }
+        return watchHistory[id];
+    }
+
+    // ── Topic seeding from feed.json pre-tagged data ──
+    // feed.json now ships { id, topics[] } objects — we seed the history
+    // entry immediately so ranking works from the very first load.
+    // Falls back gracefully if a feed entry is a plain string (old format).
+    function seedTopicsFromFeed(feedRaw) {
+        let changed = false;
+        for (const item of feedRaw) {
+            if (typeof item === 'string') continue; // plain id, nothing to seed
+            const { id, topics } = item;
+            if (!topics || !topics.length) continue;
+            const entry = ensureEntry(id);
+            if (!entry.topics || entry.topics.length === 0) {
+                entry.topics = topics;
+                changed = true;
+            }
+        }
+        if (changed) algoSave(ALGO_HISTORY_KEY, watchHistory);
+    }
+
+    // Enrich is now a no-op for pre-tagged videos; kept as a hook for any plain-id stragglers
+    function enrichTopics(id) {
+        // Topics already seeded from feed.json at load time — nothing to do
+    }
+
+    // ── Bump topic scores from a video's entry ──
+    function bleedToTopics(entry, amount) {
+        (entry.topics || []).forEach(topic => {
+            topicScores[topic] = (topicScores[topic] || 0) + amount * TOPIC_BLEED;
+        });
+        algoSave(ALGO_TOPICS_KEY, topicScores);
+    }
+
+    // ── Score a video from the algorithm's perspective ──
+    function videoAlgoScore(id) {
+        const h = watchHistory[id];
+        if (!h) return 0;
+        let score = h.score || 0;
+        // Bonus: topic affinity
+        (h.topics || []).forEach(t => {
+            score += (topicScores[t] || 0) * 0.3;
+        });
+        return score;
+    }
+
+    // ── Re-rank feed array using algo scores ──
+    // Strategy: sort by score descending, but inject some randomness
+    // so the feed doesn't feel robotic (top 30% get priority slots,
+    // rest are shuffled and appended so there's always discovery).
+    function rankFeed(rawFeed) {
+        const scored = rawFeed.map(id => ({ id, score: videoAlgoScore(id) }));
+        scored.sort((a, b) => b.score - a.score);
+
+        const priorityCount = Math.ceil(scored.length * 0.35);
+        const priority = scored.slice(0, priorityCount);
+        const rest     = scored.slice(priorityCount);
+
+        // Shuffle rest for discovery
+        for (let i = rest.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [rest[i], rest[j]] = [rest[j], rest[i]];
+        }
+
+        // Weave: 2 priority, 1 discovery, repeating
+        const result = [];
+        let pi = 0, ri = 0;
+        while (pi < priority.length || ri < rest.length) {
+            if (pi < priority.length) result.push(priority[pi++].id);
+            if (pi < priority.length) result.push(priority[pi++].id);
+            if (ri < rest.length)     result.push(rest[ri++].id);
+        }
+        return result;
+    }
+
+    // ── Watch timer ──
+    let _watchTimer = null;
+    let _watchStart = null;
+    let _watchAccMs = 0;
+    let _currentWatchId = null;
+    let _currentSessionScore = 0;
+
+    function startWatchTimer(id) {
+        stopWatchTimer(); // commit previous
+        _currentWatchId = id;
+        _watchAccMs = 0;
+        _currentSessionScore = 0;
+        _watchStart = Date.now();
+        markSeen(id);
+        enrichTopics(id); // async background
+
+        const entry = ensureEntry(id);
+        entry.visits = (entry.visits || 0) + 1;
+        if (entry.visits > 1) {
+            entry.score = (entry.score || 0) + 10; // re-watch bonus
+        }
+        algoSave(ALGO_HISTORY_KEY, watchHistory);
+
+        _watchTimer = setInterval(() => {
+            if (!_currentWatchId) return;
+            _watchAccMs += WATCH_TICK_MS;
+            const sessScore = Math.min((_watchAccMs / 1000) * WATCH_SCORE_PER_S, WATCH_CAP_SCORE);
+            const delta = sessScore - _currentSessionScore;
+            _currentSessionScore = sessScore;
+            if (delta > 0) {
+                const e = ensureEntry(_currentWatchId);
+                e.score = (e.score || 0) + delta;
+                e.watchMs = (e.watchMs || 0) + WATCH_TICK_MS;
+                bleedToTopics(e, delta);
+                algoSave(ALGO_HISTORY_KEY, watchHistory);
+            }
+        }, WATCH_TICK_MS);
+    }
+
+    function stopWatchTimer() {
+        if (_watchTimer) { clearInterval(_watchTimer); _watchTimer = null; }
+        if (_currentWatchId && _watchStart) {
+            const elapsed = Date.now() - _watchStart;
+            if (elapsed < SKIP_THRESHOLD_MS) {
+                // Penalise skip
+                const entry = ensureEntry(_currentWatchId);
+                entry.score = (entry.score || 0) + SKIP_PENALTY;
+                bleedToTopics(entry, SKIP_PENALTY * 0.5);
+                algoSave(ALGO_HISTORY_KEY, watchHistory);
+            }
+        }
+        _currentWatchId = null;
+        _watchStart = null;
+    }
+
+    // ── Like/unlike updates algo ──
+    function algoLike(id) {
+        const entry = ensureEntry(id);
+        if (!entry.liked) {
+            entry.liked = true;
+            entry.score = (entry.score || 0) + LIKE_SCORE;
+            bleedToTopics(entry, LIKE_SCORE);
+            algoSave(ALGO_HISTORY_KEY, watchHistory);
+        }
+    }
+    function algoUnlike(id) {
+        const entry = ensureEntry(id);
+        if (entry.liked) {
+            entry.liked = false;
+            entry.score = (entry.score || 0) - LIKE_SCORE;
+            bleedToTopics(entry, -LIKE_SCORE);
+            algoSave(ALGO_HISTORY_KEY, watchHistory);
+        }
+    }
+
+    // ── Add a small UI indicator showing algo mode ──
+    (function injectAlgoHUD() {
+        const panel = sFeedPage.querySelector('.controls-panel');
+        if (!panel) return;
+        const hud = document.createElement('div');
+        hud.id = 'algoHUD';
+        hud.title = 'BOIsmart Algorithm Active — learns your taste from watch time & likes';
+        hud.style.cssText = `font-size:9px;letter-spacing:1.5px;color:var(--accent);opacity:0.7;text-align:center;font-family:'Segoe UI',sans-serif;cursor:default;user-select:none;margin-top:2px`;
+        hud.textContent = '⚡ BOISMART';
+        panel.appendChild(hud);
+    })();
+
+    // ── Core helpers ──
     function shuffleArray(a) { const arr = [...a]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
     function saveFavs() { saveData('favshorts', sFavorites); }
     function buildEmbed(id) { const p = new URLSearchParams({ rel:'0', autoplay:'1', mute:'0', enablejsapi:'1', playsinline:'1', modestbranding:'1' }); return `https://www.youtube-nocookie.com/embed/${id}?${p}`; }
@@ -3584,11 +3842,42 @@ document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if
         const id = sFeed[sFeedIdx]; const isFav = id && sFavorites.includes(id);
         sFeedFavBtn.innerHTML = isFav ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" fill="currentColor"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>'; sFeedFavBtn.classList.toggle('faved', !!isFav);
     }
-    function feedGoNext() { if (sFeedIdx >= sFeed.length - 1) return; sFeedIdx++; sLoadIntoFrame(sFeedFrame, sFeedPlayerWrap, sFeedLoading, sFeed[sFeedIdx], 'down'); updateFeedUI(); }
-    function feedGoPrev() { if (sFeedIdx <= 0) return; sFeedIdx--; sLoadIntoFrame(sFeedFrame, sFeedPlayerWrap, sFeedLoading, sFeed[sFeedIdx], 'up'); updateFeedUI(); }
+
+    // ── Navigate feed (with algo watch tracking) ──
+    function feedGoNext() {
+        if (sFeedIdx >= sFeed.length - 1) return;
+        stopWatchTimer();
+        sFeedIdx++;
+        sLoadIntoFrame(sFeedFrame, sFeedPlayerWrap, sFeedLoading, sFeed[sFeedIdx], 'down');
+        startWatchTimer(sFeed[sFeedIdx]);
+        updateFeedUI();
+        // Prefetch topics for next few videos
+        for (let i = sFeedIdx + 1; i <= Math.min(sFeedIdx + 3, sFeed.length - 1); i++) enrichTopics(sFeed[i]);
+    }
+    function feedGoPrev() {
+        if (sFeedIdx <= 0) return;
+        stopWatchTimer();
+        sFeedIdx--;
+        sLoadIntoFrame(sFeedFrame, sFeedPlayerWrap, sFeedLoading, sFeed[sFeedIdx], 'up');
+        startWatchTimer(sFeed[sFeedIdx]);
+        updateFeedUI();
+    }
     sFeedUpBtn.addEventListener('click', feedGoPrev); sFeedDownBtn.addEventListener('click', feedGoNext);
-    sFeedFavBtn.addEventListener('click', () => { const id = sFeed[sFeedIdx]; if (!id) return; if (sFavorites.includes(id)) sFavorites = sFavorites.filter(x => x !== id); else sFavorites.push(id); saveFavs(); updateFeedUI(); });
-    document.getElementById('openFavsGridBtn').addEventListener('click', () => { pauseFrame(sFeedFrame); renderFavGrid(); sShowPage('favsGrid'); });
+
+    // ── Like button wired to algo ──
+    sFeedFavBtn.addEventListener('click', () => {
+        const id = sFeed[sFeedIdx]; if (!id) return;
+        if (sFavorites.includes(id)) {
+            sFavorites = sFavorites.filter(x => x !== id);
+            algoUnlike(id);
+        } else {
+            sFavorites.push(id);
+            algoLike(id);
+        }
+        saveFavs(); updateFeedUI();
+    });
+
+    document.getElementById('openFavsGridBtn').addEventListener('click', () => { stopWatchTimer(); pauseFrame(sFeedFrame); renderFavGrid(); sShowPage('favsGrid'); });
     function renderFavGrid() {
         const grid = document.getElementById('favGrid'), sub = document.getElementById('favSubtitle');
         grid.innerHTML = ''; sub.textContent = sFavorites.length ? `${sFavorites.length} saved` : '';
@@ -3601,7 +3890,7 @@ document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if
             grid.appendChild(card);
         });
     }
-    document.getElementById('favsGridBackBtn').addEventListener('click', () => { sShowPage('feed'); sFeedFrame.contentWindow?.postMessage(JSON.stringify({ event:'command', func:'playVideo', args:[], id:1 }), '*'); });
+    document.getElementById('favsGridBackBtn').addEventListener('click', () => { sShowPage('feed'); startWatchTimer(sFeed[sFeedIdx]); sFeedFrame.contentWindow?.postMessage(JSON.stringify({ event:'command', func:'playVideo', args:[], id:1 }), '*'); });
     function updateFavsPlayerUI() {
         sFavsUpBtn.disabled = sFavsIdx <= 0; sFavsDownBtn.disabled = sFavsIdx >= sFavorites.length - 1;
         sFavsCurNum.textContent = sFavorites.length ? sFavsIdx + 1 : '—'; sFavsTotalNum.textContent = sFavorites.length || '—';
@@ -3613,7 +3902,7 @@ document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if
     sFavsUpBtn.addEventListener('click', favsGoPrev); sFavsDownBtn.addEventListener('click', favsGoNext);
     sFavsFavBtn.addEventListener('click', () => {
         const id = sFavorites[sFavsIdx]; if (!id) return;
-        sFavorites = sFavorites.filter(x => x !== id); saveFavs(); updateFeedUI();
+        sFavorites = sFavorites.filter(x => x !== id); algoUnlike(id); saveFavs(); updateFeedUI();
         if (!sFavorites.length) { sFavsFrame.src = ''; renderFavGrid(); sShowPage('favsGrid'); return; }
         sFavsIdx = Math.min(sFavsIdx, sFavorites.length - 1); sLoadIntoFrame(sFavsFrame, sFavsPlayerWrap, sFavsLoading, sFavorites[sFavsIdx], 'down'); updateFavsPlayerUI();
     });
@@ -3637,20 +3926,55 @@ document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if
         if (p === 'favsFeed') { if (diff > 0) favsGoNext(); else favsGoPrev(); }
     }, { passive: true });
 
+    // Stop timer if user navigates away from page
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stopWatchTimer();
+        else if (sActivePage() === 'feed' && sFeed[sFeedIdx]) startWatchTimer(sFeed[sFeedIdx]);
+    });
+
     window.loadFeed = async function() {
         try {
             const r = await fetch('https://raw.githubusercontent.com/Hexorod/youtubeshorts/refs/heads/main/feed.json', { cache:'no-store' });
-            if (!r.ok) throw new Error('fetch failed'); const data = await r.json();
+            if (!r.ok) throw new Error('fetch failed');
+            const data = await r.json();
             if (!Array.isArray(data) || data.length === 0) throw new Error('empty');
-            sFeed = shuffleArray(data); sFeedIdx = 0; sFeedTotalNum.textContent = sFeed.length;
-            sLoadIntoFrame(sFeedFrame, sFeedPlayerWrap, sFeedLoading, sFeed[0], 'down'); updateFeedUI();
-        } catch(e) { sFeedLoading.innerHTML = `<div style="color:var(--accent);font-family:'Segoe UI',sans-serif;font-size:12px;text-align:center;padding:20px">NO FEED<br><span style="color:var(--text-muted);font-size:10px">Could not load feed.json</span></div>`; }
+
+            // ── Support both formats ──
+            // New: [{ id, topics[] }, ...]  ← from updated generator
+            // Old: ["videoId", ...]          ← backwards compat
+            const isNewFormat = data.length > 0 && typeof data[0] === 'object';
+
+            // Seed topic data into history before ranking so scores are ready instantly
+            if (isNewFormat) seedTopicsFromFeed(data);
+
+            // Extract plain IDs for the feed array
+            const rawIds = isNewFormat ? data.map(e => e.id) : data;
+
+            // Run BOIsmart ranking — topics are now pre-seeded so this is fully accurate
+            sFeed = rankFeed(rawIds);
+            sFeedIdx = 0;
+            sFeedTotalNum.textContent = sFeed.length;
+            sLoadIntoFrame(sFeedFrame, sFeedPlayerWrap, sFeedLoading, sFeed[0], 'down');
+            startWatchTimer(sFeed[0]);
+            updateFeedUI();
+        } catch(e) {
+            sFeedLoading.innerHTML = `<div style="color:var(--accent);font-family:'Segoe UI',sans-serif;font-size:12px;text-align:center;padding:20px">NO FEED<br><span style="color:var(--text-muted);font-size:10px">Could not load feed.json</span></div>`;
+        }
     };
 
     // Expose pause so showAppPage can stop video when leaving shorts
     window.pauseShortsVideo = () => {
+        stopWatchTimer();
         pauseFrame(sFeedFrame);
         pauseFrame(sFavsFrame);
+    };
+
+    // Expose algo stats for debugging (accessible from browser console)
+    window._boiAlgo = {
+        getHistory: () => watchHistory,
+        getTopicScores: () => Object.entries(topicScores).sort((a,b)=>b[1]-a[1]).slice(0,15),
+        getSeenCount: () => seenIds.length,
+        resetAlgo: () => { watchHistory={}; topicScores={}; seenIds=[]; algoSave(ALGO_HISTORY_KEY,{}); algoSave(ALGO_TOPICS_KEY,{}); algoSave(ALGO_SEEN_KEY,[]); console.log('BOIsmart reset'); }
     };
 })();
 
