@@ -2941,6 +2941,19 @@ async function loadGame(gameId) {
         return isAdStyle ? '' : match;
     });
 
+    // 5. Strip target="_blank" and target='_blank' from all anchor/form tags
+    //    so games cannot force links to open in a new tab
+    html = html.replace(/\s+target\s*=\s*["']_blank["']/gi, '');
+
+    // 6. Neutralise window.open() calls in inline scripts so ads/popups can't open new tabs.
+    //    Replace with a no-op function that returns null.
+    html = html.replace(/<script\b(?![^>]*\bsrc\s*=)[^>]*>[\s\S]*?<\/script>/gi, (match) => {
+        return match.replace(/\bwindow\.open\s*\(/g, '__noop__(');
+    });
+    // Inject the __noop__ stub into <head> so it is defined before any inline script runs.
+    // Split <\/script> so the HTML parser in this page doesn't see it as closing our own script tag.
+    html = html.replace(/(<head[^>]*>)/i, '$1<script>function __noop__(){return null;}<\/' + 'script>');
+
     // ── Fix relative URLs so assets load from CDN ──
 
     // Rewrite src/href attributes (skip absolute URLs, data:, blob:, javascript:, #)
@@ -3802,18 +3815,6 @@ document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if
         }
     }
 
-    // ── Add a small UI indicator showing algo mode ──
-    (function injectAlgoHUD() {
-        const panel = sFeedPage.querySelector('.controls-panel');
-        if (!panel) return;
-        const hud = document.createElement('div');
-        hud.id = 'algoHUD';
-        hud.title = 'BOIsmart Algorithm Active — learns your taste from watch time & likes';
-        hud.style.cssText = `font-size:9px;letter-spacing:1.5px;color:var(--accent);opacity:0.7;text-align:center;font-family:'Segoe UI',sans-serif;cursor:default;user-select:none;margin-top:2px`;
-        hud.textContent = '⚡ BOISMART';
-        panel.appendChild(hud);
-    })();
-
     // ── Core helpers ──
     function shuffleArray(a) { const arr = [...a]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
     function saveFavs() { saveData('favshorts', sFavorites); }
@@ -3950,8 +3951,8 @@ document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if
             // Extract plain IDs for the feed array
             const rawIds = isNewFormat ? data.map(e => e.id) : data;
 
-            // Run BOIsmart ranking — topics are now pre-seeded so this is fully accurate
-            sFeed = rankFeed(rawIds);
+            // Shuffle feed randomly every load — no algorithm, pure discovery
+            sFeed = shuffleArray(rawIds);
             sFeedIdx = 0;
             sFeedTotalNum.textContent = sFeed.length;
             sLoadIntoFrame(sFeedFrame, sFeedPlayerWrap, sFeedLoading, sFeed[0], 'down');
