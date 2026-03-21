@@ -1484,6 +1484,7 @@ html, body {
                     <button id="backBtn">← Back</button>
                     <button id="reloadBtn">↻ Reload</button>
                     <button id="fullscreenBtn" title="Fullscreen"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg><span class="nav-btn-label"> Fullscreen</span></button>
+                    <button id="methodToggleBtn" title="Switch load method" style="font-size:11px;letter-spacing:0.5px;display:flex;align-items:center;gap:5px;"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg><span id="methodLabel">Direct</span></button>
                     <div id="gameInfoBar" style="display:none;margin-left:auto;display:flex;align-items:center;gap:8px;overflow:hidden;min-width:0;">
                         <span id="gameNameLabel" style="font-size:13px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;"></span>
                         <span id="gameSourceBadge" style="font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:20px;background:var(--accent);color:#fff;opacity:0.9;text-transform:uppercase;white-space:nowrap;flex-shrink:0;"></span>
@@ -1793,6 +1794,8 @@ html, body {
   </div>
 </div>
 </div><!-- end page-shorts -->
+
+
 
 
 <script>
@@ -2998,10 +3001,15 @@ async function loadGame(gameId) {
     container.replaceChild(newFrame, zoneFrame);
     zoneFrame = newFrame;
 
-    // Write HTML directly — no src round-trip so no lag
-    zoneFrame.contentDocument.open();
-    zoneFrame.contentDocument.write(html);
-    zoneFrame.contentDocument.close();
+    if (window._gameLoadMethod === 'iframe') {
+        // Method 2: srcdoc — inject HTML via the srcdoc attribute (no contentDocument access needed)
+        zoneFrame.srcdoc = html;
+    } else {
+        // Method 1: Direct — write HTML directly via contentDocument (default, fastest)
+        zoneFrame.contentDocument.open();
+        zoneFrame.contentDocument.write(html);
+        zoneFrame.contentDocument.close();
+    }
 
     // Focus and setup overlay after doc is ready
     requestAnimationFrame(() => {
@@ -3033,9 +3041,13 @@ function showGameError(realError) {
             </body></html>`;
         zoneViewer.style.display = "block";
         zoneViewer.hidden = false;
-        zoneFrame.contentDocument.open();
-        zoneFrame.contentDocument.write(errorHTML);
-        zoneFrame.contentDocument.close();
+        if (window._gameLoadMethod === 'iframe') {
+            zoneFrame.srcdoc = errorHTML;
+        } else {
+            zoneFrame.contentDocument.open();
+            zoneFrame.contentDocument.write(errorHTML);
+            zoneFrame.contentDocument.close();
+        }
     }
 }
 
@@ -4216,7 +4228,44 @@ window._miniGetTitle  = () => {
 };
 
 
+// ===== GAME LOAD METHOD TOGGLE =====
+(function() {
+    window._gameLoadMethod = localStorage.getItem('gameLoadMethod') || 'direct';
+
+    const btn = document.getElementById('methodToggleBtn');
+    const label = document.getElementById('methodLabel');
+
+    function updateBtn() {
+        if (window._gameLoadMethod === 'iframe') {
+            label.textContent = 'iFrame';
+            btn.style.color = 'var(--accent)';
+            btn.style.borderColor = 'var(--accent)';
+            btn.style.background = 'rgba(90,90,255,0.13)';
+        } else {
+            label.textContent = 'Direct';
+            btn.style.color = '';
+            btn.style.borderColor = '';
+            btn.style.background = '';
+        }
+    }
+
+    btn.addEventListener('click', () => {
+        window._gameLoadMethod = window._gameLoadMethod === 'direct' ? 'iframe' : 'direct';
+        localStorage.setItem('gameLoadMethod', window._gameLoadMethod);
+        updateBtn();
+        // Reload current game with new method if one is active
+        if (typeof currentGame !== 'undefined' && currentGame) {
+            loadGame(currentGame);
+        }
+    });
+
+    updateBtn();
+})();
+
 // ===== APPS PAGE JS (from daboi v5) =====
-// ===== APPS PAGE JS =====</script>
+// ===== APPS PAGE JS =====
+
+
+</script>
 </body>
 </html>
