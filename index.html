@@ -2915,30 +2915,25 @@ async function loadGame(gameId) {
     // 2. Remove the inline gtag config block
     html = html.replace(/<script\b[^>]*>[\s\S]*?window\.dataLayer[\s\S]*?<\/script>/gi, "");
 
-    // 3. Remove any element with id="sidebar1", id="sidebar2", id="sidebarad1", or id="sidebarad2"
-    html = html.replace(/<[a-z][^>]*\bid=["']sidebar(?:ad)?[12]["'][^>]*>[\s\S]*?<\/[a-z]+>/gi, "");
-    html = html.replace(/<[a-z][^>]*\bid=["']sidebar(?:ad)?[12]["'][^>]*\/?>/gi, "");
+    // 3. Remove sidebar ad div elements injected by the ad network
+    html = html.replace(/<div\b[^>]*\bid=["']sidebarad[12]["'][^>]*>[\s\S]*?<\/div>/gi, "");
+    html = html.replace(/<div\b[^>]*\bid=["']sidebar(?:ad)?[12]["'][^>]*\/?>/gi, "");
 
-    // 4. Remove ONLY the specific ad-injection obfuscated script.
-    //    Matched by its exact combined fingerprint — all 6 strings must be present
-    //    in the same script block. Legitimate game scripts will never have all of these.
+    // 4. Remove the obfuscated popup/ad injection script.
+    //    Any inline script referencing sidebarad elements OR known obfuscator signatures.
     html = html.replace(/<script\b(?![^>]*\bsrc\s*=)[^>]*>([\s\S]*?)<\/script>/gi, (match, body) => {
-        const isExactAdInjector = (
-            body.includes('duplace.ne') &&
-            body.includes('eadisgay.e') &&
-            body.includes('G-WX5VS54Z') &&
-            body.includes('4470sbZuwl') &&
-            body.includes('sidebarad1') &&
-            body.includes('sidebarad2')
-        );
-        return isExactAdInjector ? '' : match;
+       const isAdInjector = (
+           body.includes('sidebarad1') || body.includes('sidebarad2') ||
+           body.includes('WQQBBfeTFHJhHyWLwCX') || body.includes('gVbNRDMRNuV') ||
+           (body.includes('duplace') && body.includes('eadisgay'))
+       );
+       return isAdInjector ? '' : match;
     });
 
-    // 4b. Remove the sidebar ad CSS block injected by the same ad network
+    // 4b. Remove sidebar ad CSS block
     html = html.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi, (match, body) => {
         const isAdStyle = (
-            body.includes('#sidebarad1') &&
-            body.includes('#sidebarad2') &&
+            body.includes('#sidebarad1') || body.includes('#sidebarad2') ||
             body.includes('sidebar-frame')
         );
         return isAdStyle ? '' : match;
