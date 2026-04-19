@@ -620,11 +620,7 @@ body.nav-expanded #page-watch .topbar { transform: translateX(0); }
     color:white; cursor:pointer; font-size:14px; transition:background 0.2s;
 }
 #page-games .quick-actions button:hover { background:var(--accent-hover); }
-#page-games .recommended-section { margin-bottom:20px; padding:15px; background:var(--bg-secondary); border-radius:12px; }
-#page-games .recommended-section h3 { margin:0 0 12px 0; color:var(--accent); font-size:16px; }
-#page-games .recommended-games { display:flex; gap:12px; flex-wrap:wrap; }
-#page-games .recommended-game { background:var(--bg-tertiary); padding:10px 16px; border-radius:8px; cursor:pointer; transition:background 0.2s; font-size:14px; }
-#page-games .recommended-game:hover { background:var(--accent); color:white; }
+
 #page-games .games-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:20px; }
 #page-games .game-card { background:var(--bg-tertiary); border-radius:12px; overflow:hidden; cursor:pointer; transition:transform 0.2s ease, box-shadow 0.2s; position:relative; contain:layout style; }
 #page-games .game-card:hover { box-shadow:0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px var(--accent); }
@@ -1473,10 +1469,7 @@ html, body {
                 <div class="quick-actions">
                     <button id="recentBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 15.5"/></svg><span class="nav-btn-label"> Recently Played</span></button>
                 </div>
-                <div class="recommended-section">
-                    <h3>Recommended For You</h3>
-                    <div class="recommended-games" id="recommendedGames">Play more games to find out!</div>
-                </div>
+
                 <div class="games-grid" id="gamesGrid"><div class="loading">Loading games...</div></div>
             </div>
             <div class="game-view" id="gameView">
@@ -1485,7 +1478,7 @@ html, body {
                     <button id="reloadBtn">↻ Reload</button>
                     <button id="fullscreenBtn" title="Fullscreen"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg><span class="nav-btn-label"> Fullscreen</span></button>
                     <button id="methodToggleBtn" title="Switch load method" style="font-size:11px;letter-spacing:0.5px;display:flex;align-items:center;gap:5px;"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg><span id="methodLabel">Direct</span></button>
-                    <div id="gameInfoBar" style="display:none;margin-left:auto;display:flex;align-items:center;gap:8px;overflow:hidden;min-width:0;">
+                    <div id="gameInfoBar" style="display:none;margin-left:auto;align-items:center;gap:8px;overflow:hidden;min-width:0;">
                         <span id="gameNameLabel" style="font-size:13px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;"></span>
                         <span id="gameSourceBadge" style="font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:20px;background:var(--accent);color:#fff;opacity:0.9;text-transform:uppercase;white-space:nowrap;flex-shrink:0;"></span>
                     </div>
@@ -2234,10 +2227,7 @@ function categorizeGame(name) {
     }
     return "Other";
 }
-function updateStreak() {
-    const today = new Date().toDateString();
-    if (!appData.visitDates.includes(today)) { appData.visitDates.push(today); saveAppData(); }
-}
+
 async function saveAppData() { await saveData("appData", appData); }
 async function loadAppData() {
     const loaded = await loadData("appData");
@@ -2247,7 +2237,6 @@ async function loadAppData() {
         appData.favorites.forEach(id => { const key = "gnmath:" + id; if (!appData.repoFavorites[key]) appData.repoFavorites[key] = true; });
         appData.favorites = []; await saveAppData();
     }
-    updateStreak();
 }
 function applyTheme(theme, customColor) {
     applyGlobalTheme(theme, customColor || localStorage.getItem('daboi_custom_color'));
@@ -2576,8 +2565,14 @@ async function fetchGames() {
             allGames = data.filter(game => game.id >= 0).map(game => ({ id: game.id.toString(), name: game.name, url: game.url, category: categorizeGame(game.name), repo: "gnmath" }));
         } else if (currentRepo === "untitled") {
             const res = await fetch(REPOS.untitled.gamesJsonUrl); const data = await res.json();
-            const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name }));
-            allGames = entries.map(entry => ({ id: entry.id.toString(), name: entry.name, url: null, category: categorizeGame(entry.name), repo: "untitled" }));
+            const entries = Array.isArray(data) ? data : Object.values(data);
+            allGames = entries.map(entry => {
+                const id = (entry.id !== undefined ? entry.id : entry).toString();
+                const name = entry.name || String(entry);
+                const file = entry.file || null;
+                const url = file ? (REPOS.untitled.gameBaseUrl + file) : null;
+                return { id, name, url, category: categorizeGame(name), repo: "untitled" };
+            });
         } else if (currentRepo === "truffled") {
             const res = await fetch(REPOS.truffled.gamesJsonUrl); const data = await res.json();
             allGames = data.map(entry => ({ id: entry.id.toString(), name: entry.name, url: null, category: categorizeGame(entry.name), repo: "truffled" }));
@@ -2587,7 +2582,7 @@ async function fetchGames() {
             allGames = entries.filter(entry => entry.id !== undefined && entry.name).map(entry => ({ id: (entry.id !== undefined ? entry.id : entry.name).toString(), name: entry.name, url: entry.url || null, category: categorizeGame(entry.name), repo: "custom" }));
         }
         allGamesCache[currentRepo] = allGames;
-        preloadOtherRepos(); renderCategories(); renderRecommendations(); renderGames(); attachCardInteractions();
+        preloadOtherRepos(); renderCategories(); renderGames(); attachCardInteractions();
     } catch (err) {
         document.getElementById("gamesGrid").innerHTML = '<div class="no-games">Failed to load games. Check your connection and refresh.</div>';
     }
@@ -2598,24 +2593,13 @@ async function preloadOtherRepos() {
         if (repo === currentRepo || allGamesCache[repo]) continue;
         try {
             if (repo === "gnmath") { const res = await fetch(REPOS.gnmath.gamesJsonUrl); const data = await res.json(); allGamesCache[repo] = data.filter(g => g.id >= 0).map(g => ({ id: g.id.toString(), name: g.name, url: g.url, category: categorizeGame(g.name), repo: "gnmath" })); }
-            else if (repo === "untitled") { const res = await fetch(REPOS.untitled.gamesJsonUrl); const data = await res.json(); const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name })); allGamesCache[repo] = entries.map(e => ({ id: e.id.toString(), name: e.name, url: null, category: categorizeGame(e.name), repo: "untitled" })); }
+            else if (repo === "untitled") { const res = await fetch(REPOS.untitled.gamesJsonUrl); const data = await res.json(); const entries = Array.isArray(data) ? data : Object.values(data); allGamesCache[repo] = entries.map(e => { const id=(e.id!==undefined?e.id:e).toString(); const name=e.name||String(e); const file=e.file||null; const url=file?(REPOS.untitled.gameBaseUrl+file):null; return {id,name,url,category:categorizeGame(name),repo:"untitled"}; }); }
             else if (repo === "truffled") { const res = await fetch(REPOS.truffled.gamesJsonUrl); const data = await res.json(); allGamesCache[repo] = data.map(e => ({ id: e.id.toString(), name: e.name, url: null, category: categorizeGame(e.name), repo: "truffled" })); }
             else if (repo === "custom") { const res = await fetch(REPOS.custom.gamesJsonUrl); const data = await res.json(); const entries = Array.isArray(data) ? data : Object.entries(data).map(([id, name]) => ({ id, name })); allGamesCache[repo] = entries.filter(e => e.id !== undefined && e.name).map(e => ({ id: (e.id !== undefined ? e.id : e.name).toString(), name: e.name, url: e.url || null, category: categorizeGame(e.name), repo: "custom" })); }
         } catch(e) {}
     }
 }
-function renderRecommendations() {
-    const container = document.getElementById("recommendedGames");
-    if (appData.recentGames.length === 0) { container.innerHTML = "Play more games to find out!"; return; }
-    const categoryCounts = {};
-    appData.recentGames.forEach(id => { const game = allGames.find(g => g.id.toString() === id.toString()); if (game) categoryCounts[game.category] = (categoryCounts[game.category] || 0) + 1; });
-    const topCategory = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
-    if (!topCategory) { container.innerHTML = "Play more games to find out!"; return; }
-    const recommendations = allGames.filter(g => g.category === topCategory && !appData.recentGames.includes(g.id.toString())).slice(0, 5);
-    if (recommendations.length === 0) { container.innerHTML = "You've played all games in your favourite category!"; return; }
-    container.innerHTML = recommendations.map(game => `<div class="recommended-game" data-id="${game.id}">${game.name}</div>`).join('');
-    container.querySelectorAll(".recommended-game").forEach(item => { item.onclick = () => loadGame(item.dataset.id); });
-}
+
 function renderCategories() {
     const categoryCounts = {};
     allGames.forEach(game => { categoryCounts[game.category] = (categoryCounts[game.category] || 0) + 1; });
@@ -2841,6 +2825,14 @@ async function loadGame(gameId) {
     appData.playCount[gameId] = (appData.playCount[gameId] || 0) + 1;
     saveAppData();
 
+    // ── Show game name + repo in controls bar ──
+    const nameEl = document.getElementById('gameNameLabel');
+    const badgeEl = document.getElementById('gameSourceBadge');
+    const infoBar = document.getElementById('gameInfoBar');
+    if (nameEl) nameEl.textContent = game.name;
+    if (badgeEl) badgeEl.textContent = REPOS[game.repo]?.name || game.repo;
+    if (infoBar) infoBar.style.display = 'flex';
+
     // ── UI: switch to game view, hide top bar ──
     document.getElementById("homepageView").style.display   = "none";
     document.getElementById("categorySidebar").classList.add("hidden");
@@ -2855,7 +2847,7 @@ async function loadGame(gameId) {
     const gameURL = game.url && game.url.startsWith("http")
         ? game.url
         : game.repo === "untitled"
-            ? REPOS.untitled.gameBaseUrl + game.id + ".html"
+            ? (game.url || REPOS.untitled.gameBaseUrl + game.id + ".html")
             : game.repo === "truffled"
                 ? REPOS.truffled.gameBaseUrl + game.id + ".html"
                 : game.repo === "custom"
@@ -3077,7 +3069,6 @@ function backToHomepage() {
     window._navGameActive = false;
     document.body.classList.remove('nav-game-active');
     if (window._showCalcAfterGame) window._showCalcAfterGame();
-    renderRecommendations();
 }
 
 document.getElementById("fullscreenBtn").onclick = () => {
