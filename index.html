@@ -739,6 +739,48 @@ body.nav-expanded #page-watch .topbar { transform: translateX(0); }
 #page-games .countdown-value.urgent { color:#ff5a5a; animation:urgentPulse 1s ease-in-out infinite; }
 @keyframes urgentPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
+/* ═══════════════════════════════════════════
+   ── BOI APPS PAGE ──
+═══════════════════════════════════════════ */
+#page-boiapps { overflow-y: auto; }
+#page-boiapps .boiapps-container { padding: 28px 32px; max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+#page-boiapps .boiapps-header { margin-bottom: 28px; }
+#page-boiapps .boiapps-title { font-size: 22px; font-weight: 900; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; text-shadow: 0 0 18px var(--accent); }
+#page-boiapps .apps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+#page-boiapps .app-card { background: var(--bg-tertiary); border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s; position: relative; contain: layout style; }
+#page-boiapps .app-card:hover { box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px var(--accent); }
+#page-boiapps .app-card-icon {
+    width: 100%; aspect-ratio: 1/1;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+    border-bottom: 1px solid var(--border);
+    transition: transform 0.3s;
+    perspective: 600px;
+}
+#page-boiapps .app-card:hover .app-card-icon { transform: scale(1.08) rotateX(4deg); }
+#page-boiapps .app-card-icon svg {
+    width: 56px; height: 56px;
+    color: #fff;
+    filter: drop-shadow(0 4px 16px rgba(90,90,255,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    transition: filter 0.3s, transform 0.3s;
+}
+#page-boiapps .app-card:hover .app-card-icon svg {
+    filter: drop-shadow(0 4px 24px var(--accent)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));
+    transform: translateY(-2px);
+}
+#page-boiapps .app-card-cover { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; background: var(--bg-tertiary); }
+#page-boiapps .app-card-info { padding: 10px 12px; text-align: center; }
+#page-boiapps .app-card-name { font-size: 14px; font-weight: 600; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* App launcher overlay */
+#boiapps-launcher { position: fixed; inset: 0; z-index: 9000; background: var(--bg-primary); display: none; flex-direction: column; }
+#boiapps-launcher.open { display: flex; }
+#boiapps-launcher-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+#boiapps-launcher-title { font-size: 14px; font-weight: 700; color: var(--accent); flex: 1; }
+#boiapps-launcher-close { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: border-color .18s, color .18s; }
+#boiapps-launcher-close:hover { border-color: var(--accent); color: var(--accent); }
+#boiapps-launcher-frame-wrap { flex: 1; position: relative; }
+#boiapps-launcher-frame { width: 100%; height: 100%; border: none; display: block; }
+
 
 /* ═══════════════════════════════════════════
    ── MUSIC PAGE ──
@@ -1343,6 +1385,7 @@ html, body {
         <button class="nav-btn" id="nav-music" onclick="showAppPage('music')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><circle cx="9" cy="18" r="3"/><circle cx="18" cy="15" r="3"/><polyline points="12 18 12 5 21 2 21 15"/><line x1="12" y1="5" x2="21" y2="2"/></svg><span class="nav-btn-label"> BOI Music</span></button>
         <button class="nav-btn" id="nav-watch" onclick="showAppPage('watch')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><rect x="2" y="4" width="20" height="16" rx="2"/><polygon points="10 9 16 12 10 15 10 9" fill="currentColor" stroke="none"/></svg><span class="nav-btn-label"> BOITube</span></button>
         <button class="nav-btn" id="nav-shorts" onclick="showAppPage('shorts')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><polygon points="5 3 19 12 5 21 5 3"/></svg><span class="nav-btn-label"> Shorts</span></button>
+        <button class="nav-btn" id="nav-boiapps" onclick="showAppPage('boiapps')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="nav-btn-label"> BOI Apps</span></button>
 
         <div class="spacer"></div>
         <div id="nav-info-strip">
@@ -1425,6 +1468,10 @@ html, body {
         <div class="home-btn" onclick="showAppPage('shorts')" style="--btn-glow: var(--accent)">
             <div class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
             <div class="btn-label">BOITube Shorts</div>
+        </div>
+        <div class="home-btn" onclick="showAppPage('boiapps')" style="--btn-glow: var(--accent)">
+            <div class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+            <div class="btn-label">BOI Apps</div>
         </div>
 
     </div>
@@ -1790,6 +1837,33 @@ html, body {
 
 
 
+<!-- ═══════════════════════════════════════════
+     BOI APPS PAGE
+═══════════════════════════════════════════ -->
+<div class="app-page" id="page-boiapps">
+<div class="boiapps-container">
+    <div class="boiapps-header">
+        <div class="boiapps-title">BOI Apps</div>
+    </div>
+    <div class="apps-grid" id="boiAppsGrid">
+        <!-- Cards injected by JS -->
+    </div>
+</div>
+</div><!-- end page-boiapps -->
+
+<!-- BOI Apps fullscreen launcher -->
+<div id="boiapps-launcher">
+    <div id="boiapps-launcher-bar">
+        <span id="boiapps-launcher-title">App</span>
+        <button id="boiapps-launcher-close" onclick="closeBOIApp()">✕ Close</button>
+    </div>
+    <div id="boiapps-launcher-frame-wrap">
+        <iframe id="boiapps-launcher-frame" allow="fullscreen; autoplay; clipboard-write; microphone; camera"></iframe>
+    </div>
+</div>
+
+
+
 
 <script>
 /* ═══════════════════════════════════════════
@@ -1896,6 +1970,11 @@ function showAppPage(name) {
     if (name === 'music' && !window._musicInited) {
         window._musicInited = true;
         loadQueueFromLocal();
+    }
+    // Lazy-init BOI apps
+    if (name === 'boiapps' && !window._boiappsInited) {
+        window._boiappsInited = true;
+        if (typeof buildAppsGrid === 'function') buildAppsGrid();
     }
 }
 
@@ -2884,17 +2963,35 @@ async function loadGame(gameId) {
     // 2. Remove the inline gtag config block
     html = html.replace(/<script\b[^>]*>[\s\S]*?window\.dataLayer[\s\S]*?<\/script>/gi, "");
 
-    // 3. Remove sidebar ad div elements injected by the ad network
+    // 3. Remove sidebar ad div elements and generic ad containers injected by ad networks
     html = html.replace(/<div\b[^>]*\bid=["']sidebarad[12]["'][^>]*>[\s\S]*?<\/div>/gi, "");
     html = html.replace(/<div\b[^>]*\bid=["']sidebar(?:ad)?[12]["'][^>]*\/?>/gi, "");
+    // Remove empty/generic ad placeholder divs (<div id="ads"></div>)
+    html = html.replace(/<div\b[^>]*\bid=["']ads["'][^>]*>[\s\S]*?<\/div>/gi, "");
+    html = html.replace(/<div\b[^>]*\bid=["']ads["'][^>]*\/?>/gi, "");
 
-    // 4. Remove the obfuscated popup/ad injection script.
-    //    Any inline script referencing sidebarad elements OR known obfuscator signatures.
+    // 4. Remove obfuscated ad/popup injection scripts.
+    //    Catches both known signatures AND generic heavy-obfuscation patterns
+    //    used by ad networks (while(!![]){} rotation loop, mass parseInt(0x...) calls,
+    //    dollar-sign function names, known decoder stubs, etc.)
     html = html.replace(/<script\b(?![^>]*\bsrc\s*=)[^>]*>([\s\S]*?)<\/script>/gi, (match, body) => {
+       // Count parseInt(0x...) occurrences — obfuscated ad scripts have dozens/hundreds
+       const obfuscatedCallCount = (body.match(/parseInt\s*\(\s*0x/g) || []).length;
        const isAdInjector = (
+           // Known element/variable name fingerprints
            body.includes('sidebarad1') || body.includes('sidebarad2') ||
            body.includes('WQQBBfeTFHJhHyWLwCX') || body.includes('gVbNRDMRNuV') ||
-           (body.includes('duplace') && body.includes('eadisgay'))
+           (body.includes('duplace') && body.includes('eadisgay')) ||
+           // Minesweeper-specific obfuscated ad injector function names
+           body.includes('sFfEkK$fMziBAJZwZbkuvp') ||
+           body.includes('UravPbGESYjDUNqxKcf$Vqza') ||
+           body.includes('gSsZu$aEkLNcrSPk') ||
+           // Generic obfuscator structural fingerprints:
+           // while(!![]){} is the rotation loop used by javascript-obfuscator
+           // — it only appears in ad/malware payloads, never in legitimate game code
+           (body.includes('while(!![])') && body.includes('parseInt(0x')) ||
+           // Scripts with 20+ parseInt(0x...) calls are obfuscated ad network code
+           obfuscatedCallCount >= 20
        );
        return isAdInjector ? '' : match;
     });
@@ -4225,8 +4322,138 @@ window._miniGetTitle  = () => {
     updateBtn();
 })();
 
-// ===== APPS PAGE JS (from daboi v5) =====
 // ===== APPS PAGE JS =====
+(function() {
+    // ── BOI Apps definition ──
+    // Fill in coverUrl with a CDN image URL (square cover art) — leave blank to use icon
+    // Fill in fileUrl with the CDN URL for the app HTML file
+    const BOI_APPS = [
+        {
+            name: 'Soundboard',
+            coverUrl: 'https://cdn.jsdelivr.net/gh/hexorod/apps@main/covers/Soundboard.png', 
+            fileUrl:  'https://cdn.jsdelivr.net/gh/hexorod/apps@main/apps/Soundboard.html'
+        },
+        {
+            name: 'Emulator JS',
+            coverUrl: 'https://cdn.jsdelivr.net/gh/hexorod/apps@main/covers/Emulator%20JS.png',
+            fileUrl:  'https://cdn.jsdelivr.net/gh/hexorod/apps@main/apps/Emulator%20JS.html'
+        },
+        {
+            name: 'Silk',
+            coverUrl: 'https://cdn.jsdelivr.net/gh/hexorod/apps@main/covers/Silk%20(drawing).png',
+            fileUrl:  'https://cdn.jsdelivr.net/gh/hexorod/apps@main/apps/Silk%20(drawing).html'
+        },
+        {
+            name: 'Ruffle',
+            coverUrl: 'https://cdn.jsdelivr.net/gh/hexorod/apps@main/covers/Ruffle.png',
+            fileUrl:  'https://cdn.jsdelivr.net/gh/hexorod/apps@main/apps/Ruffle.html'
+        },
+        {
+            name: 'AI',
+            coverUrl: 'https://cdn.jsdelivr.net/gh/hexorod/apps@main/covers/AI.png',
+            fileUrl:  'https://cdn.jsdelivr.net/gh/hexorod/apps@main/apps/AI.html'
+        },
+        {
+            name: 'Scratch',
+            coverUrl: 'https://cdn.jsdelivr.net/gh/hexorod/apps@main/covers/Scratch.png',
+            fileUrl:  'https://cdn.jsdelivr.net/gh/hexorod/apps@main/apps/Scratch.html'
+        }
+    ];
+
+    // 3D-style SVG icons per app (white stroke, used when no coverUrl)
+    const APP_ICONS = {
+        'Soundboard': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg>`,
+        'Emulator JS': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M8 13h1m2 0h1"/><path d="M15 10v2m1-1h-2"/><circle cx="18" cy="13" r=".8" fill="currentColor" stroke="none"/></svg>`,
+        'Silk': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c0-5 4-9 10-9s10 4 10 9"/><path d="M12 3c0 5-4 9-4 9s4 4 4 9"/><path d="M2 12c5 0 9-4 9-4s4 4 9 4"/></svg>`,
+        'Ruffle': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+        'AI': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 014 4v1h1a3 3 0 013 3v2a3 3 0 01-3 3h-1v1a4 4 0 01-8 0v-1H7a3 3 0 01-3-3v-2a3 3 0 013-3h1V6a4 4 0 014-4z"/><circle cx="9" cy="10" r=".8" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r=".8" fill="currentColor" stroke="none"/><path d="M9 14s1 1.5 3 1.5 3-1.5 3-1.5"/></svg>`,
+        'Scratch': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4"/><path d="M12 8v1m0 6v1m-4-4h1m6 0h1"/></svg>`
+    };
+
+    window._boiAppsData = BOI_APPS;
+
+    window.buildAppsGrid = function() {
+        const grid = document.getElementById('boiAppsGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        BOI_APPS.forEach(app => {
+            const card = document.createElement('div');
+            card.className = 'app-card';
+            card.onclick = () => openBOIApp(app);
+
+            let topHTML;
+            if (app.coverUrl) {
+                // Square cover image — fallback to icon on error
+                topHTML = `<img class="app-card-cover" src="${app.coverUrl}" alt="${app.name}"
+                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                    <div class="app-card-icon" style="display:none">${APP_ICONS[app.name] || ''}</div>`;
+            } else {
+                topHTML = `<div class="app-card-icon">${APP_ICONS[app.name] || ''}</div>`;
+            }
+
+            card.innerHTML = `${topHTML}
+                <div class="app-card-info">
+                    <div class="app-card-name">${app.name}</div>
+                </div>`;
+            grid.appendChild(card);
+        });
+    };
+
+    window.openBOIApp = async function(app) {
+        const launcher = document.getElementById('boiapps-launcher');
+        const frame    = document.getElementById('boiapps-launcher-frame');
+        const title    = document.getElementById('boiapps-launcher-title');
+
+        title.textContent = app.name;
+
+        if (!app.fileUrl) {
+            alert(`"${app.name}" — no file URL set yet.`);
+            return;
+        }
+
+        launcher.classList.add('open');
+        document.body.classList.add('nav-game-active');
+
+        try {
+            // Fetch the app HTML directly — same approach as loadGame —
+            // so X-Frame-Options headers on the CDN cannot block it.
+            const res = await fetch(app.fileUrl);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            let html = await res.text();
+
+            // Inject a <base> tag so relative assets resolve against the CDN path
+            const base = app.fileUrl.replace(/[?#].*$/, '').replace(/\/[^/]*$/, '/');
+            if (!/<base\b[^>]*href/i.test(html)) {
+                html = html.replace(/(<head[^>]*>)/i, `$1<base href="${base}">`);
+            }
+
+            // Ensure html/body fill the frame
+            html = html.replace('</body>', `<style>html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden}</style></body>`);
+
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            doc.open();
+            doc.write(html);
+            doc.close();
+        } catch(e) {
+            // Fallback: set src directly and hope the server allows framing
+            frame.src = app.fileUrl;
+        }
+    };
+
+    window.closeBOIApp = function() {
+        const launcher = document.getElementById('boiapps-launcher');
+        const frame    = document.getElementById('boiapps-launcher-frame');
+        launcher.classList.remove('open');
+        document.body.classList.remove('nav-game-active');
+        frame.src = 'about:blank';
+    };
+
+    if (document.readyState !== 'loading') {
+        buildAppsGrid();
+    } else {
+        document.addEventListener('DOMContentLoaded', buildAppsGrid);
+    }
+})();
 
 
 </script>
