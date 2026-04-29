@@ -115,6 +115,7 @@
     pointer-events: none;
     overflow: hidden;
     contain: strict;
+    transform: translateZ(0);
 }
 #neon-bg .orb {
     position: absolute;
@@ -626,7 +627,8 @@ body.nav-expanded #page-watch .topbar { transform: translateX(0); }
 #page-games .game-card:hover { box-shadow:0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px var(--accent); }
 #page-games .game-card img { width:100%; height:140px; object-fit:cover; background:#090914; image-rendering: pixelated; }
 #page-games .game-card-info { padding:12px; text-align:center; }
-#page-games .game-card-title { font-size:14px; margin-bottom:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#page-games .game-card-title { font-size:14px; margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#page-games .game-card-id { font-size:11px; color:var(--text-muted); margin-bottom:4px; }
 #page-games .game-card .star { position:absolute; top:6px; right:8px; cursor:pointer; z-index:2; transition:transform 0.2s; display:flex; font-size:16px; line-height:1; user-select:none; }
 #page-games .game-card .star.off { opacity:0.3; filter:grayscale(1); }
 #page-games .game-card .star:hover { transform:scale(1.3); opacity:1; filter:none; }
@@ -768,7 +770,7 @@ body.nav-expanded #page-watch .topbar { transform: translateX(0); }
     filter: drop-shadow(0 4px 24px var(--accent)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));
     transform: translateY(-2px);
 }
-#page-boiapps .app-card-cover { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; background: var(--bg-tertiary); }
+#page-boiapps .app-card-cover { width: 100%; aspect-ratio: 1/1; object-fit: contain; display: block; background: var(--bg-tertiary); }
 #page-boiapps .app-card-info { padding: 10px 12px; text-align: center; }
 #page-boiapps .app-card-name { font-size: 14px; font-weight: 600; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* App launcher overlay */
@@ -994,94 +996,7 @@ button:active, .repo-btn:active, .ctrl-btn:active,
 /* Inputs are not none cursor */
 input, select, textarea { cursor: none !important; }
 
-/* ═══════════════════════════════════════════
-   CALCULATOR POPUP
-═══════════════════════════════════════════ */
-#calculator {
-    position: fixed;
-    z-index: 20000;
-    width: 280px;
-    background: rgba(10,10,28,0.96);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 18px;
-    box-shadow:
-        0 20px 60px rgba(0,0,0,0.7),
-        0 0 30px rgba(90,90,255,0.15),
-        0 1px 0 rgba(255,255,255,0.08) inset;
-    overflow: hidden;
-    user-select: none;
-    animation: calcPop 0.22s cubic-bezier(0.34,1.56,0.64,1);
-}
-@keyframes calcPop {
-    from { opacity:0; transform:scale(0.85) translateY(10px); }
-    to   { opacity:1; transform:scale(1) translateY(0); }
-}
-#calc-titlebar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px 8px;
-    cursor: grab;
-    background: rgba(255,255,255,0.03);
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-}
-#calc-titlebar:active { cursor: grabbing; }
-#calc-title { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); text-shadow:0 0 10px var(--accent); }
-#calc-close {
-    background: rgba(255,80,80,0.15);
-    border: 1px solid rgba(255,80,80,0.3);
-    color: #ff6060;
-    border-radius: 50%;
-    width: 22px; height: 22px;
-    font-size: 10px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: none;
-    transition: background 0.15s, transform 0.15s;
-    padding: 0;
-}
-#calc-close:hover { background:rgba(255,80,80,0.4); transform:scale(1.1); }
-#calc-display {
-    padding: 12px 16px 8px;
-    text-align: right;
-    min-height: 72px;
-    display: flex; flex-direction: column; justify-content: flex-end; gap: 2px;
-}
-#calc-expr { font-size:12px; color:rgba(255,255,255,0.35); min-height:16px; word-break:break-all; font-family:monospace; }
-#calc-result { font-size:36px; font-weight:300; color:#fff; font-family:monospace; font-variant-numeric:tabular-nums; letter-spacing:-1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-#calc-buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    padding: 8px 12px 14px;
-}
-.calc-btn {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: #fff;
-    border-radius: 12px;
-    height: 52px;
-    font-size: 18px;
-    font-weight: 400;
-    cursor: none;
-    transition: background 0.12s, transform 0.1s, box-shadow 0.12s;
-    display: flex; align-items: center; justify-content: center;
-}
-.calc-btn:hover { background:rgba(255,255,255,0.15); transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,0.3); }
-.calc-btn:active { transform:scale(0.93); background:rgba(255,255,255,0.22); }
-.calc-btn.calc-fn { background:rgba(180,180,200,0.22); font-size:16px; }
-.calc-btn.calc-op {
-    background: rgba(90,90,255,0.18);
-    border-color: rgba(90,90,255,0.3);
-    color: var(--accent); font-size:20px;
-    box-shadow: 0 0 8px rgba(90,90,255,0.12);
-}
-.calc-btn.calc-op:hover { background:var(--accent); color:#fff; box-shadow:0 0 16px rgba(90,90,255,0.5); }
-.calc-btn.calc-op.calc-active { background:var(--accent); color:#fff; box-shadow:0 0 20px var(--accent); }
-.calc-btn.calc-eq { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 0 16px rgba(90,90,255,0.4); font-size:22px; }
-.calc-btn.calc-eq:hover { background:var(--accent-hover); box-shadow:0 0 30px var(--accent); }
-.calc-btn.calc-zero { grid-column:span 2; justify-content:flex-start; padding-left:20px; }
+
 
 /* SVG icon alignment in nav and control buttons */
 .nav-btn svg, .control-btn svg, .ctrl-btn svg, #continueBtn svg {
@@ -1300,18 +1215,12 @@ html, body {
     box-sizing: border-box;
 }
 
-/* Home page buttons scale */
+/* Home page buttons — responsive scale */
 .home-btn {
     padding: clamp(10px, 1.5vw, 18px) clamp(16px, 2.5vw, 32px);
     font-size: clamp(11px, 1.1vw, 14px);
-    border-radius: clamp(8px, 1vw, 14px);
 }
 
-/* App buttons in apps page scale */
-.app-btn {
-    font-size: clamp(10px, 1vw, 13px);
-    padding: clamp(5px, 0.6vw, 8px) clamp(8px, 1vw, 14px);
-}
 
 /* Settings modal responsive */
 .modal-box {
@@ -1320,9 +1229,171 @@ html, body {
     overflow-y: auto;
 }
 
-/* Make sure nothing overflows horizontally */
-* { box-sizing: border-box; }
 
+
+/* ═══════════════════════════════════════════
+   POPULAR GAMES SECTION (home page)
+═══════════════════════════════════════════ */
+/* ── Popular Games – Premium Section ── */
+.popular-games-section {
+    width: 100%;
+    padding: 28px 0 16px;
+    box-sizing: border-box;
+}
+.popular-games-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.popular-games-header-line {
+    flex: 1;
+    height: 1px;
+    max-width: 60px;
+    background: linear-gradient(90deg, transparent, var(--accent));
+    opacity: 0.35;
+}
+.popular-games-header-line.right {
+    background: linear-gradient(90deg, var(--accent), transparent);
+}
+.popular-games-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.85;
+}
+.popular-games-grid {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 20px 8px;
+}
+
+/* Each popular game = art tile + label below */
+.popular-game-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    width: 140px;
+    flex-shrink: 0;
+}
+
+/* The square art / icon tile */
+.popular-game-art {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    border-radius: 22px;
+    overflow: hidden;
+    background: var(--bg-secondary);
+    border: 1.5px solid var(--border);
+    box-shadow:
+        0 6px 0 rgba(0,0,0,0.55),
+        0 10px 28px rgba(0,0,0,0.45);
+    transition: transform 0.15s ease-out, box-shadow 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+}
+
+/* shimmer on hover */
+.popular-game-art::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+        rgba(255,255,255,0.07) 0%,
+        transparent 50%,
+        rgba(255,255,255,0.03) 100%);
+    border-radius: 20px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.popular-game-card:hover .popular-game-art {
+    transform: translateY(-5px) scale(1.04);
+    border-color: var(--accent);
+    box-shadow:
+        0 10px 0 rgba(0,0,0,0.4),
+        0 18px 36px rgba(0,0,0,0.5),
+        0 0 32px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.popular-game-card:hover .popular-game-art::after { opacity: 1; }
+
+.popular-game-card:active .popular-game-art {
+    transform: translateY(1px) scale(0.97);
+    box-shadow:
+        0 3px 0 rgba(0,0,0,0.55),
+        0 5px 12px rgba(0,0,0,0.4);
+}
+
+.popular-game-cover {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    z-index: 1;
+}
+
+.popular-game-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    background: radial-gradient(circle at 40% 35%,
+        color-mix(in srgb, var(--accent) 10%, var(--bg-secondary)),
+        var(--bg-secondary));
+    z-index: 1;
+}
+.popular-game-icon svg { width: 52px; height: 52px; opacity: 0.8; }
+
+/* Text label below the tile */
+.popular-game-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+}
+.popular-game-card-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 136px;
+    text-align: center;
+    line-height: 1.3;
+    transition: color 0.15s;
+}
+.popular-game-card:hover .popular-game-card-name {
+    color: var(--accent);
+}
+.popular-game-card-repo {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 136px;
+    text-align: center;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0.7;
+}
 </style>
 <body>
 
@@ -1407,44 +1478,6 @@ html, body {
 </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     CALCULATOR POPUP
-═══════════════════════════════════════════ -->
-<div id="calculator" style="display:none;">
-    <div id="calc-titlebar">
-        <span id="calc-title">Calculator</span>
-        <button id="calc-close"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <div id="calc-display">
-        <div id="calc-expr"></div>
-        <div id="calc-result">0</div>
-    </div>
-    <div id="calc-buttons">
-        <button class="calc-btn calc-fn" data-action="clear">C</button>
-        <button class="calc-btn calc-fn" data-action="sign">±</button>
-        <button class="calc-btn calc-fn" data-action="percent">%</button>
-        <button class="calc-btn calc-op" data-action="op" data-op="/">÷</button>
-
-        <button class="calc-btn" data-action="num" data-val="7">7</button>
-        <button class="calc-btn" data-action="num" data-val="8">8</button>
-        <button class="calc-btn" data-action="num" data-val="9">9</button>
-        <button class="calc-btn calc-op" data-action="op" data-op="*">×</button>
-
-        <button class="calc-btn" data-action="num" data-val="4">4</button>
-        <button class="calc-btn" data-action="num" data-val="5">5</button>
-        <button class="calc-btn" data-action="num" data-val="6">6</button>
-        <button class="calc-btn calc-op" data-action="op" data-op="-">−</button>
-
-        <button class="calc-btn" data-action="num" data-val="1">1</button>
-        <button class="calc-btn" data-action="num" data-val="2">2</button>
-        <button class="calc-btn" data-action="num" data-val="3">3</button>
-        <button class="calc-btn calc-op" data-action="op" data-op="+">+</button>
-
-        <button class="calc-btn calc-zero" data-action="num" data-val="0">0</button>
-        <button class="calc-btn" data-action="dot">.</button>
-        <button class="calc-btn calc-op calc-eq" data-action="equals">=</button>
-    </div>
-</div>
 
 <!-- ═══════════════════════════════════════════
      HOME PAGE
@@ -1475,9 +1508,20 @@ html, body {
         </div>
 
     </div>
+
+    <!-- ── Popular Games ── -->
+    <div class="popular-games-section" id="popularGamesSection">
+        <div class="popular-games-header">
+            <div class="popular-games-header-line"></div>
+            <div class="popular-games-title">Popular Games</div>
+            <div class="popular-games-header-line right"></div>
+        </div>
+        <div class="popular-games-grid" id="popularGamesGrid">
+            <!-- Populated by JS — add entries to POPULAR_GAMES array below -->
+        </div>
+    </div>
+
 </div>
-
-
 
 <!-- ═══════════════════════════════════════════
      GAMES PAGE
@@ -1524,7 +1568,6 @@ html, body {
                     <button id="backBtn">← Back</button>
                     <button id="reloadBtn">↻ Reload</button>
                     <button id="fullscreenBtn" title="Fullscreen"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg><span class="nav-btn-label"> Fullscreen</span></button>
-                    <button id="methodToggleBtn" title="Switch load method" style="font-size:11px;letter-spacing:0.5px;display:flex;align-items:center;gap:5px;"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg><span id="methodLabel">Direct</span></button>
                     <div id="gameInfoBar" style="display:none;margin-left:auto;align-items:center;gap:8px;overflow:hidden;min-width:0;">
                         <span id="gameNameLabel" style="font-size:13px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;"></span>
                         <span id="gameSourceBadge" style="font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:20px;background:var(--accent);color:#fff;opacity:0.9;text-transform:uppercase;white-space:nowrap;flex-shrink:0;"></span>
@@ -1872,7 +1915,7 @@ html, body {
 
 // ── Messages: add yours here! ──
 const HOME_MESSAGES = [
-   "calm down g"
+   "IMPORTANT: export ur data so if u lose access u can get it back ez"
 ];
 
 
@@ -2259,8 +2302,8 @@ async function loadData(key, defaultValue = null) {
 
 
 
-const COVERS_CDN  = "https://cdn.jsdelivr.net/gh/freebuisness/covers/";
-const ZONES_JSON  = "https://cdn.jsdelivr.net/gh/freebuisness/assets/zones.json";
+const COVERS_CDN  = "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/";
+const ZONES_JSON  = "https://cdn.jsdelivr.net/gh/freebuisness/assets@main/zones.json";
 const HTML_URL    = "https://cdn.jsdelivr.net/gh/freebuisness/html@main";
 const IMG_KAI     = "https://pbs.twimg.com/media/Ggj70WPXcAAV1L9.jpg:small";
 const IMG_MANGO   = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpRNEYxLc84WINOIz3wOMxkc0sg85Qy3qWew&s";
@@ -2268,7 +2311,7 @@ const IMG_BOI     = "https://preview.redd.it/imp-mimicking-the-spongebob-boi-mem
 
 const REPOS = {
     gnmath: { name:"GN-MATH", gamesJsonUrl:ZONES_JSON, gameBaseUrl:"https://cdn.jsdelivr.net/gh/freebuisness/html@main" },
-    untitled: { name:"Untitled Stash", gamesJsonUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/ugsgames/zones.json", gameBaseUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/ugsgames/games/" },
+    untitled: { name:"Untitled Stash", gamesJsonUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/ugsgames@main/zones.json", gameBaseUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/ugsgames@main/games/" },
     truffled: { name:"Truffled.lol", gamesJsonUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/truffledgames@main/name-id.json", gameBaseUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/truffledgames@main/html/", coverBaseUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/truffledgames@main/covers/" },
     custom: { name:"Custom", gamesJsonUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/games@main/zones.json", gameBaseUrl:"https://cdn.jsdelivr.net/gh/sussyboi01/games@main/" }
 };
@@ -2436,177 +2479,6 @@ document.getElementById("customDialogCopy").onclick = () => {
     const textarea = document.getElementById("customDialogTextarea"); textarea.select();
     document.execCommand("copy"); showAlert("Copied to clipboard!");
 };
-/* ═══════════════════════════════════════════
-   CALCULATOR
-═══════════════════════════════════════════ */
-(function() {
-    const calc = document.getElementById('calculator');
-    const display = document.getElementById('calc-result');
-    const expr = document.getElementById('calc-expr');
-
-    let current = '0';
-    let prev = '';
-    let operator = null;
-    let justEvaled = false;
-    let waitingForOperand = false;
-
-    function updateDisplay() {
-        display.textContent = current.length > 10 ? parseFloat(current).toExponential(4) : current;
-        display.style.fontSize = current.length > 8 ? '24px' : '36px';
-    }
-
-    function setExpr(str) { expr.textContent = str; }
-
-    function clearAll() {
-        current = '0'; prev = ''; operator = null;
-        justEvaled = false; waitingForOperand = false;
-        setExpr(''); updateDisplay();
-        document.querySelectorAll('.calc-op').forEach(b => b.classList.remove('calc-active'));
-    }
-
-    function handleNum(val) {
-        if (justEvaled) { current = val; justEvaled = false; }
-        else if (waitingForOperand) { current = val; waitingForOperand = false; }
-        else { current = current === '0' ? val : current + val; }
-        updateDisplay();
-    }
-
-    function handleOp(op) {
-        if (operator && !waitingForOperand) evaluate();
-        prev = current;
-        operator = op;
-        waitingForOperand = true;
-        justEvaled = false;
-        const symbols = {'/':'÷','*':'×','-':'−','+':'+'};
-        setExpr(prev + ' ' + (symbols[op] || op));
-        document.querySelectorAll('.calc-op').forEach(b => {
-            b.classList.toggle('calc-active', b.dataset.op === op);
-        });
-    }
-
-    function evaluate() {
-        if (!operator || waitingForOperand) return;
-        const a = parseFloat(prev), b = parseFloat(current);
-        let result;
-        if (operator === '/') result = b === 0 ? 'Error' : a / b;
-        else if (operator === '*') result = a * b;
-        else if (operator === '-') result = a - b;
-        else if (operator === '+') result = a + b;
-        const symbols = {'/':'÷','*':'×','-':'−','+':'+'};
-        setExpr(prev + ' ' + (symbols[operator]||operator) + ' ' + current + ' =');
-        current = result === 'Error' ? 'Error' : String(parseFloat(result.toFixed(10)));
-        operator = null; prev = ''; justEvaled = true; waitingForOperand = false;
-        updateDisplay();
-        document.querySelectorAll('.calc-op').forEach(b => b.classList.remove('calc-active'));
-    }
-
-    document.getElementById('calc-buttons').addEventListener('click', e => {
-        const btn = e.target.closest('.calc-btn');
-        if (!btn) return;
-        const action = btn.dataset.action;
-        if (action === 'num') handleNum(btn.dataset.val);
-        else if (action === 'op') handleOp(btn.dataset.op);
-        else if (action === 'equals') evaluate();
-        else if (action === 'clear') clearAll();
-        else if (action === 'dot') {
-            if (waitingForOperand) { current = '0.'; waitingForOperand = false; }
-            else if (!current.includes('.')) current += '.';
-            updateDisplay();
-        }
-        else if (action === 'sign') {
-            current = current.startsWith('-') ? current.slice(1) : (current === '0' ? '0' : '-' + current);
-            updateDisplay();
-        }
-        else if (action === 'percent') {
-            current = String(parseFloat(current) / 100);
-            updateDisplay();
-        }
-    });
-
-    // Keyboard support
-    document.addEventListener('keydown', e => {
-        if (calc.style.display === 'none') return;
-        // Don't intercept when user is typing in an input/textarea/select
-        const tag = document.activeElement?.tagName;
-        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-        if ('0123456789'.includes(e.key)) { e.preventDefault(); handleNum(e.key); }
-        else if (e.key === '.') { e.preventDefault(); document.querySelector('[data-action="dot"]').click(); }
-        else if (['+','-','*','/'].includes(e.key)) { e.preventDefault(); handleOp(e.key); }
-        else if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); evaluate(); }
-        else if (e.key === 'Escape') { e.preventDefault(); hideCalc(); }
-        else if (e.key === 'Backspace') {
-            e.preventDefault();
-            if (justEvaled || current === '0') { clearAll(); }
-            else if (current.length > 1) { current = current.slice(0,-1); }
-            else { current = '0'; }
-            updateDisplay();
-        }
-    });
-
-    // Open/close
-    function showCalc() {
-        calc.style.display = 'block';
-        // Reset animation
-        calc.style.animation = 'none';
-        calc.offsetHeight; // reflow
-        calc.style.animation = '';
-        // Default position — center-right area
-        if (!calc._positioned) {
-            calc.style.left = (window.innerWidth - 300) + 'px';
-            calc.style.top = '80px';
-            calc._positioned = true;
-        }
-    }
-    function hideCalc() { calc.style.display = 'none'; }
-
-    const _calcNavBtn = document.getElementById('calcBtn');
-    if (_calcNavBtn) _calcNavBtn.onclick = () => {
-        if (calc.style.display === 'none') showCalc();
-        else hideCalc();
-    };
-    const _calcClose = document.getElementById('calc-close');
-    if (_calcClose) _calcClose.onclick = hideCalc;
-
-    // Hide when game starts, restore when game ends
-    const _origHideNav = window._hideNav;
-    window._calcHideForGame = false;
-    window._showCalcAfterGame = function() {
-        if (window._calcHideForGame) { showCalc(); window._calcHideForGame = false; }
-    };
-    window._hideCalcForGame = function() {
-        if (calc.style.display !== 'none') {
-            hideCalc();
-            window._calcHideForGame = true;
-        }
-    };
-
-    // Hide on fullscreen (games/youtube)
-    document.addEventListener('fullscreenchange', () => {
-        if (document.fullscreenElement) hideCalc();
-        else if (window._calcHideForGame) { showCalc(); window._calcHideForGame = false; }
-    });
-
-    // Dragging
-    const titlebar = document.getElementById('calc-titlebar');
-    let drag = null;
-    titlebar.addEventListener('mousedown', e => {
-        if (e.target === document.getElementById('calc-close')) return;
-        const rect = calc.getBoundingClientRect();
-        drag = { ox: e.clientX - rect.left, oy: e.clientY - rect.top };
-        e.preventDefault();
-    });
-    document.addEventListener('mousemove', e => {
-        if (!drag) return;
-        let x = e.clientX - drag.ox;
-        let y = e.clientY - drag.oy;
-        x = Math.max(0, Math.min(window.innerWidth - calc.offsetWidth, x));
-        y = Math.max(0, Math.min(window.innerHeight - calc.offsetHeight, y));
-        calc.style.left = x + 'px';
-        calc.style.top = y + 'px';
-    });
-    document.addEventListener('mouseup', () => { drag = null; });
-})();
-
 document.getElementById("exportBtn").onclick = async () => {
     // Bundle games data + BOITube favs + Shorts favs + Music into one export
     const fullBackup = {
@@ -2750,7 +2622,7 @@ function renderGames() {
         const isFav = !!appData.repoFavorites[favKey];
         const thumbnailURL = (game.repo === "untitled" || game.repo === "custom") ? getFallbackThumbnailURL() : getThumbnailURL(game);
         const repoTag = (isSearching || isFavoritesView) ? `<div class="repo-tag">${REPOS[game.repo]?.name || game.repo}</div>` : "";
-        return `<div class="game-card" data-id="${game.id}" data-repo="${game.repo}"><span class="star ${isFav ? '' : 'off'}" data-id="${game.id}" data-repo="${game.repo}">${isFav ? '⭐' : '🌑'}</span><img src="${thumbnailURL}" alt="${game.name}" loading="lazy" decoding="async" onerror="this.src='${getFallbackThumbnailURL()}'"><div class="game-card-info"><div class="game-card-title">${game.name}</div>${repoTag}</div></div>`;
+        return `<div class="game-card" data-id="${game.id}" data-repo="${game.repo}"><span class="star ${isFav ? '' : 'off'}" data-id="${game.id}" data-repo="${game.repo}">${isFav ? '⭐' : '🌑'}</span><img src="${thumbnailURL}" alt="${game.name}" loading="lazy" decoding="async" onerror="this.src='${getFallbackThumbnailURL()}'"><div class="game-card-info"><div class="game-card-title">${game.name}</div><div class="game-card-id">ID: ${game.id}</div>${repoTag}</div></div>`;
     }).join('');
 
     // Prepend special cards (Random only) — hidden during search
@@ -2919,7 +2791,6 @@ async function loadGame(gameId) {
     document.getElementById("gameView").classList.add("active");
     window._navGameActive = true;
     if (window._hideNav) window._hideNav();
-    if (window._hideCalcForGame) window._hideCalcForGame();
     document.body.classList.add('nav-game-active');
 
     // ── Build game URL ──
@@ -3014,9 +2885,26 @@ async function loadGame(gameId) {
     html = html.replace(/<script\b(?![^>]*\bsrc\s*=)[^>]*>[\s\S]*?<\/script>/gi, (match) => {
         return match.replace(/\bwindow\.open\s*\(/g, '__noop__(');
     });
-    // Inject the __noop__ stub into <head> so it is defined before any inline script runs.
-    // Split <\/script> so the HTML parser in this page doesn't see it as closing our own script tag.
-    html = html.replace(/(<head[^>]*>)/i, '$1<script>function __noop__(){return null;}<\/' + 'script>');
+
+    // 7. Inject fetch + XHR override so internal game fetches always use cors mode.
+    //    Games often call fetch() without specifying mode, which defaults to 'no-cors' in some
+    //    contexts and gets blocked. This forces mode:'cors' and credentials:'omit' on all requests.
+    const corsFixScript = '<script>' +
+        '(function(){' +
+        'var _fetch=window.fetch;' +
+        'window.fetch=function(url,opts){' +
+        'opts=Object.assign({mode:"cors",credentials:"omit"},opts||{});' +
+        'return _fetch(url,opts);' +
+        '};' +
+        'var _open=XMLHttpRequest.prototype.open;' +
+        'XMLHttpRequest.prototype.open=function(m,u,a,us,pw){' +
+        'this.crossOrigin="anonymous";' +
+        'return _open.apply(this,arguments);' +
+        '};' +
+        '})();' +
+        '<\/script>';
+    html = html.replace(/(<head[^>]*>)/i, '$1' + corsFixScript);
+
 
     // ── Fix relative URLs so assets load from CDN ──
 
@@ -3057,20 +2945,14 @@ async function loadGame(gameId) {
     newFrame.id = "zoneFrame";
     newFrame.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;border:none;";
     newFrame.tabIndex = 0;
-    newFrame.setAttribute("sandbox", "allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms");
     newFrame.setAttribute("allow", "fullscreen; autoplay; clipboard-write");
     container.replaceChild(newFrame, zoneFrame);
     zoneFrame = newFrame;
 
-    if (window._gameLoadMethod === 'iframe') {
-        // Method 2: srcdoc — inject HTML via the srcdoc attribute (no contentDocument access needed)
-        zoneFrame.srcdoc = html;
-    } else {
-        // Method 1: Direct — write HTML directly via contentDocument (default, fastest)
-        zoneFrame.contentDocument.open();
-        zoneFrame.contentDocument.write(html);
-        zoneFrame.contentDocument.close();
-    }
+    // Write HTML directly via contentDocument
+    zoneFrame.contentDocument.open();
+    zoneFrame.contentDocument.write(html);
+    zoneFrame.contentDocument.close();
 
     // Focus and setup overlay after doc is ready
     requestAnimationFrame(() => {
@@ -3102,13 +2984,9 @@ function showGameError(realError) {
             </body></html>`;
         zoneViewer.style.display = "block";
         zoneViewer.hidden = false;
-        if (window._gameLoadMethod === 'iframe') {
-            zoneFrame.srcdoc = errorHTML;
-        } else {
-            zoneFrame.contentDocument.open();
-            zoneFrame.contentDocument.write(errorHTML);
-            zoneFrame.contentDocument.close();
-        }
+        zoneFrame.contentDocument.open();
+        zoneFrame.contentDocument.write(errorHTML);
+        zoneFrame.contentDocument.close();
     }
 }
 
@@ -3165,7 +3043,6 @@ function backToHomepage() {
     document.getElementById("homepageView").style.display = "block";
     window._navGameActive = false;
     document.body.classList.remove('nav-game-active');
-    if (window._showCalcAfterGame) window._showCalcAfterGame();
 }
 
 document.getElementById("fullscreenBtn").onclick = () => {
@@ -3374,7 +3251,7 @@ document.getElementById('searchBtn').addEventListener('click', async () => {
         if (!results.length) { c.innerHTML = '<div class="muted small" style="padding:10px">No results found.</div>'; return; }
         results.forEach(item => {
             const row = document.createElement('div'); row.className = 'track-row';
-            row.innerHTML = `<img class="track-thumb" src="${item.thumb}" onerror="this.style.display='none'"><div class="track-meta"><div class="track-title">${item.title}</div><div class="track-sub">${item.channel}</div></div><div style="color:var(--accent-hover);font-size:18px;padding:0 6px">+</div>`;
+            row.innerHTML = `<img class="track-thumb" src="${item.thumb}" loading="lazy" decoding="async" onerror="this.style.display='none'"><div class="track-meta"><div class="track-title">${item.title}</div><div class="track-sub">${item.channel}</div></div><div style="color:var(--accent-hover);font-size:18px;padding:0 6px">+</div>`;
             row.addEventListener('click', () => addToQueue(item)); c.appendChild(row);
         });
     } catch(e) { document.getElementById('results').innerHTML = '<div class="muted small" style="padding:10px">Search failed.</div>'; }
@@ -4042,13 +3919,6 @@ document.getElementById('addToPlaylistBtn').addEventListener('click', () => { if
         pauseFrame(sFavsFrame);
     };
 
-    // Expose algo stats for debugging (accessible from browser console)
-    window._boiAlgo = {
-        getHistory: () => watchHistory,
-        getTopicScores: () => Object.entries(topicScores).sort((a,b)=>b[1]-a[1]).slice(0,15),
-        getSeenCount: () => seenIds.length,
-        resetAlgo: () => { watchHistory={}; topicScores={}; seenIds=[]; algoSave(ALGO_HISTORY_KEY,{}); algoSave(ALGO_TOPICS_KEY,{}); algoSave(ALGO_SEEN_KEY,[]); console.log('BOIsmart reset'); }
-    };
 })();
 
 /* ═══════════════════════════════════════════
@@ -4254,6 +4124,7 @@ window.toggleSearchRepo = function() {
     filloutDiv.setAttribute('data-fillout-dynamic-resize', '');
     filloutDiv.setAttribute('data-fillout-inherit-parameters', '');
     filloutDiv.setAttribute('data-fillout-popup-size', 'medium');
+    filloutDiv.style.cssText = 'position:fixed;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none;z-index:-1;';
     document.body.appendChild(filloutDiv);
 
     // Inject the Fillout script
@@ -4288,39 +4159,6 @@ window._miniGetTitle  = () => {
 };
 
 
-// ===== GAME LOAD METHOD TOGGLE =====
-(function() {
-    window._gameLoadMethod = localStorage.getItem('gameLoadMethod') || 'direct';
-
-    const btn = document.getElementById('methodToggleBtn');
-    const label = document.getElementById('methodLabel');
-
-    function updateBtn() {
-        if (window._gameLoadMethod === 'iframe') {
-            label.textContent = 'iFrame';
-            btn.style.color = 'var(--accent)';
-            btn.style.borderColor = 'var(--accent)';
-            btn.style.background = 'rgba(90,90,255,0.13)';
-        } else {
-            label.textContent = 'Direct';
-            btn.style.color = '';
-            btn.style.borderColor = '';
-            btn.style.background = '';
-        }
-    }
-
-    btn.addEventListener('click', () => {
-        window._gameLoadMethod = window._gameLoadMethod === 'direct' ? 'iframe' : 'direct';
-        localStorage.setItem('gameLoadMethod', window._gameLoadMethod);
-        updateBtn();
-        // Reload current game with new method if one is active
-        if (typeof currentGame !== 'undefined' && currentGame) {
-            loadGame(currentGame);
-        }
-    });
-
-    updateBtn();
-})();
 
 // ===== APPS PAGE JS =====
 (function() {
@@ -4384,7 +4222,7 @@ window._miniGetTitle  = () => {
             let topHTML;
             if (app.coverUrl) {
                 // Square cover image — fallback to icon on error
-                topHTML = `<img class="app-card-cover" src="${app.coverUrl}" alt="${app.name}"
+                topHTML = `<img class="app-card-cover" src="${app.coverUrl}" alt="${app.name}" loading="lazy"
                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
                     <div class="app-card-icon" style="display:none">${APP_ICONS[app.name] || ''}</div>`;
             } else {
@@ -4455,6 +4293,101 @@ window._miniGetTitle  = () => {
     }
 })();
 
+
+
+/* ═══════════════════════════════════════════
+   POPULAR GAMES SECTION
+   Add entries here:
+   { id: "gameId", repo: "gnmath"|"untitled"|"truffled"|"custom", name: "Display Name", cover: "https://..." }
+   Leave name blank to auto-resolve. cover is optional — shows icon if omitted.
+═══════════════════════════════════════════ */
+(function() {
+    const POPULAR_GAMES = [
+        // ← YOU FILL THESE IN, e.g.:
+        // { id: "123", repo: "gnmath", name: "Cool Game", cover: "https://example.com/cover.png" },
+        // { id: "456", repo: "truffled", name: "Another Game" },
+	{ id: "2052", repo: "untitled", name: "Rocket Goal Io", cover: "https://imgs.crazygames.com/rocketgoal-io_16x9/20260108075807/rocketgoal-io_16x9-cover?metadata=none&quality=60&height=4883" },
+	{ id: "24", repo: "gnmath", name: "Crossy Road", cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeJcBRv9JpYYh9-fSR3GE26i4AmXtPCKamrA&s" },
+	{ id: "712", repo: "gnmath", name: "Jumbo Mario", cover: "https://www.speedrun.com/static/game/nd27p2r1/cover.png?v=fadc3b0" },
+	{ id: "785", repo: "gnmath", name: "Geometry Dash", cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7s6wrwxQSyLsXHPBAvRyt0IGvfOpKyJVUnQ&s" },
+    ];
+
+    const REPO_LABELS = { gnmath: 'GN-MATH', untitled: 'Untitled', truffled: 'Truffled', custom: 'Custom' };
+
+    const GAME_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M8 12h1m1 0h1"/><path d="M16 10v2m1-1h-2"/></svg>`;
+
+    function resolvePopularGames() {
+        if (!POPULAR_GAMES.length) {
+            const section = document.getElementById('popularGamesSection');
+            if (section) section.style.display = 'none';
+            return;
+        }
+        // Try to fill in missing names from allGames
+        if (typeof allGames !== 'undefined' && allGames.length) {
+            POPULAR_GAMES.forEach(pg => {
+                if (!pg.name) {
+                    const match = allGames.find(g => g.id.toString() === pg.id.toString() && g.repo === pg.repo);
+                    if (match) pg.name = match.name;
+                }
+            });
+        }
+        buildPopularGrid();
+    }
+
+    function buildPopularGrid() {
+        const grid = document.getElementById('popularGamesGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        POPULAR_GAMES.forEach(pg => {
+            const name = pg.name || pg.id;
+            const card = document.createElement('div');
+            card.className = 'popular-game-card';
+
+            let artHTML;
+            if (pg.cover) {
+                artHTML = `<img class="popular-game-cover" src="${pg.cover}" alt="${name}" loading="lazy"
+                    onerror="this.style.display='none';this.parentElement.querySelector('.popular-game-icon').style.display='flex';">
+                    <div class="popular-game-icon" style="display:none">${GAME_SVG}</div>`;
+            } else {
+                artHTML = `<div class="popular-game-icon">${GAME_SVG}</div>`;
+            }
+
+            card.innerHTML = `
+                <div class="popular-game-art">${artHTML}</div>
+                <div class="popular-game-label">
+                    <div class="popular-game-card-name">${name}</div>
+                    <div class="popular-game-card-repo">${REPO_LABELS[pg.repo] || pg.repo}</div>
+                </div>`;
+            card.onclick = () => {
+                // Navigate to games page first (triggers initApp if not yet inited)
+                showAppPage('games');
+                // Switch repo if needed, then load game — wait for allGames to be ready
+                const tryLoad = (attempts) => {
+                    if (typeof allGames !== 'undefined' && allGames.length > 0) {
+                        if (typeof currentRepo !== 'undefined' && pg.repo !== currentRepo) {
+                            currentRepo = pg.repo;
+                            document.querySelectorAll('#page-games .repo-btn').forEach(b =>
+                                b.classList.toggle('active', b.dataset.repo === currentRepo));
+                            fetchGames().then(() => loadGame(pg.id));
+                        } else {
+                            loadGame(pg.id);
+                        }
+                    } else if (attempts > 0) {
+                        setTimeout(() => tryLoad(attempts - 1), 200);
+                    }
+                };
+                tryLoad(25);
+            };
+            grid.appendChild(card);
+        });
+    }
+
+    // Build grid immediately with whatever names we have, then refine after games load
+    window._buildPopularGames = resolvePopularGames;
+    document.addEventListener('DOMContentLoaded', () => {
+        buildPopularGrid(); // instant render with provided names
+    });
+})();
 
 </script>
 </body>
