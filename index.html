@@ -1457,6 +1457,7 @@ html, body {
         <button class="nav-btn" id="nav-watch" onclick="showAppPage('watch')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><rect x="2" y="4" width="20" height="16" rx="2"/><polygon points="10 9 16 12 10 15 10 9" fill="currentColor" stroke="none"/></svg><span class="nav-btn-label"> BOITube</span></button>
         <button class="nav-btn" id="nav-shorts" onclick="showAppPage('shorts')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><polygon points="5 3 19 12 5 21 5 3"/></svg><span class="nav-btn-label"> Shorts</span></button>
         <button class="nav-btn" id="nav-boiapps" onclick="showAppPage('boiapps')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="nav-btn-label"> BOI Apps</span></button>
+        <button class="nav-btn" id="nav-boibrowser" onclick="showAppPage('boibrowser')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg><span class="nav-btn-label"> Boi Browser</span></button>
 
         <div class="spacer"></div>
         <div id="nav-info-strip">
@@ -1505,6 +1506,10 @@ html, body {
         <div class="home-btn" onclick="showAppPage('boiapps')" style="--btn-glow: var(--accent)">
             <div class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
             <div class="btn-label">BOI Apps</div>
+        </div>
+        <div class="home-btn" onclick="showAppPage('boibrowser')" style="--btn-glow: var(--accent)">
+            <div class="btn-icon"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
+            <div class="btn-label">Boi Browser</div>
         </div>
 
     </div>
@@ -1894,6 +1899,18 @@ html, body {
 </div>
 </div><!-- end page-boiapps -->
 
+<!-- ═══════════════════════════════════════════
+     BOI BROWSER PAGE
+═══════════════════════════════════════════ -->
+<div class="app-page" id="page-boibrowser">
+<iframe id="boibrowser-frame"
+    style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+    allow="fullscreen; autoplay; clipboard-write; clipboard-read"
+    allowfullscreen
+></iframe>
+</div><!-- end page-boibrowser -->
+
+
 <!-- BOI Apps fullscreen launcher -->
 <div id="boiapps-launcher">
     <div id="boiapps-launcher-bar">
@@ -2019,8 +2036,11 @@ function showAppPage(name) {
         window._boiappsInited = true;
         if (typeof buildAppsGrid === 'function') buildAppsGrid();
     }
+    // Lazy-load Boi Browser
+    if (name === 'boibrowser' && typeof loadBoiBrowser === 'function') {
+        loadBoiBrowser();
+    }
 }
-
 // Load saved theme
 (function() {
     const saved = localStorage.getItem('daboi_theme') || 'purple';
@@ -2063,6 +2083,14 @@ function showAppPage(name) {
             collapse();
         }
     }, { passive: true });
+
+    // Collapse when focus moves into any iframe (e.g. Boi Browser) —
+    // clicks inside iframes don't bubble to document, so we use window blur
+    window.addEventListener('blur', () => {
+        if (document.visibilityState === 'visible') {
+            collapse();
+        }
+    });
 
     window._hideNav = () => { collapse(); };
 })();
@@ -2937,6 +2965,9 @@ async function loadGame(gameId) {
       #unity-container, #unity-canvas { width: 100% !important; height: 100% !important; }
     </style>
     </body>`);	
+
+    // 8. Replace cdn.jsdelivr with fastly.jsdelivr for faster/unblocked asset delivery
+    html = html.replace(/https:\/\/cdn\.jsdelivr/g, 'https://fastly.jsdelivr');
 
     // ── Write into iframe ──
     // Always replace the iframe element fresh to avoid any stale state
@@ -4259,12 +4290,6 @@ window._miniGetTitle  = () => {
             if (!res.ok) throw new Error('HTTP ' + res.status);
             let html = await res.text();
 
-            // Inject a <base> tag so relative assets resolve against the CDN path
-            const base = app.fileUrl.replace(/[?#].*$/, '').replace(/\/[^/]*$/, '/');
-            if (!/<base\b[^>]*href/i.test(html)) {
-                html = html.replace(/(<head[^>]*>)/i, `$1<base href="${base}">`);
-            }
-
             // Ensure html/body fill the frame
             html = html.replace('</body>', `<style>html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden}</style></body>`);
 
@@ -4291,6 +4316,40 @@ window._miniGetTitle  = () => {
     } else {
         document.addEventListener('DOMContentLoaded', buildAppsGrid);
     }
+})();
+
+
+
+/* ═══════════════════════════════════════════
+   BOI BROWSER
+═══════════════════════════════════════════ */
+(function() {
+    const BOI_BROWSER_URL = 'https://fastly.jsdelivr.net/gh/sussyboi01/tacosfjkaegoijatgoiawiju9roiksre/taci3.html';
+
+    window.loadBoiBrowser = async function() {
+        const frame = document.getElementById('boibrowser-frame');
+        if (!frame) return;
+
+        // Already loaded — don't reload on every tab switch
+        if (frame._boiLoaded) return;
+
+        try {
+            const res = await fetch(BOI_BROWSER_URL);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const html = await res.text();
+            const fixedHtml = html.replace('<head>', '<head><base href="https://fastly.jsdelivr.net/gh/sussyboi01/tacosfjkaegoijatgoiawiju9roiksre/">');
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            doc.open();
+            doc.write(fixedHtml);
+            doc.close();
+            frame._boiLoaded = true;
+        } catch(e) {
+            console.error('Boi Browser load error:', e);
+            // _boiLoaded stays false so next tab switch retries
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', loadBoiBrowser);
 })();
 
 
