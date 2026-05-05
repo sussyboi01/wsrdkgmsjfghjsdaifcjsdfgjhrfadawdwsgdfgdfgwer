@@ -277,6 +277,9 @@ body.nav-game-active .app-page:not(#page-games) {
 /* Kill custom cursor - iframe owns the pointer */
 body.nav-game-active #cursor-dot,
 body.nav-game-active #cursor-img { display: none !important; }
+/* Restore default cursor on body during game so OS cursor is visible inside iframe */
+body.nav-game-active,
+body.nav-game-active * { cursor: default !important; }
 /* Hide mini music player */
 body.nav-game-active #music-mini-player { display: none !important; }
 /* Hide nav wrapper completely */
@@ -1736,7 +1739,7 @@ html, body {
                     </div>
                 </div>
                 <div class="game-iframe-container" id="zoneViewer" style="display:none;">
-                    <iframe id="zoneFrame" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" tabindex="0" sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms allow-modals" allow="fullscreen; autoplay; clipboard-write; accelerometer; gyroscope" importance="high" loading="eager"></iframe>
+                    <iframe id="zoneFrame" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" tabindex="0" sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms allow-modals" allow="fullscreen; autoplay; clipboard-write; accelerometer; gyroscope; pointer-lock" importance="high" loading="eager"></iframe>
                     <div id="focusOverlay"><h2>Click to Resume</h2></div>
                 </div>
             </div>
@@ -3220,7 +3223,7 @@ async function loadGame(gameId) {
     newFrame.id = "zoneFrame";
     newFrame.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;border:none;";
     newFrame.tabIndex = 0;
-    newFrame.setAttribute("allow", "fullscreen; autoplay; clipboard-write; accelerometer; gyroscope");
+    newFrame.setAttribute("allow", "fullscreen; autoplay; clipboard-write; accelerometer; gyroscope; pointer-lock");
     newFrame.setAttribute("importance", "high");
     newFrame.setAttribute("loading", "eager");
     // Performance: dedicated GPU compositing layer
@@ -3324,7 +3327,7 @@ function backToHomepage() {
         freshFrame.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;border:none;transform:translateZ(0);";
         freshFrame.tabIndex = 0;
         freshFrame.setAttribute("sandbox", "allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms");
-        freshFrame.setAttribute("allow", "fullscreen; autoplay; clipboard-write");
+        freshFrame.setAttribute("allow", "fullscreen; autoplay; clipboard-write; pointer-lock");
         container.replaceChild(freshFrame, zoneFrame);
         zoneFrame = freshFrame;
     }
