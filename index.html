@@ -3194,6 +3194,19 @@ async function loadGame(gameId) {
     // Fix Unity hostname check
     html = html.replace(/new URL\(url, location\.origin\)\.hostname/g, '""');
 
+    // ── Rewrite Unity buildUrl variable so asset paths resolve to CDN ──
+    // Unity games set:  var buildUrl = "Build"  (relative path)
+    // Rewrite to absolute CDN path so .js/.wasm/.data loads don't 404
+    html = html.replace(
+        /\b((?:var|let|const)\s+buildUrl\s*=\s*)(["'])(?!https?:|\/\/)([^"']*)\2/g,
+        (_, decl, q, rel) => `${decl}${q}${base}${rel}${q}`
+    );
+    // Also handle bare assignment inside functions:  buildUrl = "Build"
+    html = html.replace(
+        /(?<![a-zA-Z0-9_$])(buildUrl\s*=\s*)(["'])(?!https?:|\/\/)([^"']*)\2/g,
+        (_, assign, q, rel) => `${assign}${q}${base}${rel}${q}`
+    );
+
     // Ensure <base href> as fallback
     if (!/<base\b[^>]*href/i.test(html)) {
         html = html.replace(/(<head[^>]*>)/i, `$1<base href="${base}">`);
@@ -3223,6 +3236,7 @@ async function loadGame(gameId) {
     newFrame.id = "zoneFrame";
     newFrame.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;border:none;";
     newFrame.tabIndex = 0;
+    newFrame.setAttribute("sandbox", "allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms");
     newFrame.setAttribute("allow", "fullscreen; autoplay; clipboard-write; accelerometer; gyroscope; pointer-lock");
     newFrame.setAttribute("importance", "high");
     newFrame.setAttribute("loading", "eager");
