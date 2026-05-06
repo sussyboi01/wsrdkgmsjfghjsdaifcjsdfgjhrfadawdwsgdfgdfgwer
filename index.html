@@ -1554,6 +1554,140 @@ html, body {
     pointer-events: none;
     z-index: 5;
 }
+
+/* ══════════════════════════════════════
+   NEW FEATURE STYLES
+══════════════════════════════════════ */
+
+/* ── 1. Skeleton shimmer ── */
+@keyframes skeletonShimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+.game-card.skeleton {
+    pointer-events: none;
+}
+.game-card.skeleton .skeleton-img {
+    width: 100%; height: 140px;
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--bg-card) 60%, transparent) 25%,
+        color-mix(in srgb, var(--accent) 10%, var(--bg-card)) 50%,
+        color-mix(in srgb, var(--bg-card) 60%, transparent) 75%);
+    background-size: 800px 100%;
+    animation: skeletonShimmer 1.4s ease-in-out infinite;
+}
+.game-card.skeleton .skeleton-line {
+    height: 12px; border-radius: 6px; margin: 8px 12px 4px;
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--bg-card) 60%, transparent) 25%,
+        color-mix(in srgb, var(--accent) 10%, var(--bg-card)) 50%,
+        color-mix(in srgb, var(--bg-card) 60%, transparent) 75%);
+    background-size: 800px 100%;
+    animation: skeletonShimmer 1.4s ease-in-out infinite;
+}
+.game-card.skeleton .skeleton-line.short { width: 50%; margin-left: 25%; }
+
+/* ── 2. YouTube-style top loading bar ── */
+#yt-load-bar {
+    position: absolute;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    z-index: 200;
+    transition: width 0.3s ease, opacity 0.4s ease;
+    pointer-events: none;
+}
+
+/* ── 3. Category pill hover glow ── */
+#page-games .category-item:hover {
+    background: color-mix(in srgb, var(--accent) 15%, var(--bg-card)) !important;
+    color: var(--text-primary) !important;
+}
+#page-games .category-item:hover .category-count {
+    background: color-mix(in srgb, var(--accent) 25%, var(--bg-card));
+    color: var(--accent);
+}
+
+/* ── 3. Film grain overlay ── */
+#film-grain {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.03;
+    contain: strict;
+}
+body.film-grain-off #film-grain { display: none; }
+
+/* ── 5. Game-view favorite button ── */
+#gameFavBtn {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    flex-shrink: 0;
+}
+#gameFavBtn:hover { transform: scale(1.15); }
+#gameFavBtn.active { background: var(--accent); border-color: var(--accent-hover); }
+#gameFavBtn svg { width: 14px; height: 14px; pointer-events: none; }
+
+/* ── 5. Favorites sidebar item ── */
+#page-games .category-item.fav-filter { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 10px; }
+
+/* ── 6. Recently played shelf ── */
+#recentShelf {
+    width: 100%;
+    padding: 0 0 12px;
+}
+#recentShelf .shelf-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 10px; padding: 0 2px;
+}
+#recentShelf .shelf-row {
+    display: flex; gap: 14px;
+    overflow-x: auto; padding-bottom: 6px;
+    -ms-overflow-style: none; scrollbar-width: none;
+}
+#recentShelf .shelf-row::-webkit-scrollbar { display: none; }
+#recentShelf .shelf-card {
+    flex-shrink: 0; width: 130px; cursor: pointer;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--bg-card) 95%, var(--accent) 5%), var(--bg-card));
+    border-radius: 12px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+    will-change: transform;
+}
+#recentShelf .shelf-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(0,0,0,0.5), 0 0 0 1.5px color-mix(in srgb, var(--accent) 80%, transparent), 0 0 28px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+#recentShelf .shelf-card img { width: 100%; height: 90px; object-fit: cover; display: block; background: var(--bg-primary); }
+#recentShelf .shelf-card .shelf-card-icon {
+    width: 100%; height: 90px; display: flex;
+    align-items: center; justify-content: center;
+    background: var(--bg-secondary); color: var(--accent);
+}
+#recentShelf .shelf-card .shelf-card-name {
+    padding: 6px 8px; font-size: 11px; font-weight: 600;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    color: var(--text-primary); line-height: 1.3;
+}
+
+/* ── Continue button ── */
+#continueBtn {
+    display: none; /* shown by JS when recentGames has entries */
+}
+
+/* ── 8. Animations paused class ── */
+body.animations-paused * {
+    animation-play-state: paused !important;
+    transition: none !important;
+}
 </style>
 <body>
 
@@ -1593,6 +1727,15 @@ html, body {
     <div class="orb orb2"></div>
     <div class="orb orb3"></div>
 </div>
+
+<!-- Film grain overlay -->
+<svg id="film-grain" xmlns="http://www.w3.org/2000/svg">
+  <filter id="grain-filter">
+    <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#grain-filter)"/>
+</svg>
 
 <!-- Custom cursor elements -->
 <div id="cursor-dot"></div>
@@ -1724,6 +1867,13 @@ html, body {
             <div class="homepage-view" id="homepageView">
                 <div class="quick-actions">
                     <button id="recentBtn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 15.5"/></svg><span class="nav-btn-label"> Recently Played</span></button>
+                    <button id="continueBtn" style="display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg><span class="nav-btn-label"> Continue: <span id="continueBtnName">...</span></span></button>
+                </div>
+
+                <!-- Recently Played Shelf -->
+                <div id="recentShelf" style="display:none;">
+                    <div class="shelf-label">Continue Playing</div>
+                    <div class="shelf-row" id="recentShelfRow"></div>
                 </div>
 
                 <div class="games-grid" id="gamesGrid"><div class="loading">Loading games...</div></div>
@@ -1734,8 +1884,11 @@ html, body {
                     <button id="reloadBtn">↻ Reload</button>
                     <button id="fullscreenBtn" title="Fullscreen"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg><span class="nav-btn-label"> Fullscreen</span></button>
                     <div id="gameInfoBar" style="display:none;margin-left:auto;align-items:center;gap:8px;overflow:hidden;min-width:0;">
-                        <span id="gameNameLabel" style="font-size:13px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;"></span>
+                        <span id="gameNameLabel" style="font-size:13px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;"></span>
                         <span id="gameSourceBadge" style="font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:20px;background:var(--accent);color:#fff;opacity:0.9;text-transform:uppercase;white-space:nowrap;flex-shrink:0;"></span>
+                        <div id="gameFavBtn" title="Favorite">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </div>
                     </div>
                 </div>
                 <div class="game-iframe-container" id="zoneViewer" style="display:none;">
@@ -1830,7 +1983,18 @@ html, body {
             <label class="toggle-label"><span>Prioritize GN-Math in Search</span>
             <label class="toggle-switch"><input type="checkbox" id="prioritizeGnmath" checked><span class="toggle-slider"></span></label></label>
             <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">When multiple repos have similar results (3+ matching words), show GN-Math first.</div>
-        </div></div>
+        </div>
+        <div class="setting-item">
+            <label class="toggle-label"><span>Film Grain</span>
+            <label class="toggle-switch"><input type="checkbox" id="filmGrainToggle"><span class="toggle-slider"></span></label></label>
+        </div>
+        <div class="setting-item">
+            <label>Data Backup</label>
+            <button id="exportBtn">⬆ Export Full Backup (.json)</button>
+            <button id="importBtn" style="margin-top:6px;">⬇ Import Backup (.json)</button>
+            <input type="file" id="importFileInput" accept=".json" style="display:none;">
+            <div id="importStatusMsg" style="display:none;margin-top:8px;padding:10px;border-radius:8px;font-size:13px;font-weight:600;"></div>
+        </div>
     </div>
 </div>
 <div id="customDialog">
@@ -2674,31 +2838,130 @@ document.getElementById("customDialogCopy").onclick = () => {
     document.execCommand("copy"); showAlert("Copied to clipboard!");
 };
 document.getElementById("exportBtn").onclick = async () => {
-    // Bundle games data + BOITube favs + Shorts favs + Music into one export
-    const fullBackup = {
-        appData: appData,
-        boitubeFavs: await loadData('bw_favorites', []),
-        shortsFavs: await loadData('favshorts', []),
-        musicQueue: await loadData('BOIMUSIC_QUEUE', []),
-        musicPlaylists: await loadData('BOIMUSIC_PLAYLISTS', {}),
-    };
-    const encoded = btoa(JSON.stringify(fullBackup));
-    document.getElementById("customDialogMessage").textContent = "Your Full Backup (includes Games, BOITube favs, Shorts favs, Music)";
-    document.getElementById("customDialogInput").style.display = "none";
-    document.getElementById("customDialogTextarea").style.display = "block";
-    document.getElementById("customDialogTextarea").value = encoded;
-    document.getElementById("customDialogCopy").style.display = "block";
-    document.getElementById("customDialogOk").style.display = "none";
-    document.getElementById("customDialog").classList.add("show");
+    // Collect localStorage
+    const lsData = {};
+    for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        try { lsData[k] = JSON.parse(localStorage.getItem(k)); } catch(e) { lsData[k] = localStorage.getItem(k); }
+    }
+    // Collect indexedDB
+    const idbData = {};
+    try {
+        const dbList = await indexedDB.databases();
+        for (const dbInfo of dbList) {
+            const dbName = dbInfo.name;
+            idbData[dbName] = {};
+            await new Promise((res) => {
+                const req = indexedDB.open(dbName);
+                req.onsuccess = () => {
+                    const db2 = req.result;
+                    const stores = Array.from(db2.objectStoreNames);
+                    if (!stores.length) { db2.close(); res(); return; }
+                    let done = 0;
+                    stores.forEach(storeName => {
+                        idbData[dbName][storeName] = [];
+                        const tx = db2.transaction(storeName, 'readonly');
+                        const store = tx.objectStore(storeName);
+                        store.getAll().onsuccess = (ev) => {
+                            idbData[dbName][storeName] = ev.target.result || [];
+                            done++;
+                            if (done === stores.length) { db2.close(); res(); }
+                        };
+                    });
+                };
+                req.onerror = () => res();
+            });
+        }
+    } catch(e) { console.warn('IDB export error', e); }
+    const fullBackup = { boiboisecurity: true, localStorage: lsData, indexedDB: idbData };
+    const jsonStr = JSON.stringify(fullBackup);
+    const encoded1 = btoa(unescape(encodeURIComponent(jsonStr)));
+    const encoded2 = btoa(encoded1);
+    // Download as file
+    const blob = new Blob([encoded2], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'boibackup.json'; a.click();
+    URL.revokeObjectURL(url);
 };
 document.getElementById("importBtn").onclick = () => {
-    document.getElementById("customDialogMessage").textContent = "Paste Your Backup Data";
-    document.getElementById("customDialogInput").style.display = "none";
-    document.getElementById("customDialogTextarea").style.display = "block";
-    document.getElementById("customDialogTextarea").value = "";
-    document.getElementById("customDialogCopy").style.display = "none";
-    document.getElementById("customDialogOk").style.display = "block";
-    document.getElementById("customDialog").classList.add("show");
+    document.getElementById("importFileInput").click();
+};
+document.getElementById("importFileInput").onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    e.target.value = '';
+    const statusEl = document.getElementById("importStatusMsg");
+    const showStatus = (msg, ok) => {
+        statusEl.textContent = msg;
+        statusEl.style.display = 'block';
+        statusEl.style.background = ok ? 'rgba(68,255,68,0.12)' : 'rgba(255,68,68,0.12)';
+        statusEl.style.color = ok ? '#44ff44' : '#ff4466';
+        statusEl.style.border = '1px solid ' + (ok ? 'rgba(68,255,68,0.3)' : 'rgba(255,68,68,0.3)');
+    };
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+        try {
+            const raw = ev.target.result.trim();
+            // Double-decode
+            const decoded1 = atob(raw);
+            const jsonStr = decodeURIComponent(escape(atob(decoded1)));
+            const parsed = JSON.parse(jsonStr);
+            if (!parsed.boiboisecurity) {
+                showStatus('Import failed — invalid or corrupted backup file.', false);
+                return;
+            }
+            // Restore localStorage
+            if (parsed.localStorage) {
+                for (const [k, v] of Object.entries(parsed.localStorage)) {
+                    try { localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v)); } catch(e) {}
+                }
+            }
+            // Restore indexedDB
+            if (parsed.indexedDB) {
+                for (const [dbName, stores] of Object.entries(parsed.indexedDB)) {
+                    await new Promise((res) => {
+                        const storeNames = Object.keys(stores);
+                        const req = indexedDB.open(dbName, 1);
+                        req.onupgradeneeded = (ev2) => {
+                            const db2 = ev2.target.result;
+                            storeNames.forEach(sn => { if (!db2.objectStoreNames.contains(sn)) db2.createObjectStore(sn, { autoIncrement: true }); });
+                        };
+                        req.onsuccess = () => {
+                            const db2 = req.result;
+                            const existingStores = Array.from(db2.objectStoreNames).filter(s => stores[s]);
+                            if (!existingStores.length) { db2.close(); res(); return; }
+                            let done = 0;
+                            existingStores.forEach(sn => {
+                                const tx = db2.transaction(sn, 'readwrite');
+                                const store = tx.objectStore(sn);
+                                (stores[sn] || []).forEach(record => store.put(record));
+                                tx.oncomplete = () => { done++; if (done === existingStores.length) { db2.close(); res(); } };
+                                tx.onerror = () => { done++; if (done === existingStores.length) { db2.close(); res(); } };
+                            });
+                        };
+                        req.onerror = () => res();
+                    });
+                }
+            }
+            showStatus('Import successful! Settings applied.', true);
+            // Apply settings without reload
+            await loadAppData();
+            const theme = appData.settings.theme || 'purple';
+            applyGlobalTheme(theme);
+            document.getElementById("themeSelect").value = theme;
+            document.getElementById("bgSelect").value = appData.settings.thumbnail || 'kai';
+            document.getElementById("overrideThumbnails").checked = !!appData.settings.overrideThumbnails;
+            document.getElementById("developerMode").checked = !!appData.settings.developerMode;
+            document.getElementById("use24Hour").checked = !!appData.settings.use24Hour;
+            document.getElementById("clockPrecision").value = appData.settings.clockPrecision || 'ms';
+            document.getElementById("prioritizeGnmath").checked = appData.settings.prioritizeGnmath !== false;
+            renderGames(); renderCategories();
+        } catch(err) {
+            showStatus('Import failed — invalid or corrupted backup file.', false);
+        }
+    };
+    reader.readAsText(file);
 };
 let allGamesCache = {};
 
@@ -2722,7 +2985,9 @@ async function fetchWithCDNFallback(url, opts) {
 }
 
 async function fetchGames() {
-    document.getElementById("gamesGrid").innerHTML = '<div class="loading">Loading games...</div>';
+    // ── Show skeleton cards while loading ──
+    const _skeletonHtml = Array(12).fill(0).map(() => `<div class="game-card skeleton"><div class="skeleton-img"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>`).join('');
+    document.getElementById("gamesGrid").innerHTML = _skeletonHtml;
     allGames = []; currentFilter = null;
     try {
         if (currentRepo === "gnmath") {
@@ -2748,6 +3013,7 @@ async function fetchGames() {
         }
         allGamesCache[currentRepo] = allGames;
         renderCategories(); renderGames(); attachCardInteractions();
+        updateContinueBtn(); updateRecentShelf();
         // Defer repo pre-caching until browser is idle
         if ('requestIdleCallback' in window) { requestIdleCallback(() => preloadOtherRepos(), { timeout: 3000 }); } else { setTimeout(preloadOtherRepos, 1500); }
     } catch (err) {
@@ -2963,8 +3229,21 @@ searchInput.onkeydown = (e) => {
 };
 searchInput.onblur = () => setTimeout(() => autocompleteList.classList.remove("open"), 150);
 document.getElementById("sortSelect").onchange = (e) => { currentSort = e.target.value; renderGames(); };
+
+// ── 4. Continue button onclick ──
+document.getElementById("continueBtn").onclick = () => {
+    if (!appData.recentGames || appData.recentGames.length === 0) return;
+    const lastId = appData.recentGames[0];
+    const game = allGames.find(g => g.id.toString() === lastId.toString());
+    if (!game) return;
+    if (game.repo !== currentRepo) {
+        currentRepo = game.repo;
+        document.querySelectorAll("#page-games .repo-btn").forEach(b => b.classList.toggle("active", b.dataset.repo === currentRepo));
+        fetchGames().then(() => loadGame(lastId));
+    } else { loadGame(lastId); }
+};
+
 document.getElementById("recentBtn").onclick = () => {
-    if (appData.recentGames.length === 0) { showAlert("No recently played games yet!"); return; }
     const names = appData.recentGames.slice(0, 10).map(id => { const g = allGames.find(g => g.id.toString() === id.toString()); return g ? `<div class="recommended-game" data-id="${g.id}" style="cursor:pointer">${g.name}</div>` : ""; }).filter(Boolean).join("");
     const msgEl = document.getElementById("customDialogMessage");
     msgEl.innerHTML = `<strong style="color:var(--accent)">Recently Played</strong><div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px">${names}</div>`;
@@ -2999,6 +3278,21 @@ async function loadGame(gameId) {
     if (nameEl) nameEl.textContent = game.name;
     if (badgeEl) badgeEl.textContent = REPOS[game.repo]?.name || game.repo;
     if (infoBar) infoBar.style.display = 'flex';
+    // ── Update game fav button state (Feature 5) ──
+    const _gameFavBtn = document.getElementById('gameFavBtn');
+    if (_gameFavBtn) {
+        const _gfKey = game.repo + ':' + game.id;
+        _gameFavBtn.classList.toggle('active', !!appData.repoFavorites[_gfKey]);
+        _gameFavBtn.title = appData.repoFavorites[_gfKey] ? 'Unfavorite' : 'Favorite';
+        _gameFavBtn._gameId = game.id; _gameFavBtn._gameRepo = game.repo;
+    }
+
+    // ── 2. YouTube-style loading bar ──
+    const _gameView = document.getElementById('gameView');
+    let _ytBar = document.getElementById('yt-load-bar');
+    if (!_ytBar) { _ytBar = document.createElement('div'); _ytBar.id = 'yt-load-bar'; _gameView.appendChild(_ytBar); }
+    _ytBar.style.opacity = '1'; _ytBar.style.width = '0%'; _ytBar.style.transition = 'width 0.3s ease';
+    requestAnimationFrame(() => { _ytBar.style.width = '70%'; _ytBar.style.transition = 'width 2.5s cubic-bezier(0.1,0.05,0,1)'; });
 
     // ── UI: switch to game view, hide top bar ──
     document.getElementById("homepageView").style.display   = "none";
@@ -3025,6 +3319,26 @@ async function loadGame(gameId) {
     // Stop countdown interval
     if (window._countdownInterval) { clearInterval(window._countdownInterval); window._countdownInterval = null; }
     window._gameActive = true;
+
+    // ── 8. Maximum Performance Mode extras ──
+    document.body.classList.add('animations-paused');
+    // Cancel any other RAF loops stored on window
+    ['_rafId','_animRaf','_tickRaf'].forEach(k => { if (window[k]) { cancelAnimationFrame(window[k]); window[k] = null; } });
+    // Also cancel any key ending in Raf or RafId
+    Object.keys(window).forEach(k => { if ((k.endsWith('Raf') || k.endsWith('RafId')) && typeof window[k] === 'number') { cancelAnimationFrame(window[k]); window[k] = null; } });
+    // Disconnect observers
+    if (window._intersectionObs) { try { window._intersectionObs.disconnect(); } catch(e) {} }
+    if (window._resizeObs) { try { window._resizeObs.disconnect(); } catch(e) {} }
+    // Mute host page audio/video
+    document.querySelectorAll('audio, video').forEach(av => { av.muted = true; try { av.pause(); } catch(e) {} });
+    // Block stray mouse events
+    document.body.style.pointerEvents = 'none';
+    // Clear all tracked intervals (except game-critical ones)
+    if (window._allIntervals) {
+        window._savedIntervals = [...window._allIntervals];
+        window._allIntervals.forEach(id => _origClearInterval(id));
+        window._allIntervals = [];
+    }
 
     // ── Build game URL ──
     const gameURL = game.url && game.url.startsWith("http")
@@ -3253,6 +3567,17 @@ async function loadGame(gameId) {
     zoneFrame.contentDocument.write(html);
     zoneFrame.contentDocument.close();
 
+    // ── 2. Snap loading bar to 100% and fade out ──
+    const _ytBarFin = document.getElementById('yt-load-bar');
+    if (_ytBarFin) {
+        _ytBarFin.style.transition = 'width 0.15s ease';
+        _ytBarFin.style.width = '100%';
+        setTimeout(() => { _ytBarFin.style.opacity = '0'; setTimeout(() => { _ytBarFin.style.width = '0%'; _ytBarFin.style.opacity = '1'; }, 400); }, 200);
+    }
+
+    // ── Restore host pointer events to iframe area only ──
+    document.body.style.pointerEvents = 'none'; // keep blocked — game iframe handles input
+
     // Focus and setup overlay after doc is ready
     requestAnimationFrame(() => {
         // Remove loading ring once iframe content starts loading
@@ -3318,9 +3643,30 @@ function setupFocusDetection(iframe) {
 document.getElementById("backBtn").onclick = () => backToHomepage();
 document.getElementById("reloadBtn").onclick = () => { if (currentGame) { loadGame(currentGame); } };
 
+// ── 5. Game-view favorite button ──
+document.getElementById('gameFavBtn').onclick = () => {
+    const btn = document.getElementById('gameFavBtn');
+    const id = btn._gameId, repo = btn._gameRepo || currentRepo;
+    if (!id) return;
+    const favKey = repo + ':' + id;
+    if (appData.repoFavorites[favKey]) { delete appData.repoFavorites[favKey]; btn.classList.remove('active'); btn.title = 'Favorite'; }
+    else { appData.repoFavorites[favKey] = true; btn.classList.add('active'); btn.title = 'Unfavorite'; }
+    saveAppData(); renderCategories();
+};
+
 function backToHomepage() {
     currentGame = null;
     window._gameActive = false;
+
+    // ── 8. Restore all paused/killed features ──
+    document.body.classList.remove('animations-paused');
+    document.body.style.pointerEvents = '';
+    // Unmute host page audio/video
+    document.querySelectorAll('audio, video').forEach(av => { av.muted = false; });
+    // Reconnect observers if they were disconnected
+    if (window._intersectionObs && typeof window._intersectionObs.observe === 'function') { /* reconnected by owner */ }
+    if (window._resizeObs && typeof window._resizeObs.observe === 'function') { /* reconnected by owner */ }
+
     // Restore background timers
     if (!window._clockInterval && typeof startClock === 'function') startClock();
     if (!window._countdownInterval && typeof startCountdown === 'function') startCountdown();
@@ -3370,7 +3716,12 @@ function backToHomepage() {
     if (!window._cursorRafId && typeof window._startCursorRaf === 'function') {
         window._startCursorRaf();
     }
+    // Restart random icon interval for game grid
+    if (document.getElementById('randomCardCover')) renderGames();
     // Restart clock loop (suspended during gameplay) - rAF loop will self-restart
+    // Update recent shelf and continue button
+    updateContinueBtn();
+    updateRecentShelf();
 }
 
 document.getElementById("fullscreenBtn").onclick = () => {
@@ -3471,6 +3822,34 @@ function tickCountdown(now) {
     }
 })();
 
+// ── 8. Interval registry patch (must run early) ──
+window._allIntervals = [];
+const _origSetInterval = window.setInterval;
+const _origClearInterval = window.clearInterval;
+window.setInterval = function(fn, delay, ...args) {
+    const id = _origSetInterval(fn, delay, ...args);
+    window._allIntervals.push(id);
+    return id;
+};
+window.clearInterval = function(id) {
+    window._allIntervals = window._allIntervals.filter(i => i !== id);
+    _origClearInterval(id);
+};
+
+// ── Film grain toggle handler ──
+const _filmGrainToggle = document.getElementById('filmGrainToggle');
+if (_filmGrainToggle) {
+    _filmGrainToggle.onchange = (e) => {
+        document.body.classList.toggle('film-grain-off', !e.target.checked);
+        localStorage.setItem('daboi_film_grain', e.target.checked ? '1' : '0');
+    };
+    // Restore preference
+    const _fg = localStorage.getItem('daboi_film_grain');
+    const _fgOn = _fg === null ? false : _fg === '1';
+    _filmGrainToggle.checked = _fgOn;
+    document.body.classList.toggle('film-grain-off', !_fgOn);
+}
+
 async function initApp() {
     await initDB(); await loadAppData();
     const savedTheme = localStorage.getItem('daboi_theme') || appData.settings.theme || 'purple';
@@ -3482,8 +3861,56 @@ async function initApp() {
     document.getElementById("use24Hour").checked = appData.settings.use24Hour || false;
     document.getElementById("clockPrecision").value = appData.settings.clockPrecision || "ms";
     document.getElementById("prioritizeGnmath").checked = appData.settings.prioritizeGnmath !== false;
+    // Restore film grain
+    const _fg = localStorage.getItem('daboi_film_grain');
+    const _fgOn = _fg === null ? false : _fg === '1';
+    const _fgToggle = document.getElementById('filmGrainToggle');
+    if (_fgToggle) { _fgToggle.checked = _fgOn; document.body.classList.toggle('film-grain-off', !_fgOn); }
     document.getElementById("homepageView").style.display = "block";
     await fetchGames();
+    updateContinueBtn();
+    updateRecentShelf();
+}
+
+// ── 4. Continue Button & 6. Recent Shelf helpers ──
+function updateContinueBtn() {
+    const btn = document.getElementById('continueBtn');
+    const nameEl = document.getElementById('continueBtnName');
+    if (!btn) return;
+    if (!appData.recentGames || appData.recentGames.length === 0) { btn.style.display = 'none'; return; }
+    const lastId = appData.recentGames[0];
+    const game = allGames.find(g => g.id.toString() === lastId.toString());
+    if (!game) { btn.style.display = 'none'; return; }
+    if (nameEl) nameEl.textContent = game.name;
+    btn.style.display = '';
+}
+function updateRecentShelf() {
+    const shelf = document.getElementById('recentShelf');
+    const row = document.getElementById('recentShelfRow');
+    if (!shelf || !row) return;
+    if (!appData.recentGames || appData.recentGames.length === 0) { shelf.style.display = 'none'; return; }
+    const valid = appData.recentGames
+        .map(id => allGames.find(g => g.id.toString() === id.toString()))
+        .filter(Boolean).slice(0, 10);
+    if (valid.length === 0) { shelf.style.display = 'none'; return; }
+    shelf.style.display = '';
+    row.innerHTML = valid.map(game => {
+        const thumbUrl = (game.repo === 'untitled' || game.repo === 'custom') ? null : getThumbnailURL(game);
+        const imgHtml = thumbUrl
+            ? `<img src="${thumbUrl}" alt="${game.name}" loading="lazy" onerror="this.style.display='none';this.nextSibling.style.display='flex'"><div class="shelf-card-icon" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M8 12h1m1 0h1"/><path d="M16 10v2m1-1h-2"/></svg></div>`
+            : `<div class="shelf-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M8 12h1m1 0h1"/><path d="M16 10v2m1-1h-2"/></svg></div>`;
+        return `<div class="shelf-card" data-id="${game.id}" data-repo="${game.repo}">${imgHtml}<div class="shelf-card-name">${game.name}</div></div>`;
+    }).join('');
+    row.querySelectorAll('.shelf-card').forEach(card => {
+        card.onclick = () => {
+            const cRepo = card.dataset.repo;
+            if (cRepo && cRepo !== currentRepo) {
+                currentRepo = cRepo;
+                document.querySelectorAll("#page-games .repo-btn").forEach(b => b.classList.toggle("active", b.dataset.repo === currentRepo));
+                fetchGames().then(() => loadGame(card.dataset.id));
+            } else { loadGame(card.dataset.id); }
+        };
+    });
 }
 
 
