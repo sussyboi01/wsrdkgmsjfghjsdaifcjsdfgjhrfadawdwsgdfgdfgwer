@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1495,6 +1494,46 @@ document.getElementById("customDialogOk").style.display = "none";
 document.getElementById("customDialog").classList.add("show");
 setTimeout(() => { document.querySelectorAll("#customDialogMessage .recommended-game").forEach(el => { el.onclick = () => { document.getElementById("customDialog").classList.remove("show"); loadGame(el.dataset.id); }; }); }, 0);
 };
+function openZone(file) {
+    if (file.url.startsWith("http")) {
+        window.open(file.url, "_blank");
+    } else {
+        const resolvedUrl = file.url
+            .replace("{COVER_URL}", COVERS_CDN)
+            .replace("{HTML_URL}", HTML_URL);
+
+        const syntheticId = "__zone__" + file.id;
+        if (!allGames.find(g => g.id.toString() === syntheticId)) {
+            allGames.push({
+                id: syntheticId,
+                name: file.name || file.id,
+                author: file.author || "",
+                url: resolvedUrl,
+                repo: "custom"
+            });
+        }
+
+        // Update zone metadata display if those elements exist
+        const zoneNameEl = document.getElementById('zoneName');
+        const zoneIdEl = document.getElementById('zoneId');
+        const zoneAuthorEl = document.getElementById('zoneAuthor');
+        if (zoneNameEl) zoneNameEl.textContent = file.name;
+        if (zoneIdEl) zoneIdEl.textContent = file.id;
+        if (zoneAuthorEl) {
+            zoneAuthorEl.textContent = "by " + (file.author || "");
+            if (file.authorLink) zoneAuthorEl.href = file.authorLink;
+        }
+
+        try {
+            const url = new URL(window.location);
+            url.searchParams.set('id', file.id);
+            history.pushState(null, '', url.toString());
+        } catch(e) {}
+
+        loadGame(syntheticId);
+    }
+}
+
 async function loadGame(gameId) {
 gameId = gameId.toString();
 currentGame = gameId;
