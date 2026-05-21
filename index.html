@@ -1494,46 +1494,6 @@ document.getElementById("customDialogOk").style.display = "none";
 document.getElementById("customDialog").classList.add("show");
 setTimeout(() => { document.querySelectorAll("#customDialogMessage .recommended-game").forEach(el => { el.onclick = () => { document.getElementById("customDialog").classList.remove("show"); loadGame(el.dataset.id); }; }); }, 0);
 };
-function openZone(file) {
-    if (file.url.startsWith("http")) {
-        window.open(file.url, "_blank");
-    } else {
-        const resolvedUrl = file.url
-            .replace("{COVER_URL}", COVERS_CDN)
-            .replace("{HTML_URL}", HTML_URL);
-
-        const syntheticId = "__zone__" + file.id;
-        if (!allGames.find(g => g.id.toString() === syntheticId)) {
-            allGames.push({
-                id: syntheticId,
-                name: file.name || file.id,
-                author: file.author || "",
-                url: resolvedUrl,
-                repo: "custom"
-            });
-        }
-
-        // Update zone metadata display if those elements exist
-        const zoneNameEl = document.getElementById('zoneName');
-        const zoneIdEl = document.getElementById('zoneId');
-        const zoneAuthorEl = document.getElementById('zoneAuthor');
-        if (zoneNameEl) zoneNameEl.textContent = file.name;
-        if (zoneIdEl) zoneIdEl.textContent = file.id;
-        if (zoneAuthorEl) {
-            zoneAuthorEl.textContent = "by " + (file.author || "");
-            if (file.authorLink) zoneAuthorEl.href = file.authorLink;
-        }
-
-        try {
-            const url = new URL(window.location);
-            url.searchParams.set('id', file.id);
-            history.pushState(null, '', url.toString());
-        } catch(e) {}
-
-        loadGame(syntheticId);
-    }
-}
-
 async function loadGame(gameId) {
 gameId = gameId.toString();
 currentGame = gameId;
@@ -1688,7 +1648,31 @@ return isAdInjector ? '' : match;
 });
 
 // 4b. Remove sidebar ad CSS block
-html = html.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi,(match,body) =>{const isAdStyle = ( body.includes('#sidebarad1') || body.includes('#sidebarad2') || body.includes('sidebar-frame') );return isAdStyle ? '':match});// 5. Strip target="_blank" and target='_blank' from all anchor/form tags // so games cannot force links to open in a new tab html = html.replace(/\s+target\s*=\s*["']_blank["']/gi,'');// 6. Neutralise window.open() calls in inline scripts so ads/popups can't open new tabs. // Replace with a no-op function that returns null. html = html.replace(/<script\b(?![^>]*\bsrc\s*=)[^>]*>[\s\S]*?<\/script>/gi,(match) =>{return match.replace(/\bwindow\.open\s*\(/g,'__noop__(')});// Games often call fetch() without specifying mode,which defaults to 'no-cors' in some // contexts and gets blocked. This forces mode:'cors' and credentials:'omit' on all requests. // 8. Replace cdn.jsdelivr with fastly.jsdelivr for faster/unblocked asset delivery // Replace cdn.jsdelivr with fastly;the injected cdnFallbackScript handles runtime gcore fallback html = html.replace(/https:\/\/cdn\.jsdelivr/g,'https://fastly.jsdelivr');// 9. CDN fallback script:if fastly.jsdelivr fetch fails,retry with gcore.jsdelivr // MUST be declared before corsFixScript so it's ready when injected into <head>. // Single combined script:CDN fallback (fastly→gcore)+CORS defaults const injectedScript = '<script>'+'(function(){'+// Phase 1:replace fetch with CDN+CORS aware version 'var _raw=window.fetch;'+'window.fetch=function(url,opts){'+'opts=Object.assign({mode:"cors",credentials:"omit"},opts||{});'+'if(typeof url==="string"&&(url.includes("fastly.jsdelivr")||url.includes("cdn.jsdelivr"))){'+'var fu=url.replace("cdn.jsdelivr","fastly.jsdelivr");'+'return _raw(fu,opts).then(function(r){if(!r.ok)throw new Error("cdn-"+r.status);return r})'+'.catch(function(){'+'var gu=fu.replace("fastly.jsdelivr","gcore.jsdelivr");'+'return _raw(gu,opts).then(function(r){if(!r.ok)throw new Error("cdn-gcore-"+r.status);return r});'+'});'+'}'+'return _raw(url,opts);'+'};'+// Phase 2:XHR CORS defaults 'var _open=XMLHttpRequest.prototype.open;'+'XMLHttpRequest.prototype.open=function(m,u,a,us,pw){'+'this.crossOrigin="anonymous";'+'return _open.apply(this,arguments);'+'};'+'window.__noop__=function(){return null};'+// Phase 3:performance boosts inside the game frame // Disable console spam which can slow games 'if(!window.__perfPatched){window.__perfPatched=true;'+// Hint browser this document is high-priority 'if(document.visibilityState!==undefined){Object.defineProperty(document,"visibilityState",{get:function(){return"visible"},configurable:true})}'+'if(document.hidden!==undefined){Object.defineProperty(document,"hidden",{get:function(){return false},configurable:true})}'+// Prevent visibilitychange from throttling RAF inside game 'document.addEventListener("visibilitychange",function(e){e.stopImmediatePropagation()},{capture:true});'+'}'+'})();'+'<\/script>';html = html.replace(/(<head[^>]*>)/i,'$1'+injectedScript);// ── Fix relative URLs so assets load from CDN ── // Rewrite src/href attributes (skip absolute URLs,data:,blob:,javascript:,#) const parts = html.split(/(<script[\s\S]*?<\/script>)/gi);html = parts.map(part =>{if (/^<script\b(?![^>]*\bsrc\s*=)/i.test(part)) return part;// skip inline scripts return part.replace( /\b(href|src)=(["'])(?!https?:|\/\/|data:|blob:|javascript:|#)([^"']*)\2/gi,(_,attr,q,rel) =>`${attr}=${q}${base}${rel}${q}` )}).join('');// Fix Unity hostname check html = html.replace(/new URL\(url,location\.origin\)\.hostname/g,'""');// ── Rewrite Unity buildUrl variable so asset paths resolve to CDN ── // Unity games set:var buildUrl = "Build" (relative path) // Rewrite to absolute CDN path so .js/.wasm/.data loads don't 404 html = html.replace( /\b((?:var|let|const)\s+buildUrl\s*=\s*)(["'])(?!https?:|\/\/)([^"']*)\2/g,(_,decl,q,rel) =>`${decl}${q}${base}${rel}${q}` );// Also handle bare assignment inside functions:buildUrl = "Build" html = html.replace( /(?<![a-zA-Z0-9_$])(buildUrl\s*=\s*)(["'])(?!https?:|\/\/)([^"']*)\2/g,(_,assign,q,rel) =>`${assign}${q}${base}${rel}${q}` );// Ensure <base href>as fallback if (!/<base\b[^>]*href/i.test(html)){html = html.replace(/(<head[^>]*>)/i,`$1<base href="${base}">`)}html = html.replace('<\/body>','<'+'style>html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden}#unity-container,#unity-canvas{width:100%!important;height:100%!important}canvas{transform:translateZ(0);backface-visibility:hidden;image-rendering:auto}iframe[src*=\'ads\'],iframe[src*=\'doubleclick\'],div[id*=\'ad-\'],div[class*=\'ad-banner\']{display:none!important}<'+'/style><'+'/body>');
+html = html.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi,(match,body) =>{const isAdStyle = ( body.includes('#sidebarad1') || body.includes('#sidebarad2') || body.includes('sidebar-frame') );return isAdStyle ? '':match});// 5. Strip target="_blank" and target='_blank' from all anchor/form tags // so games cannot force links to open in a new tab html = html.replace(/\s+target\s*=\s*["']_blank["']/gi,'');// 6. Neutralise window.open() calls in inline scripts so ads/popups can't open new tabs. // Replace with a no-op function that returns null. html = html.replace(/<script\b(?![^>]*\bsrc\s*=)[^>]*>[\s\S]*?<\/script>/gi,(match) =>{return match.replace(/\bwindow\.open\s*\(/g,'__noop__(')});// Games often call fetch() without specifying mode,which defaults to 'no-cors' in some // contexts and gets blocked. This forces mode:'cors' and credentials:'omit' on all requests. // 8. Scan for cdn.jsdelivr links/scripts, rewrite to fastly and fetch.
+//    <link rel="stylesheet"> tags are fetched from fastly and inlined as <style> blocks.
+//    <script src> tags have their URL rewritten to fastly in-place.
+//    Finally, catch-all rewrite for any remaining cdn.jsdelivr references.
+const cdnLinkRx = /<link\b([^>]*\bhref=(["'])(https?:\/\/cdn\.jsdelivr[^"']*)\2[^>]*)>/gi;
+const cdnLinkFound = [...html.matchAll(cdnLinkRx)];
+for (const m of cdnLinkFound) {
+    const fullTag = m[0], attrs = m[1], url = m[3];
+    const fastlyUrl = url.replace('cdn.jsdelivr', 'fastly.jsdelivr');
+    const isStylesheet = /rel=(["'])stylesheet\1/i.test(attrs) || /rel=stylesheet/i.test(attrs);
+    if (isStylesheet) {
+        try {
+            const res = await fetch(fastlyUrl);
+            if (res.ok) {
+                const css = await res.text();
+                html = html.replace(fullTag, `<style>/* ${fastlyUrl} */\n${css}</style>`);
+            } else { html = html.replace(url, fastlyUrl); }
+        } catch(e) { html = html.replace(url, fastlyUrl); }
+    } else { html = html.replace(url, fastlyUrl); }
+}
+const cdnScriptRx = /<script\b([^>]*\bsrc=(["'])(https?:\/\/cdn\.jsdelivr[^"']*)\2[^>]*)>/gi;
+for (const m of [...html.matchAll(cdnScriptRx)]) {
+    html = html.replace(m[3], m[3].replace('cdn.jsdelivr', 'fastly.jsdelivr'));
+}
+html = html.replace(/https:\/\/cdn\.jsdelivr/g, 'https://fastly.jsdelivr');// 9. CDN fallback script:if fastly.jsdelivr fetch fails,retry with gcore.jsdelivr // MUST be declared before corsFixScript so it's ready when injected into <head>. // Single combined script:CDN fallback (fastly→gcore)+CORS defaults const injectedScript = '<script>'+'(function(){'+// Phase 1:replace fetch with CDN+CORS aware version 'var _raw=window.fetch;'+'window.fetch=function(url,opts){'+'opts=Object.assign({mode:"cors",credentials:"omit"},opts||{});'+'if(typeof url==="string"&&(url.includes("fastly.jsdelivr")||url.includes("cdn.jsdelivr"))){'+'var fu=url.replace("cdn.jsdelivr","fastly.jsdelivr");'+'return _raw(fu,opts).then(function(r){if(!r.ok)throw new Error("cdn-"+r.status);return r})'+'.catch(function(){'+'var gu=fu.replace("fastly.jsdelivr","gcore.jsdelivr");'+'return _raw(gu,opts).then(function(r){if(!r.ok)throw new Error("cdn-gcore-"+r.status);return r});'+'});'+'}'+'return _raw(url,opts);'+'};'+// Phase 2:XHR CORS defaults 'var _open=XMLHttpRequest.prototype.open;'+'XMLHttpRequest.prototype.open=function(m,u,a,us,pw){'+'this.crossOrigin="anonymous";'+'return _open.apply(this,arguments);'+'};'+'window.__noop__=function(){return null};'+// Phase 3:performance boosts inside the game frame // Disable console spam which can slow games 'if(!window.__perfPatched){window.__perfPatched=true;'+// Hint browser this document is high-priority 'if(document.visibilityState!==undefined){Object.defineProperty(document,"visibilityState",{get:function(){return"visible"},configurable:true})}'+'if(document.hidden!==undefined){Object.defineProperty(document,"hidden",{get:function(){return false},configurable:true})}'+// Prevent visibilitychange from throttling RAF inside game 'document.addEventListener("visibilitychange",function(e){e.stopImmediatePropagation()},{capture:true});'+'}'+'})();'+'<\/script>';html = html.replace(/(<head[^>]*>)/i,'$1'+injectedScript);// ── Fix relative URLs so assets load from CDN ── // Rewrite src/href attributes (skip absolute URLs,data:,blob:,javascript:,#) const parts = html.split(/(<script[\s\S]*?<\/script>)/gi);html = parts.map(part =>{if (/^<script\b(?![^>]*\bsrc\s*=)/i.test(part)) return part;// skip inline scripts return part.replace( /\b(href|src)=(["'])(?!https?:|\/\/|data:|blob:|javascript:|#)([^"']*)\2/gi,(_,attr,q,rel) =>`${attr}=${q}${base}${rel}${q}` )}).join('');// Fix Unity hostname check html = html.replace(/new URL\(url,location\.origin\)\.hostname/g,'""');// ── Rewrite Unity buildUrl variable so asset paths resolve to CDN ── // Unity games set:var buildUrl = "Build" (relative path) // Rewrite to absolute CDN path so .js/.wasm/.data loads don't 404 html = html.replace( /\b((?:var|let|const)\s+buildUrl\s*=\s*)(["'])(?!https?:|\/\/)([^"']*)\2/g,(_,decl,q,rel) =>`${decl}${q}${base}${rel}${q}` );// Also handle bare assignment inside functions:buildUrl = "Build" html = html.replace( /(?<![a-zA-Z0-9_$])(buildUrl\s*=\s*)(["'])(?!https?:|\/\/)([^"']*)\2/g,(_,assign,q,rel) =>`${assign}${q}${base}${rel}${q}` );// Ensure <base href>as fallback if (!/<base\b[^>]*href/i.test(html)){html = html.replace(/(<head[^>]*>)/i,`$1<base href="${base}">`)}html = html.replace('<\/body>','<'+'style>html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden}#unity-container,#unity-canvas{width:100%!important;height:100%!important}canvas{transform:translateZ(0);backface-visibility:hidden;image-rendering:auto}iframe[src*=\'ads\'],iframe[src*=\'doubleclick\'],div[id*=\'ad-\'],div[class*=\'ad-banner\']{display:none!important}<'+'/style><'+'/body>');
 
 // ── Write into iframe ──
 // Show brief loading ring
